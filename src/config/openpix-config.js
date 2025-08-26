@@ -1,16 +1,20 @@
 /**
  * Configuração OpenPix para INTERBØX 2025
- * Credenciais e configurações da API OpenPix
+ * Credenciais e configurações da API OpenPix/Woovi
+ * ⚠️ IMPORTANTE: Todas as credenciais devem estar em variáveis de ambiente
  */
 
-// 🔑 CREDENCIAIS PRINCIPAIS (ClickPix/Woovi)
-const OPENPIX_API_KEY = process.env.OPENPIX_API_KEY || 'd14a8e82-1ab7-4dee-a1a5-6d86c3781ccb';
-const OPENPIX_CORP_ID = process.env.OPENPIX_CORP_ID || 'd14a8e82-1ab7-4dee-a1a5-6d86c3781ccb';
-const OPENPIX_WEBHOOK_TOKEN = process.env.OPENPIX_WEBHOOK_TOKEN || 'webhook_interbox_2025_secure';
+// 🔑 CREDENCIAIS PRINCIPAIS (OpenPix/Woovi)
+// ⚠️ NUNCA coloque credenciais reais aqui - use apenas variáveis de ambiente
+const OPENPIX_API_KEY = process.env.OPENPIX_API_KEY;
+const OPENPIX_APP_ID = process.env.OPENPIX_APP_ID;
+const OPENPIX_CLIENT_ID = process.env.OPENPIX_CLIENT_ID;
+const OPENPIX_CORP_ID = process.env.OPENPIX_CORP_ID;
+const OPENPIX_WEBHOOK_TOKEN = process.env.OPENPIX_WEBHOOK_TOKEN;
 
 // 🌐 URLs da API WOOVI (OPENPIX)
-const API_BASE_URL = 'https://api.woovi.com';
-const WEBHOOK_URL = process.env.WEBHOOK_URL || 'https://interbox-captacao.netlify.app/webhook';
+const API_BASE_URL = process.env.API_BASE_URL || 'https://api.woovi.com';
+const WEBHOOK_URL = process.env.WEBHOOK_URL || 'https://interbox-captacao.netlify.app/.netlify/functions/webhook';
 
 // 📊 Configurações de pagamento por tipo
 const PAYMENT_CONFIGS = {
@@ -43,6 +47,11 @@ const PAYMENT_CONFIGS = {
 
 // 🔧 Funções utilitárias baseadas na documentação oficial WOOVI
 const createCharge = async (paymentData) => {
+  // ⚠️ Verificar se as credenciais estão configuradas
+  if (!OPENPIX_API_KEY) {
+    throw new Error('OPENPIX_API_KEY não configurada');
+  }
+
   try {
     const response = await fetch(`${API_BASE_URL}/api/v1/charge`, {
       method: 'POST',
@@ -67,6 +76,11 @@ const createCharge = async (paymentData) => {
 };
 
 const getChargeStatus = async (chargeId) => {
+  // ⚠️ Verificar se as credenciais estão configuradas
+  if (!OPENPIX_API_KEY) {
+    throw new Error('OPENPIX_API_KEY não configurada');
+  }
+
   try {
     const response = await fetch(`${API_BASE_URL}/api/v1/charge/${chargeId}`, {
       method: 'GET',
@@ -90,6 +104,8 @@ const getChargeStatus = async (chargeId) => {
 // 📤 Exportar configurações
 export {
   OPENPIX_API_KEY,
+  OPENPIX_APP_ID,
+  OPENPIX_CLIENT_ID,
   OPENPIX_CORP_ID,
   OPENPIX_WEBHOOK_TOKEN,
   API_BASE_URL,
