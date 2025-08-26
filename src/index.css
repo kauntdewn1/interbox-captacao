@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Estilos customizados para INTERBØX */
+@layer base {
+  body {
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer components {
+  /* Componentes customizados podem ser adicionados aqui */
+}
