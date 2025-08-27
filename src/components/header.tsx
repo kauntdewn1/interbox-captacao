@@ -7,7 +7,7 @@ export default function Header() {
             <h1 className="text-2xl font-bold bg-gradient-to-r from-pink-400 to-purple-500 bg-clip-text text-transparent">
               INTERBØX
             </h1>
-            <span className="text-sm text-gray-400">Captação</span>
+            <span className="text-sm text-gray-400">TEAM INTERBØX - Processo Seletivo 2025</span>
           </div>
           
           <nav className="hidden md:flex items-center space-x-6">

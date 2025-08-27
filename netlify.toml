@@ -3,6 +3,12 @@
   command = "npm run build"
 
 [[redirects]]
+  from = "/webhook"
+  to = "/.netlify/functions/webhook"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
@@ -14,6 +20,14 @@
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
+
+# Variáveis de ambiente para as Functions
+[functions.environment]
+  OPENPIX_API_KEY = "Q2xpZW50X0lkX2VhNGNhZGYzLTM0N2YtNDEwYi04MDY0LTQ1MmY3ZTgwYjA4MjpDbGllbnRfU2VjcmV0X2ZLMkk1WFpWam9sd1FKcTMwYXJNdUZ5Qk5ZcG5Md0RwSjljcWdidTJhTWs9"
+  OPENPIX_CORP_ID = "d14a8e82-1ab7-4dee-a1a5-6d86c3781ccb"
+  API_BASE_URL = "https://api.woovi.com"
+  WEBHOOK_URL = "https://interbox-captacao.netlify.app/webhook"
+  ADMIN_API_KEY = "interbox2025"
 
 # Headers de segurança
 [[headers]]

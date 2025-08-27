@@ -28,11 +28,28 @@ const createOpenPixCharge = async (paymentData) => {
   const apiKey = process.env.OPENPIX_API_KEY;
   const apiUrl = process.env.API_BASE_URL || 'https://api.woovi.com';
   
+  
+  
   if (!apiKey) {
     throw new Error('OPENPIX_API_KEY não configurada');
   }
 
   try {
+    // Estrutura correta conforme documentação Woovi
+    const chargeData = {
+      correlationID: paymentData.correlationID,
+      value: paymentData.value,
+      comment: paymentData.comment,
+      customer: paymentData.customer,
+      additionalInfo: paymentData.additionalInfo
+    };
+
+    console.log('🔑 Tentando criar charge via Woovi API:', {
+      url: `${apiUrl}/api/v1/charge`,
+      apiKey: apiKey ? 'Configurada' : 'NÃO CONFIGURADA',
+      data: chargeData
+    });
+
     const response = await fetch(`${apiUrl}/api/v1/charge`, {
       method: 'POST',
       headers: {
@@ -40,7 +57,7 @@ const createOpenPixCharge = async (paymentData) => {
         'Authorization': apiKey,
         'Accept': 'application/json'
       },
-      body: JSON.stringify(paymentData)
+      body: JSON.stringify(chargeData)
     });
 
     if (!response.ok) {
@@ -55,34 +72,7 @@ const createOpenPixCharge = async (paymentData) => {
   }
 };
 
-// 🔧 Função para gerar dados de pagamento de emergência (fallback)
-const generateFallbackPayment = (type, customerData) => {
-  const config = PAYMENT_CONFIGS[type];
-  if (!config) {
-    throw new Error(`Tipo de pagamento inválido: ${type}`);
-  }
 
-  const correlationID = `interbox_${type}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  
-  return {
-    success: true,
-    charge: {
-      correlationID,
-      value: config.amount,
-      comment: config.comment,
-      status: 'ACTIVE',
-      qrCode: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${correlationID}`,
-      pixCopyPaste: `00020126580014br.gov.bcb.pix0136${correlationID}520400005303986540599.905802BR5913INTERBØX 20256002BR62070503***6304${correlationID.slice(-4)}`,
-      expiresIn: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 horas
-      createdAt: new Date().toISOString(),
-      customer: customerData
-    },
-    qrCode: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${correlationID}`,
-    pixCopyPaste: `00020126580014br.gov.bcb.pix0136${correlationID}520400005303986540599.905802BR5913INTERBØX 20256002BR62070503***6304${correlationID.slice(-4)}`,
-    fallback: true,
-    message: 'Pagamento processado com sucesso'
-  };
-};
 
 // 🚀 Handler principal da Netlify Function
 exports.handler = async (event, context) => {
@@ -185,15 +175,16 @@ exports.handler = async (event, context) => {
         })
       };
     } catch (apiError) {
-      console.warn('Erro na API OpenPix, usando modo fallback:', apiError.message);
-      
-              // Fallback: gerar pagamento de emergência
-      const fallbackPayment = generateFallbackPayment(type, customerData);
+      console.error('❌ Erro na API OpenPix:', apiError.message);
       
       return {
-        statusCode: 200,
+        statusCode: 500,
         headers,
-        body: JSON.stringify(fallbackPayment)
+        body: JSON.stringify({
+          success: false,
+          error: 'Erro na API OpenPix',
+          message: apiError.message
+        })
       };
     }
 

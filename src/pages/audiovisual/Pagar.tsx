@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import Header from '../../components/header';
-import Footer from '../../components/Footer';
+import Footer from '../../components/Footer'; 
 import SEOHead from '../../components/SEOHead';
 import CheckoutCard from '../../components/CheckoutCard';
 import { useAnalytics } from '../../hooks/useAnalytics';

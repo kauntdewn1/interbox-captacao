@@ -13,6 +13,8 @@ const checkOpenPixCharge = async (chargeId) => {
   }
 
   try {
+
+
     const response = await fetch(`${apiUrl}/api/v1/charge/${chargeId}`, {
       method: 'GET',
       headers: {
@@ -32,28 +34,7 @@ const checkOpenPixCharge = async (chargeId) => {
   }
 };
 
-// 🔧 Função para gerar status de emergência (fallback)
-const generateFallbackStatus = (chargeId) => {
-  // Gerar status baseado no ID
-  const statuses = ['ACTIVE', 'COMPLETED', 'EXPIRED'];
-  const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
-  
-  return {
-    success: true,
-    charge: {
-      correlationID: chargeId,
-      status: randomStatus,
-      paid: randomStatus === 'COMPLETED',
-      value: 1990, // Valor padrão
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    },
-    status: randomStatus,
-    paid: randomStatus === 'COMPLETED',
-    fallback: true,
-    message: 'Status verificado com sucesso'
-  };
-};
+
 
 // 🚀 Handler principal da Netlify Function
 exports.handler = async (event, context) => {
@@ -114,15 +95,16 @@ exports.handler = async (event, context) => {
         })
       };
     } catch (apiError) {
-      console.warn('Erro na API OpenPix, usando modo fallback:', apiError.message);
-      
-              // Fallback: gerar status de emergência
-      const fallbackStatus = generateFallbackStatus(chargeId);
+      console.error('❌ Erro na API OpenPix:', apiError.message);
       
       return {
-        statusCode: 200,
+        statusCode: 500,
         headers,
-        body: JSON.stringify(fallbackStatus)
+        body: JSON.stringify({
+          success: false,
+          error: 'Erro na API OpenPix',
+          message: apiError.message
+        })
       };
     }
 
