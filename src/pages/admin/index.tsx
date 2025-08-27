@@ -11,6 +11,8 @@ interface Inscricao {
   status: string;
   data_criacao: string;
   data_confirmacao?: string;
+  correlationID?: string;
+  charge_id?: string;
 }
 interface Estatisticas {
   total_inscricoes: number;
@@ -49,19 +51,43 @@ export default function AdminDashboard() {
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      // Carregar inscrições
-      const inscricoesResponse = await fetch(`${ADMIN_API_BASE}/inscricoes?${new URLSearchParams(filtros)}`);
-      if (inscricoesResponse.ok) {
-        const inscricoesData = await inscricoesResponse.json();
-        setInscricoes(inscricoesData.data || []);
+      // 🆕 PRIMEIRO: Carregar dados do localStorage
+      const inscricoesLocal = JSON.parse(localStorage.getItem('interbox_inscricoes') || '[]');
+      console.log('📱 Dados locais carregados:', inscricoesLocal);
+      
+      // 🆕 SEGUNDO: Tentar sincronizar com servidor (se disponível)
+      try {
+        const inscricoesResponse = await fetch(`${ADMIN_API_BASE}/inscricoes?${new URLSearchParams(filtros)}`);
+        if (inscricoesResponse.ok) {
+          const inscricoesData = await inscricoesResponse.json();
+          console.log('🌐 Dados do servidor:', inscricoesData.data || []);
+          
+          // Combinar dados locais e do servidor
+          const todasInscricoes = [...inscricoesLocal, ...(inscricoesData.data || [])];
+          setInscricoes(todasInscricoes);
+        } else {
+          // Se servidor não estiver disponível, usar apenas dados locais
+          setInscricoes(inscricoesLocal);
+        }
+      } catch {
+        console.log('⚠️ Servidor não disponível, usando dados locais');
+        setInscricoes(inscricoesLocal);
       }
 
-      // Carregar estatísticas
-      const statsResponse = await fetch(`${ADMIN_API_BASE}/estatisticas`);
-      if (statsResponse.ok) {
-        const statsData = await statsResponse.json();
-        setEstatisticas(statsData.data);
-      }
+      // 🆕 Calcular estatísticas dos dados locais
+      const stats = {
+        total_inscricoes: inscricoesLocal.length,
+        tipos: {
+          judge: inscricoesLocal.filter((i: Inscricao) => i.tipo === 'judge').length,
+          audiovisual: inscricoesLocal.filter((i: Inscricao) => i.tipo === 'audiovisual').length,
+          staff: inscricoesLocal.filter((i: Inscricao) => i.tipo === 'staff').length
+        },
+        valor_total: inscricoesLocal.reduce((total: number, i: Inscricao) => total + i.valor, 0),
+        inscricoes_por_mes: {} // Campo obrigatório da interface
+      };
+      
+      setEstatisticas(stats);
+      
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
     } finally {

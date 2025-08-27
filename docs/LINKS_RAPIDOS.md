@@ -65,6 +65,41 @@ Olá! As inscrições para o INTERBØX 2025 estão abertas!
 Não perca essa oportunidade! 🏆
 ```
 
+### **LinkedIn (Profissional)**
+```
+🏆 INTERBØX 2025 - Oportunidades Profissionais
+
+Estamos recrutando para o maior evento fitness de times da América Latina:
+
+⚖️ JUDGE - Avaliação técnica e fair play
+👥 STAFF - Operação e logística do evento
+🎬 AUDIOVISUAL - Cobertura oficial
+
+💰 Investimento a partir de R$ 19,90
+🌟 Networking com profissionais do setor
+📈 Desenvolvimento de carreira
+
+🔗 Inscreva-se: https://interbox-captacao.netlify.app/
+
+#EventosFitness #Networking #DesenvolvimentoProfissional #INTERBØX2025
+```
+
+### **TikTok/Reels**
+```
+🏆 INTERBØX 2025 - Você pode participar!
+
+🎯 Escolha seu papel:
+⚖️ JUDGE - R$ 19,90
+👥 STAFF - R$ 19,90
+🎬 AUDIOVISUAL - R$ 29,90
+
+💪 Maior evento fitness da América Latina
+🌟 Faça parte da história!
+
+🔗 Link na bio
+#INTERBØX2025 #FitnessBrasil #EventosFitness
+```
+
 ---
 
 ## 🔐 **ADMIN (RESTRITO)**

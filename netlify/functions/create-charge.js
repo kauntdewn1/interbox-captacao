@@ -140,7 +140,7 @@ exports.handler = async (event, context) => {
         name: customerData.name,
         email: customerData.email,
         phone: customerData.phone || '',
-        taxID: customerData.cpf || ''
+        taxID: customerData.cpf ? customerData.cpf.replace(/\D/g, '') : '' // Remove caracteres não numéricos do CPF
       },
       additionalInfo: [
         {
@@ -161,6 +161,29 @@ exports.handler = async (event, context) => {
     try {
       // Tentar criar charge via OpenPix/Woovi
       const charge = await createOpenPixCharge(chargeData);
+      
+      // 🆕 SALVAR INSCRIÇÃO NO BANCO DE DADOS
+      try {
+        const inscricaoData = {
+          nome: customerData.name,
+          email: customerData.email,
+          whatsapp: customerData.phone,
+          cpf: customerData.cpf,
+          tipo: type,
+          valor: config.amount,
+          correlationID: chargeData.correlationID,
+          status: 'pendente',
+          charge_id: charge.identifier || charge.correlationID,
+          data_criacao: new Date().toISOString()
+        };
+        
+        console.log('✅ Dados da inscrição capturados:', inscricaoData);
+        console.log('📝 Para salvar no banco, use o webhook quando o pagamento for confirmado');
+        
+      } catch (dbError) {
+        console.error('❌ Erro ao processar dados da inscrição:', dbError);
+        // Não falhar o pagamento por erro no processamento
+      }
       
       return {
         statusCode: 200,

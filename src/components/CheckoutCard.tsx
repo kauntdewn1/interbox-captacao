@@ -136,21 +136,30 @@ export default function CheckoutCard({
       if (data.success) {
         // Normalizar resposta das Netlify Functions
         const charge = data.charge;
+        
+        console.log('🔍 Dados brutos da API:', data);
+        console.log('🔍 Charge object:', charge);
+        
+        // 🆕 CORREÇÃO: Mapear corretamente os campos aninhados
         const normalizedData: ChargeResponse = {
           identifier: charge.correlationID,
           id: charge.correlationID,
           correlationID: charge.correlationID,
-          status: charge.status,
-          brCode: charge.pixCopyPaste,
-          qrCodeImage: charge.qrCode,
-          qrCode: charge.qrCode,
-          pixCopyPaste: charge.pixCopyPaste,
+          status: charge.status || charge.charge?.status,
+          brCode: charge.brCode || charge.charge?.brCode,
+          qrCodeImage: charge.qrCodeImage || charge.charge?.qrCodeImage,
+          qrCode: charge.qrCodeImage || charge.charge?.qrCodeImage || charge.qrCode,
+          pixCopyPaste: charge.brCode || charge.charge?.brCode || charge.pixCopyPaste,
           fallback: data.fallback,
           message: data.message
         };
 
+        console.log('🔍 Dados normalizados:', normalizedData);
+        console.log('🔍 QR Code URL:', normalizedData.qrCode);
+        console.log('🔍 PIX Code:', normalizedData.pixCopyPaste);
+
         setChargeData(normalizedData);
-        setStatus(charge.status);
+        setStatus(charge.status || 'ACTIVE');
         
         console.log('🎯 PIX gerado:', {
           type,
@@ -158,6 +167,32 @@ export default function CheckoutCard({
           fallback: data.fallback,
           message: data.message
         });
+        
+        // 🆕 SALVAR INSCRIÇÃO NO LOCALSTORAGE PARA ADMIN
+        try {
+          const inscricaoData = {
+            id: `insc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            nome: contactInfo.email.split('@')[0], // Usar parte do email como nome
+            email: contactInfo.email,
+            whatsapp: contactInfo.whatsapp,
+            cpf: contactInfo.cpf,
+            tipo: type,
+            valor: type === 'audiovisual' ? 2990 : 1990,
+            correlationID: charge.correlationID,
+            status: 'pendente',
+            data_criacao: new Date().toISOString(),
+            charge_id: charge.identifier || charge.correlationID
+          };
+          
+          // Salvar no localStorage
+          const inscricoesExistentes = JSON.parse(localStorage.getItem('interbox_inscricoes') || '[]');
+          inscricoesExistentes.push(inscricaoData);
+          localStorage.setItem('interbox_inscricoes', JSON.stringify(inscricoesExistentes));
+          
+          console.log('✅ Inscrição salva no localStorage:', inscricaoData);
+        } catch (error) {
+          console.error('❌ Erro ao salvar inscrição:', error);
+        }
       } else {
         throw new Error(data.error || 'Erro ao gerar PIX');
       }
@@ -449,27 +484,37 @@ export default function CheckoutCard({
             ) : (
               /* QR Code e informações de pagamento */
               <div className="space-y-6">
-                
-                {/* Logo FlowPay centralizado */}
-                <div className="text-center mb-6">
-                  <img 
-                    src="/logos/FLOWPAY_trans.png" 
-                    alt="FlowPay" 
-                    className="mx-auto w-40 h-auto max-w-[160px] px-4 py-2"
-                  />
-                </div>
 
                 {/* QR Code */}
                 <div className="text-center">
                   <div className="inline-block p-4 bg-white rounded-2xl shadow-lg">
-                    <img
-                      src={chargeData.qrCode || chargeData.qrCodeImage}
-                      alt="QR Code PIX"
-                      className="w-48 h-48 object-contain"
-                    />
+                    {chargeData.qrCode || chargeData.qrCodeImage ? (
+                      <img
+                        src={chargeData.qrCode || chargeData.qrCodeImage}
+                        alt="QR Code PIX"
+                        className="w-48 h-48 object-contain"
+                        onError={(e) => {
+                          console.error('❌ Erro ao carregar QR Code:', e);
+                          console.error('🔍 URL do QR Code:', chargeData.qrCode || chargeData.qrCodeImage);
+                        }}
+                        onLoad={() => {
+                          console.log('✅ QR Code carregado com sucesso:', chargeData.qrCode || chargeData.qrCodeImage);
+                        }}
+                      />
+                    ) : (
+                      <div className="w-48 h-48 flex items-center justify-center text-gray-500">
+                        <div className="text-center">
+                          <div className="text-4xl mb-2">🔄</div>
+                          <div className="text-sm">Carregando QR Code...</div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                   
-                  {/* Indicador de modo simulado - Removido para produção */}
+                  {/* Debug info */}
+                  <div className="mt-2 text-xs text-white/40">
+                    QR URL: {chargeData.qrCode || chargeData.qrCodeImage || 'N/A'}
+                  </div>
                 </div>
 
                 {/* Código PIX */}
