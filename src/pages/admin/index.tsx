@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 interface Inscricao {
@@ -12,7 +12,6 @@ interface Inscricao {
   data_criacao: string;
   data_confirmacao?: string;
 }
-
 interface Estatisticas {
   total_inscricoes: number;
   tipos: {
@@ -21,7 +20,7 @@ interface Estatisticas {
     staff: number;
   };
   valor_total: number;
-  inscricoes_por_mes: Record<string, any>;
+  inscricoes_por_mes: Record<string, unknown>;
 }
 
 export default function AdminDashboard() {
@@ -47,14 +46,7 @@ export default function AdminDashboard() {
     }
   }, []);
 
-  // 📊 Carregar dados
-  useEffect(() => {
-    if (apiKey) {
-      loadData();
-    }
-  }, [apiKey, filtros]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     try {
       // Carregar inscrições
@@ -75,7 +67,14 @@ export default function AdminDashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filtros]);
+
+  // 📊 Carregar dados
+  useEffect(() => {
+    if (apiKey) {
+      loadData();
+    }
+  }, [apiKey, loadData]);
 
   // 📤 Exportar dados
   const exportData = async (formato: 'csv' | 'excel') => {

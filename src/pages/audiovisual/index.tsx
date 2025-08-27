@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import Header from '../../components/header';
-import Footer from '../../components/Footer';
+import Footer from '../../components/Footer';   
 import SEOHead from '../../components/SEOHead';
 import { useAnalytics } from '../../hooks/useAnalytics';
 
@@ -113,7 +113,7 @@ export default function AudiovisualInscricaoPage() {
     <>
       <SEOHead
         title="Inscrição Audiovisual - INTERBØX 2025"
-        description="Inscreva-se como audiovisual no maior evento de parkour do Brasil. Capture momentos épicos e faça parte da história!"
+        description="Inscreva-se como audiovisual no maior evento fitness de times da América Latina. Capture momentos épicos e faça parte da história!"
         image="/images/og-interbox.png"
         type="website"
       />

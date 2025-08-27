@@ -9,7 +9,7 @@ export default function Footer() {
             © 2025 INTERBØX. Todos os direitos reservados.
           </p>
           <p className="text-gray-500 text-xs mt-2">
-            O maior evento de parkour do Brasil
+          O maior evento fitness de times da América Latina
           </p>
         </div>
       </div>

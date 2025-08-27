@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import Header from '../../components/header';
-import Footer from '../../components/Footer';
+import Footer from '../../components/Footer'; 
 import SEOHead from '../../components/SEOHead';
 import { useAnalytics } from '../../hooks/useAnalytics';
 import { useNavigate } from 'react-router-dom';
@@ -33,7 +33,7 @@ export default function JudgeStaffCaptacao() {
     <>
       <SEOHead
         title="Judge & Staff - INTERBØX 2025"
-        description="Seja Judge ou Staff no maior evento de parkour do Brasil. Participe da organização e ajude a fazer história!"
+        description="Seja Judge ou Staff no maior evento fitness de times da América Latina. Participe da organização e ajude a fazer história!"
         image="/images/og-interbox.png"
         type="website"
       />
@@ -51,7 +51,7 @@ export default function JudgeStaffCaptacao() {
               </h1>
               <p className="text-xl text-gray-300 max-w-3xl mx-auto">
                 Faça parte da força que faz o INTERBØX acontecer.
-                Seja como júri técnico ou staff operacional, essa é a chance de entrar no time responsável por garantir que o maior evento de times da América Latina funcione com excelência.
+                Seja como JUDGE ou STAFF, essa é a chance de entrar no time responsável por garantir que o maior evento fitness de times da América Latina funcione com excelência.
               </p>
             </div>
 
@@ -63,7 +63,7 @@ export default function JudgeStaffCaptacao() {
                 <div className="text-center mb-8">
                   <h2 className="text-3xl font-bold text-pink-400 mb-4">Judge</h2>
                   <p className="text-gray-300 text-lg">
-                    Avalie performances, pontue atletas e represente a justiça esportiva dentro da arena.
+                    Avalie performances, pontue atletas e represente como JUDGE dentro da arena.
                   </p>
                 </div>
 
@@ -108,7 +108,7 @@ export default function JudgeStaffCaptacao() {
                 <div className="text-center mb-8">
                   <h2 className="text-3xl font-bold text-purple-400 mb-4">Staff</h2>
                   <p className="text-gray-300 text-lg">
-                    Trabalhe nos bastidores e mantenha tudo funcionando com eficiência, ritmo e organização.
+                    Trabalhe nos bastidores e mantenha tudo com ritmo, organização e espirito de comunidade.
                   </p>
                 </div>
 
@@ -116,10 +116,9 @@ export default function JudgeStaffCaptacao() {
                 <div className="bg-[#0f0f23] rounded-3xl p-6 mb-8 border border-purple-500/10">
                   <h3 className="text-xl font-semibold mb-4 text-purple-400">🎯 Seu papel:</h3>
                   <ul className="space-y-3 text-[#e1e1ff]">
-                    <li>• Suporte logístico e operacional das áreas</li>
-                    <li>• Atendimento direto a atletas e equipes</li>
-                    <li>• Organização e coordenação das atividades</li>
-                    <li>• Garantir segurança, fluxo e experiência</li>
+                    <li>• Suporte logístico e operacional dos jogos</li>
+                    <li>• Atendimento direto dos organizadores e judges</li>
+                    <li>• Organização e coordenação dos jogos na arena</li>
                   </ul>
                 </div>
 
@@ -140,7 +139,7 @@ export default function JudgeStaffCaptacao() {
                     ) : (
                       <>
                         <span className="mr-2">•</span>
-                        Inscrever-se como Staff
+                        Inscrever-se como STAFF
                         <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
                       </>
                     )}
