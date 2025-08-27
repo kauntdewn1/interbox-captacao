@@ -50,15 +50,18 @@ export default function AudiovisualAnalysis() {
           </h2>
           <div className="bg-black/40 backdrop-blur-sm rounded-2xl border border-pink-500/30">
             <div className="max-w-3xl mx-auto px-6 md:px-10 py-8 md:py-10">
-              <div className="space-y-5 md:space-y-6 text-gray-200 text-lg md:text-xl leading-relaxed md:leading-8">
+              <div className="space-y-5 md:space-y-6 text-gray-200 text-lg md:text-xl leading-relaxed md:leading-8 text-justify">
                 <p>
-                  Estamos reunindo uma equipe criativa para viver o Cerrado Interbox 2025 por dentro.
+                  Estamos reunindo uma equipe criativa para viver o Cerrado INTERBOX 2025 por dentro da arena.
                 </p>
                 <p>
                   Mais do que uma cobertura, essa missão é sobre eternizar a intensidade do momento, a estética da superação e a emoção de quem veio para fazer história.
                 </p>
                 <p>
                   Para conquistar seu lugar, é preciso preencher corretamente todas as informações solicitadas e passar pelo processo de seleção. Apenas os aprovados farão parte dessa comunidade visual que transforma suor em memória, esforço em narrativa e momentos em legado.
+                </p>
+                <p>
+                  Esta etapa inicial inclui uma pequena taxa de inscrição e seleção. Os candidatos aprovados serão posteriormente convidados para a inscrição oficial com credenciamento completo, mediante taxa da inscrição no valor de R$ 1k.
                 </p>
               </div>
             </div>
