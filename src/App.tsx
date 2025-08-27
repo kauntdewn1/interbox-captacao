@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import AudiovisualAnalysis from './components/AudiovisualAnalysis';
 import CheckoutCard from './components/CheckoutCard';
 import JudgeStaff from './pages/captacao/judge-staff';
+import AdminDashboard from './pages/admin';
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Route path="/captacao/judge-staff" element={<JudgeStaff />} />
         <Route path="/judge/pagar" element={<CheckoutCard type="judge" subtitle="Inscrição Judge INTERBØX 2025" amount="R$ 19,90" />} />
         <Route path="/staff/pagar" element={<CheckoutCard type="staff" subtitle="Inscrição Staff INTERBØX 2025" amount="R$ 19,90" />} />
+        <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/" element={<AudiovisualAnalysis />} />
       </Routes>
     </BrowserRouter>

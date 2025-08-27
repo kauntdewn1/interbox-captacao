@@ -33,16 +33,7 @@ const PAYMENT_CONFIGS = {
     description: 'Inscrição Staff INTERBØX 2025',
     comment: 'Taxa de inscrição para candidatura staff'
   },
-  espectador: {
-    amount: 1990, // R$ 19,90
-    description: 'Inscrição Espectador INTERBØX 2025',
-    comment: 'Taxa de inscrição para espectador'
-  },
-  atleta: {
-    amount: 9990, // R$ 99,90
-    description: 'Inscrição Atleta INTERBØX 2025',
-    comment: 'Taxa de inscrição para atleta'
-  }
+
 };
 
 // 🔧 Funções utilitárias baseadas na documentação oficial WOOVI

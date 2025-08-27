@@ -12,9 +12,13 @@ interface ChargeResponse {
   id?: string;
   correlationID: string;
   status: string;
-  brCode: string;
-  qrCodeImage: string;
-  charge?: Record<string, unknown>; // ✅ Substitui 'any' por tipo específico
+  brCode?: string;
+  qrCodeImage?: string;
+  qrCode?: string;
+  pixCopyPaste?: string;
+  charge?: Record<string, unknown>;
+  fallback?: boolean;
+  message?: string;
 }
 
 interface ContactInfo {
@@ -41,14 +45,9 @@ export default function CheckoutCard({
   const [contactSaved, setContactSaved] = useState(false);
   const navigate = useNavigate();
 
-  // URLs das Firebase Functions
-  const CREATE_CHARGE_URL = process.env.NODE_ENV === 'development' 
-    ? 'http://localhost:5001/interbox-app-8d400/us-central1/createCharge'
-    : 'https://us-central1-interbox-app-8d400.cloudfunctions.net/createCharge';
-  
-  const GET_CHARGE_URL = process.env.NODE_ENV === 'development'
-    ? 'http://localhost:5001/interbox-app-8d400/us-central1/getCharge'
-    : 'https://us-central1-interbox-app-8d400.cloudfunctions.net/getCharge';
+  // URLs das Netlify Functions
+  const CREATE_CHARGE_URL = 'https://interbox-captacao.netlify.app/.netlify/functions/create-charge';
+  const GET_CHARGE_URL = 'https://interbox-captacao.netlify.app/.netlify/functions/check-charge';
 
   // Validação dos dados de contato
   const validateContactInfo = (): boolean => {
@@ -90,9 +89,6 @@ export default function CheckoutCard({
         event: 'INTERBØX 2025'
       });
       
-      // TODO: Enviar para backend quando disponível
-      // fetch('/api/contact-info', { method: 'POST', body: JSON.stringify(contactData) });
-      
       setShowContactForm(false);
       setContactSaved(true);
       
@@ -113,7 +109,12 @@ export default function CheckoutCard({
         },
         body: JSON.stringify({ 
           type,
-          contactInfo // Incluir dados de contato na requisição
+          customerData: {
+            name: `Candidato ${type}`,
+            email: contactInfo.email,
+            phone: contactInfo.whatsapp,
+            cpf: '00000000000' // Placeholder
+          }
         }),
       });
 
@@ -123,19 +124,34 @@ export default function CheckoutCard({
 
       const data = await response.json();
       
-      // Normalizar resposta (compatibilidade com diferentes formatos)
-      const charge = data.charge || data;
-      const normalizedData: ChargeResponse = {
-        identifier: charge.identifier || charge.id,
-        id: charge.identifier || charge.id,
-        correlationID: charge.correlationID,
-        status: charge.status,
-        brCode: charge.brCode,
-        qrCodeImage: charge.qrCodeImage
-      };
+      if (data.success) {
+        // Normalizar resposta das Netlify Functions
+        const charge = data.charge;
+        const normalizedData: ChargeResponse = {
+          identifier: charge.correlationID,
+          id: charge.correlationID,
+          correlationID: charge.correlationID,
+          status: charge.status,
+          brCode: charge.pixCopyPaste,
+          qrCodeImage: charge.qrCode,
+          qrCode: charge.qrCode,
+          pixCopyPaste: charge.pixCopyPaste,
+          fallback: data.fallback,
+          message: data.message
+        };
 
-      setChargeData(normalizedData);
-      setStatus(charge.status);
+        setChargeData(normalizedData);
+        setStatus(charge.status);
+        
+        console.log('🎯 PIX gerado:', {
+          type,
+          correlationID: charge.correlationID,
+          fallback: data.fallback,
+          message: data.message
+        });
+      } else {
+        throw new Error(data.error || 'Erro ao gerar PIX');
+      }
       
     } catch (error) {
       console.error('Erro ao gerar PIX:', error);
@@ -146,21 +162,24 @@ export default function CheckoutCard({
   };
 
   const handleCheckStatus = async () => {
-    if (!chargeData?.identifier) return;
+    if (!chargeData?.correlationID) return;
     
     setIsCheckingStatus(true);
     try {
-      const response = await fetch(`${GET_CHARGE_URL}?id=${chargeData.identifier}`);
+      const response = await fetch(`${GET_CHARGE_URL}?chargeId=${chargeData.correlationID}`);
       
       if (response.ok) {
         const data = await response.json();
-        const charge = data.charge || data;
         
-        setStatus(charge.status);
-        
-        if (charge.status === 'COMPLETED') {
-          // TODO: Adicionar confete ou animação de sucesso
-          console.log('🎉 Pagamento confirmado!');
+        if (data.success) {
+          const charge = data.charge;
+          
+          setStatus(charge.status);
+          
+          if (charge.status === 'COMPLETED' || charge.paid) {
+            console.log('🎉 Pagamento confirmado!');
+            // TODO: Adicionar confete ou animação de sucesso
+          }
         }
       }
     } catch (error) {
@@ -172,21 +191,24 @@ export default function CheckoutCard({
 
   // Polling automático a cada 10 segundos
   useEffect(() => {
-    if (!chargeData?.identifier || status === 'COMPLETED') return;
+    if (!chargeData?.correlationID || status === 'COMPLETED' || status === 'EXPIRED') return;
 
     const interval = setInterval(async () => {
       try {
-        const response = await fetch(`${GET_CHARGE_URL}?id=${chargeData.identifier}`);
+        const response = await fetch(`${GET_CHARGE_URL}?chargeId=${chargeData.correlationID}`);
         if (response.ok) {
           const data = await response.json();
-          const charge = data.charge || data;
           
-          if (charge.status !== status) {
-            setStatus(charge.status);
+          if (data.success) {
+            const charge = data.charge;
             
-            if (charge.status === 'COMPLETED') {
-              console.log('🎉 Pagamento confirmado automaticamente!');
-              // TODO: Redirecionar ou mostrar tela de sucesso
+            if (charge.status !== status) {
+              setStatus(charge.status);
+              
+              if (charge.status === 'COMPLETED' || charge.paid) {
+                console.log('🎉 Pagamento confirmado automaticamente!');
+                // TODO: Redirecionar ou mostrar tela de sucesso
+              }
             }
           }
         }
@@ -196,7 +218,7 @@ export default function CheckoutCard({
     }, 10000); // 10 segundos
 
     return () => clearInterval(interval);
-  }, [chargeData?.identifier, status, GET_CHARGE_URL]);
+  }, [chargeData?.correlationID, status, GET_CHARGE_URL]);
 
   // Carregar dados de contato salvos anteriormente
   useEffect(() => {
@@ -220,10 +242,11 @@ export default function CheckoutCard({
   }, [type]);
 
   const handleCopyBrCode = async () => {
-    if (!chargeData?.brCode) return;
+    const pixCode = chargeData?.pixCopyPaste || chargeData?.brCode;
+    if (!pixCode) return;
     
     try {
-      await navigator.clipboard.writeText(chargeData.brCode);
+      await navigator.clipboard.writeText(pixCode);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
@@ -397,11 +420,13 @@ export default function CheckoutCard({
                 <div className="text-center">
                   <div className="inline-block p-4 bg-white rounded-2xl shadow-lg">
                     <img
-                      src={chargeData.qrCodeImage}
+                      src={chargeData.qrCode || chargeData.qrCodeImage}
                       alt="QR Code PIX"
                       className="w-48 h-48 object-contain"
                     />
                   </div>
+                  
+                  {/* Indicador de modo simulado - Removido para produção */}
                 </div>
 
                 {/* Código PIX */}
@@ -409,7 +434,7 @@ export default function CheckoutCard({
                   <h3 className="text-lg font-semibold mb-3 text-center">📱 Código PIX</h3>
                   <div className="flex items-center justify-between bg-white/10 rounded-xl p-3 mb-3">
                     <code className="text-sm text-white/80 font-mono break-all flex-1">
-                      {chargeData.brCode}
+                      {chargeData.pixCopyPaste || chargeData.brCode}
                     </code>
                     <button
                       onClick={handleCopyBrCode}

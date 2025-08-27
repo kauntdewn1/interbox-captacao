@@ -1,3 +1,11 @@
+// 🔧 Função auxiliar para extrair tipo da inscrição
+const extractTypeFromCorrelationID = (correlationID) => {
+  if (correlationID.includes('judge')) return 'judge';
+  if (correlationID.includes('audiovisual')) return 'audiovisual';
+  if (correlationID.includes('staff')) return 'staff';
+  return 'desconhecido';
+};
+
 exports.handler = async (event, context) => {
   // Habilitar CORS
   const headers = {
@@ -39,11 +47,32 @@ exports.handler = async (event, context) => {
       console.log(`Valor: R$ ${(charge.value / 100).toFixed(2)}`);
       console.log(`Status: ${charge.status}`);
       
-      // Aqui você pode implementar lógica adicional:
-      // - Enviar email de confirmação
-      // - Atualizar banco de dados
-      // - Notificar sistemas externos
-      // - Gerar credenciais de acesso
+      // Salvar inscrição confirmada no banco JSON
+      try {
+        const { addInscricao } = await import('../../src/utils/database.js');
+        
+        const inscricaoData = {
+          correlation_id: charge.correlationID,
+          nome: charge.customer?.name || 'Nome não informado',
+          email: charge.customer?.email || 'Email não informado',
+          whatsapp: charge.customer?.phone || 'WhatsApp não informado',
+          cpf: charge.customer?.taxID || 'CPF não informado',
+          tipo: extractTypeFromCorrelationID(charge.correlationID),
+          valor: charge.value,
+          status: 'confirmado',
+          data_confirmacao: new Date().toISOString()
+        };
+        
+        const success = addInscricao(inscricaoData);
+        
+        if (success) {
+          console.log('✅ Inscrição salva no banco:', inscricaoData.nome);
+        } else {
+          console.error('❌ Erro ao salvar inscrição no banco');
+        }
+      } catch (error) {
+        console.error('Erro ao salvar inscrição:', error);
+      }
     }
 
     // Sempre retornar sucesso para o webhook

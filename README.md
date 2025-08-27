@@ -1,147 +1,240 @@
 # 🎯 INTERBØX Captação 2025
 
-> Sistema de captação para Judge, Staff e Audiovisual do maior evento de parkour do Brasil
+> Sistema oficial de captação para **Judge**, **Staff** e **Audiovisual** do maior evento de times da América Latina.
+>
+> **Mantra:** design é poesia com régua — simples porque é pensado.
 
-## 🚀 **Sobre o Projeto**
-
-O **INTERBØX Captação** é uma aplicação web moderna desenvolvida para gerenciar inscrições de:
-- **Judge** - Júri técnico do evento
-- **Staff** - Equipe operacional
-- **Audiovisual** - Candidatos para cobertura audiovisual
-
-## 🛠️ **Tecnologias**
-
-- **Frontend:** React 19 + TypeScript + Vite
-- **Styling:** Tailwind CSS
-- **Backend:** Netlify Functions
-- **Pagamentos:** OpenPix/Woovi API
-- **Deploy:** Netlify
-- **Build:** Vite + TypeScript
-
-## 📁 **Estrutura do Projeto**
-
-```
-src/
-├── components/          # Componentes React
-│   ├── Header.tsx      # Cabeçalho da aplicação
-│   ├── Footer.tsx      # Rodapé da aplicação
-│   ├── SEOHead.tsx     # Meta tags SEO
-│   └── CheckoutCard.tsx # Componente de checkout
-├── pages/              # Páginas da aplicação
-│   ├── captacao/       # Páginas de captação
-│   ├── judge/          # Páginas específicas para Judge
-│   ├── staff/          # Páginas específicas para Staff
-│   └── audiovisual/    # Páginas de audiovisual
-├── hooks/              # Custom hooks
-│   └── useAnalytics.ts # Hook para analytics
-└── config/             # Configurações
-    └── openpix-config.js # Configuração OpenPix/Woovi
-
-netlify/
-└── functions/          # Netlify Functions
-    ├── create-charge.js # Cria charges de pagamento
-    ├── check-charge.js  # Verifica status de charges
-    └── webhook.js       # Recebe webhooks OpenPix
-```
-
-## 🚀 **Como Executar**
-
-### **Desenvolvimento Local**
-```bash
-# Instalar dependências
-npm install
-
-# Executar em desenvolvimento
-npm run dev
-
-# Acessar: http://localhost:5173
-```
-
-### **Build de Produção**
-```bash
-# Gerar build
-npm run build
-
-# Preview do build
-npm run preview
-```
-
-## 🌐 **URLs de Produção**
-
-- **Aplicação:** https://interbox-captacao.netlify.app
-- **Judge & Staff:** https://interbox-captacao.netlify.app/captacao/judge-staff
-- **Audiovisual:** https://interbox-captacao.netlify.app/audiovisual
-
-## 💳 **Integração OpenPix/Woovi**
-
-### **Netlify Functions**
-- **`/create-charge`** - Cria charges de pagamento
-- **`/check-charge`** - Verifica status de charges
-- **`/webhook`** - Recebe notificações de pagamento
-
-### **Configuração**
-As credenciais e configurações estão em `src/config/openpix-config.js`
-
-## 🔧 **Configuração Netlify**
-
-- **Build Command:** `npm run build`
-- **Publish Directory:** `dist`
-- **Functions Directory:** `netlify/functions`
-- **Environment Variables:** Configuradas no painel Netlify
-
-## 📱 **Funcionalidades**
-
-### **Judge & Staff**
-- ✅ Informações sobre as funções
-- ✅ Processo de inscrição
-- ✅ Checkout integrado
-- ✅ Confirmação de pagamento
-
-### **Audiovisual**
-- ✅ Apresentação da oportunidade
-- ✅ Formulário de inscrição
-- ✅ Sistema de pagamento
-- ✅ Acompanhamento de status
-
-## 🎨 **Design System**
-
-- **Cores:** Gradientes pink/purple (INTERBØX)
-- **Tipografia:** Sistema moderno e legível
-- **Componentes:** Design consistente e responsivo
-- **Animações:** Transições suaves e interativas
-
-## 📊 **Performance**
-
-- **Build:** Otimizado com Vite
-- **CSS:** Tailwind CSS purged
-- **JavaScript:** Bundle otimizado
-- **Images:** Otimizadas e responsivas
-
-## 🔒 **Segurança**
-
-- **Headers:** Configurados no netlify.toml
-- **CORS:** Configurado nas Netlify Functions
-- **Environment:** Variáveis sensíveis protegidas
-- **HTTPS:** Forçado em produção
-
-## 🤝 **Contribuição**
-
-1. Fork o projeto
-2. Crie uma branch para sua feature
-3. Commit suas mudanças
-4. Push para a branch
-5. Abra um Pull Request
-
-## 📄 **Licença**
-
-Este projeto é parte do INTERBØX 2025. Todos os direitos reservados.
-
-## 📞 **Contato**
-
-- **Projeto:** INTERBØX 2025
-- **Desenvolvimento:** Flow Team
-- **Email:** nettoaeb1@gmail.com
+<p align="left">
+  <a href="#-sobre-o-projeto"><img alt="status" src="https://img.shields.io/badge/status-prod_ready-7C3AED?style=for-the-badge"></a>
+  <a href="#-urls-de-producao"><img alt="deploy" src="https://img.shields.io/badge/deploy-Netlify-00C7B7?style=for-the-badge&logo=netlify&logoColor=white"></a>
+  <a><img alt="license" src="https://img.shields.io/badge/licen%C3%A7a-Propriet%C3%A1ria-111827?style=for-the-badge"></a>
+  <a><img alt="token" src="https://img.shields.io/badge/NE%C3%98-$NE%C3%98-9333EA?style=for-the-badge"></a>
+</p>
 
 ---
 
-**Made with ❤️ for the Parkour Community**
+## 📚 Sumário
+
+* [🚀 Sobre o Projeto](#-sobre-o-projeto)
+* [🔐 Uso e Distribuição (Cláusula de não autorização)](#-uso-e-distribuição)
+* [🛠️ Tecnologias](#️-tecnologias-utilizadas)
+* [📁 Estrutura](#-estrutura-do-projeto)
+* [🚀 Como Executar](#-como-executar-localmente)
+* [🧱 Build de Produção](#-build-de-produção)
+* [🌐 URLs de Produção](#-urls-de-produção)
+* [💳 Pagamentos (OpenPix/Woovi)](#-integração-com-openpixwoovi)
+* [🛡️ Netlify](#️-configuração-netlify)
+* [📱 Funcionalidades por Área](#-funcionalidades-por-área)
+* [🎨 Design System](#-design-system)
+* [📊 Performance & Otimização](#-performance--otimização)
+* [🔐 Segurança](#-segurança)
+* [⚙️ Variáveis de Ambiente](#️-variáveis-de-ambiente)
+* [🤝 Contribuição](#-contribuição)
+* [📄 Licença & Protocolo](#-licença--protocolo)
+* [📞 Contato](#-contato-oficial)
+
+---
+
+## 🚀 **Sobre o Projeto**
+
+O **INTERBØX Captação** é uma aplicação web moderna para gestão estratégica das inscrições de:
+
+* **Judge** — júri técnico do evento
+* **Staff** — equipe de operação e logística
+* **Audiovisual** — criadores selecionados para cobertura oficial
+
+Integra-se ao ecossistema digital do **INTERBØX 2025**, operando sob os princípios do **NEØ Protocol** — uma camada simbólica de governança e tokenização conectada ao token **`$NEØ`**.
+
+---
+
+## 🔐 **Uso e Distribuição**
+
+**Este sistema é de uso exclusivo do projeto INTERBØX 2025.**
+
+> 🚫 **É expressamente proibido copiar, redistribuir, publicar, descompilar, reutilizar ou adaptar qualquer parte deste código, design, marca ou documentação para fins comerciais ou pessoais sem autorização por escrito da equipe FlowOFF e do NEØ Protocol.**
+
+Violação destas condições pode acarretar sanções legais conforme a Lei de Direitos Autorais vigente (Lei nº **9.610/98 – Brasil**). Em caso de coleta de dados, o projeto observa os princípios da **LGPD (Lei nº 13.709/18)**.
+
+---
+
+## 🛠️ **Tecnologias Utilizadas**
+
+* **Frontend:** React 19 · TypeScript · Vite
+* **Styling:** Tailwind CSS
+* **Backend/Serverless:** Netlify Functions
+* **Pagamentos:** OpenPix / Woovi API
+* **Deploy:** Netlify
+
+---
+
+## 📁 **Estrutura do Projeto**
+
+```txt
+src/
+├── components/
+│   ├── Header.tsx
+│   ├── Footer.tsx
+│   ├── SEOHead.tsx
+│   └── CheckoutCard.tsx
+├── pages/
+│   ├── captacao/
+│   ├── judge/
+│   ├── staff/
+│   └── audiovisual/
+├── hooks/
+│   └── useAnalytics.ts
+└── config/
+    └── openpix-config.js
+
+netlify/
+└── functions/
+    ├── create-charge.js
+    ├── check-charge.js
+    └── webhook.js
+```
+
+---
+
+## 🚀 **Como Executar Localmente**
+
+> Requisitos mínimos: **Node 18+** e **npm 9+**
+
+```bash
+# 1) Instalar dependências
+npm install
+
+# 2) Rodar em modo dev
+npm run dev
+
+# App em: http://localhost:5173
+```
+
+### **Build de Produção**
+
+```bash
+npm run build
+npm run preview
+```
+
+---
+
+## 🌐 **URLs de Produção**
+
+* 🔗 Aplicação principal: [https://interbox-captacao.netlify.app](https://interbox-captacao.netlify.app)
+* 🧑‍⚖️ Judge & Staff: [https://interbox-captacao.netlify.app/captacao/judge-staff](https://interbox-captacao.netlify.app/captacao/judge-staff)
+* 🎥 Audiovisual: [https://interbox-captacao.netlify.app/audiovisual](https://interbox-captacao.netlify.app/audiovisual)
+
+> Dica: mantenha estes links no README para facilitar auditoria e QA.
+
+---
+
+## 💳 **Integração com OpenPix/Woovi**
+
+* `POST /create-charge` — criação de cobranças
+* `GET  /check-charge` — verificação de status
+* `POST /webhook` — atualizações de pagamento
+
+Configurações em: `src/config/openpix-config.js`
+
+> Boas práticas: inclua `metadata` nas cobranças para reconciliar candidato/área/status.
+
+---
+
+## 🛡️ **Configuração Netlify**
+
+* **Build Command:** `npm run build`
+* **Publish Directory:** `dist`
+* **Functions Directory:** `netlify/functions`
+* **Env Vars:** definidas via painel da Netlify
+
+> Ative **HTTPS only**, **Edge Functions/Headers** e **Compressão** (Brotli/Gzip) no painel.
+
+---
+
+## 📱 **Funcionalidades por Área**
+
+### Judge & Staff
+
+* Informações completas
+* Inscrição com checkout integrado
+* Validação e confirmação automatizadas
+
+### Audiovisual
+
+* Apresentação da missão criativa
+* Formulário com portfólio
+* Sistema de pagamento e filtro por perfil
+
+---
+
+## 🎨 **Design System**
+
+* **Paleta:** gradientes **pink/purple (INTERBØX)**
+* **Tipografia:** moderna, legível e com hierarquia clara
+* **Layout:** UI responsiva e clean
+* **Motion:** transições suaves com Tailwind + preferências de redução de movimento
+
+---
+
+## 📊 **Performance & Otimização**
+
+* Build **Vite** ultrarrápido
+* **Tailwind** com purge ativado
+* Assets otimizados (mobile first) e pronto para **PWA**
+
+> Checklist: lazy-loading em rotas pesadas, prefetch de fontes, cache de imagens em CDN.
+
+---
+
+## 🔐 **Segurança**
+
+* **HTTPS obrigatório**
+* **Netlify Headers + CORS** controlado
+* Secrets isolados por ambiente
+* Webhooks com **assinatura/verificação**
+
+---
+
+## ⚙️ **Variáveis de Ambiente**
+
+> Nomes sugeridos — ajuste conforme sua implementação:
+
+```env
+VITE_SITE_URL=
+OPENPIX_APP_ID=
+OPENPIX_API_KEY=
+OPENPIX_WEBHOOK_SECRET=
+```
+
+Defina-as no painel da Netlify (ou `.env.local`, nunca commitar).
+
+---
+
+## 🤝 **Contribuição**
+
+1. Faça **fork** do repositório
+2. Crie uma branch: `feat/nome-da-feature`
+3. Commits com contexto claro (convencional é bem-vindo)
+4. **Push** e abra um **Pull Request**
+
+> Padrões de PR: descrição objetiva, print/gif do fluxo e checklist de testes.
+
+---
+
+## 📄 **Licença & Protocolo**
+
+Este sistema é parte do ecossistema **INTERBØX 2025**.
+Desenvolvido por **FlowOFF** sob a filosofia do **NEØ Protocol**.
+**Todos os direitos reservados.** Token simbólico: **`$NEØ`**.
+
+> Este repositório **não** é open-source. Uso restrito mediante autorização formal.
+
+---
+
+## 📞 **Contato Oficial**
+
+* 💻 Equipe Técnica: **MELLØ**
+* 📩 Email: **[mello.flowreborn@gmail.com](mailto:mello.flowreborn@gmail.com)**
+
+
+**Made with ❤️ & ⚡ for the next era of eventos**
