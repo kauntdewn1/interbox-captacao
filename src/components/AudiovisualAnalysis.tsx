@@ -36,10 +36,10 @@ export default function AudiovisualAnalysis() {
         {/* Header Principal */}
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
-            🎥 SEÇÃO AUDIOVISUAL
+            🎥 Seleção Audiovisual e Creators
           </h1>
           <p className="text-2xl md:text-3xl text-gray-300 font-medium">
-            Para criativos que enxergam além da lente.
+          Estamos reunindo uma equipe criativa para viver o Cerrado INTERBØX 2025 dentro da arena.
           </p>
         </div>
 
@@ -67,7 +67,26 @@ export default function AudiovisualAnalysis() {
             </div>
           </div>
         </div>
-
+        <div className="w-full flex justify-center">
+          <button 
+            onClick={handleParticipateClick}
+            className="relative inline-block transform transition-all duration-300 hover:scale-105 hover:rotate-1 group"
+            style={{ cursor: 'pointer' }}
+          >
+            <img
+              src="/images/pngtree-light-gray-old-paper.png"
+              alt="Fita decorativa"
+              className="h-16 w-auto object-contain"
+            />
+            
+            {/* Texto sobre a fita */}
+            <div className="absolute inset-0 flex items-center justify-center z-10">
+              <span className="text-2xl font-bold text-white">
+                Quero participar
+              </span>
+            </div>
+          </button>
+        </div>
         {/* Cards informativos (mobile-first, PWA friendly) */}
         <div className="mb-16">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -97,13 +116,10 @@ export default function AudiovisualAnalysis() {
               <h3 className="text-2xl md:text-3xl font-bold text-pink-400 mb-4">O QUE VOCÊ RECEBE</h3>
               <ul className="text-base md:text-lg text-gray-200 space-y-3 md:space-y-4">
                 <li className="flex items-start"><span className="text-pink-400 mr-3">•</span><span>Acesso VIP completo ao evento</span></li>
-                <li className="flex items-start"><span className="text-pink-400 mr-3">•</span><span>Kit oficial exclusivo Interbox</span></li>
-                <li className="flex items-start"><span className="text-pink-400 mr-3">•</span><span>Créditos em vídeos e postagens oficiais</span></li>
+                <li className="flex items-start"><span className="text-pink-400 mr-3">•</span><span>Kit oficial exclusivo INTERBOX</span></li>
+                <li className="flex items-start"><span className="text-pink-400 mr-3">•</span><span>Marcação em vídeos e postagens oficiais</span></li>
                 <li className="flex items-start"><span className="text-pink-400 mr-3">•</span><span>Portfólio com visibilidade real e nacional</span></li>
-                <li className="flex items-start"><span className="text-pink-400 mr-3">•</span><span>Networking com atletas, marcas e agências</span></li>
-                <li className="flex items-start"><span className="text-pink-400 mr-3">•</span><span>Convites prioritários para projetos FlowOFF</span></li>
-                <li className="flex items-start"><span className="text-pink-400 mr-3">•</span><span>Destaque nos canais oficiais</span></li>
-                <li className="flex items-start"><span className="text-pink-400 mr-3">•</span><span>Possibilidade de bônus por entrega de alto impacto</span></li>
+                <li className="flex items-start"><span className="text-pink-400 mr-3">•</span><span>Networking com atletas, marcas e empresários</span></li>
               </ul>
             </section>
 
@@ -111,7 +127,7 @@ export default function AudiovisualAnalysis() {
             <section className="bg-black/40 backdrop-blur-sm rounded-2xl p-6 md:p-8 border border-pink-500/30">
               <h3 className="text-2xl md:text-3xl font-bold text-pink-400 mb-4">COMO FUNCIONA</h3>
               <div className="text-base md:text-lg text-gray-200 space-y-4 leading-relaxed">
-                <p><span className="text-pink-400 font-semibold">Áreas:</span> <span className="font-semibold">Foto, Vídeo, Drone, Pós‑produção, Direção Criativa e Social Media</span></p>
+                <p><span className="text-pink-400 font-semibold">Áreas:</span> <span className="font-semibold">Fotografia, Vídeomaker, Drone, Youtuber, Influencer, Podcast, etc.</span></p>
                 <p>Você terá acesso antecipado a briefings, áreas restritas e cronogramas de ação.</p>
                 <p>A seleção será feita com base no seu portfólio, perfil e disponibilidade.</p>
               </div>
@@ -157,3 +173,4 @@ export default function AudiovisualAnalysis() {
     </div>
   )
 }
+
