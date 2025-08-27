@@ -1,5 +1,3 @@
-
-
 interface SEOHeadProps {
   title: string;
   description: string;

@@ -24,6 +24,7 @@ interface ChargeResponse {
 interface ContactInfo {
   email: string;
   whatsapp: string;
+  cpf: string;
 }
 
 export default function CheckoutCard({
@@ -39,7 +40,8 @@ export default function CheckoutCard({
   const [showContactForm, setShowContactForm] = useState(true);
   const [contactInfo, setContactInfo] = useState<ContactInfo>({
     email: '',
-    whatsapp: ''
+    whatsapp: '',
+    cpf: ''
   });
   const [contactErrors, setContactErrors] = useState<Partial<ContactInfo>>({});
   const [contactSaved, setContactSaved] = useState(false);
@@ -55,6 +57,7 @@ export default function CheckoutCard({
     
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const whatsappRegex = /^(\+55\s?)?(\(?\d{2}\)?\s?)?\d{4,5}-?\d{4}$/;
+    const cpfRegex = /^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$/;
     
     if (!contactInfo.email || !emailRegex.test(contactInfo.email)) {
       errors.email = 'Email válido é obrigatório';
@@ -62,6 +65,10 @@ export default function CheckoutCard({
     
     if (!contactInfo.whatsapp || !whatsappRegex.test(contactInfo.whatsapp)) {
       errors.whatsapp = 'WhatsApp válido é obrigatório (ex: 11 99999-9999)';
+    }
+    
+    if (!contactInfo.cpf || !cpfRegex.test(contactInfo.cpf.replace(/\D/g, ''))) {
+      errors.cpf = 'CPF válido é obrigatório (ex: 123.456.789-00)';
     }
     
     setContactErrors(errors);
@@ -75,7 +82,9 @@ export default function CheckoutCard({
     try {
       // Salvar no localStorage para uso posterior
       const contactData = {
-        ...contactInfo,
+        email: contactInfo.email,
+        whatsapp: contactInfo.whatsapp,
+        cpf: contactInfo.cpf,
         type,
         timestamp: new Date().toISOString()
       };
@@ -113,7 +122,7 @@ export default function CheckoutCard({
             name: `Candidato ${type}`,
             email: contactInfo.email,
             phone: contactInfo.whatsapp,
-            cpf: '00000000000' // Placeholder
+            cpf: contactInfo.cpf
           }
         }),
       });
@@ -178,7 +187,14 @@ export default function CheckoutCard({
           
           if (charge.status === 'COMPLETED' || charge.paid) {
             console.log('🎉 Pagamento confirmado!');
-            // TODO: Adicionar confete ou animação de sucesso
+            // Redirecionar para página de sucesso
+            navigate(`/${type}/success`, {
+              state: {
+                correlationID: charge.correlationID || chargeData?.correlationID,
+                amount: charge.value || charge.amount || (type === 'audiovisual' ? '2990' : '1990'), // Valor em centavos
+                description: charge.description || `Taxa de Inscrição - ${type.toUpperCase()} INTERBØX 2025`
+              }
+            });
           }
         }
       }
@@ -207,7 +223,14 @@ export default function CheckoutCard({
               
               if (charge.status === 'COMPLETED' || charge.paid) {
                 console.log('🎉 Pagamento confirmado automaticamente!');
-                // TODO: Redirecionar ou mostrar tela de sucesso
+                // Redirecionar para página de sucesso
+                navigate(`/${type}/success`, {
+                  state: {
+                    correlationID: charge.correlationID || chargeData?.correlationID,
+                    amount: charge.value || charge.amount || (type === 'audiovisual' ? '2990' : '1990'), // Valor em centavos
+                    description: charge.description || `Taxa de Inscrição - ${type.toUpperCase()} INTERBØX 2025`
+                  }
+                });
               }
             }
           }
@@ -218,7 +241,7 @@ export default function CheckoutCard({
     }, 10000); // 10 segundos
 
     return () => clearInterval(interval);
-  }, [chargeData?.correlationID, status, GET_CHARGE_URL]);
+  }, [chargeData?.correlationID, status, GET_CHARGE_URL, navigate, type]);
 
   // Carregar dados de contato salvos anteriormente
   useEffect(() => {
@@ -230,7 +253,8 @@ export default function CheckoutCard({
         if (parsed.type === type) {
           setContactInfo({
             email: parsed.email || '',
-            whatsapp: parsed.whatsapp || ''
+            whatsapp: parsed.whatsapp || '',
+            cpf: parsed.cpf || ''
           });
           setShowContactForm(false);
           setContactSaved(true);
@@ -341,6 +365,24 @@ export default function CheckoutCard({
                     )}
                   </div>
                   
+                  <div>
+                    <label className="block text-sm font-medium text-white/80 mb-2">
+                      CPF *
+                    </label>
+                    <input
+                      type="text"
+                      value={contactInfo.cpf}
+                      onChange={(e) => setContactInfo(prev => ({ ...prev, cpf: e.target.value }))}
+                      placeholder="123.456.789-00"
+                      className={`w-full px-4 py-3 bg-white/10 border rounded-2xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500/50 transition-all ${
+                        contactErrors.cpf ? 'border-red-400' : 'border-white/20'
+                      }`}
+                    />
+                    {contactErrors.cpf && (
+                      <p className="text-red-400 text-sm mt-1">{contactErrors.cpf}</p>
+                    )}
+                  </div>
+                  
                   <button
                     onClick={handleSaveContactInfo}
                     className="w-full px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-semibold rounded-2xl shadow-lg transform hover:scale-105 transition-all duration-200"
@@ -368,6 +410,7 @@ export default function CheckoutCard({
                   <div className="text-left text-sm text-green-300">
                     <p><strong>Email:</strong> {contactInfo.email}</p>
                     <p><strong>WhatsApp:</strong> {contactInfo.whatsapp}</p>
+                    <p><strong>CPF:</strong> {contactInfo.cpf}</p>
                   </div>
                 </div>
               )}

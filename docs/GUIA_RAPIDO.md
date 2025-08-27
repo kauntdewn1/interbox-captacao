@@ -100,6 +100,33 @@ Data: 01/01/2025 a 31/01/2025
 
 ---
 
+netlify log
+Stream logs from your project
+
+USAGE
+  $ netlify logs [options]
+
+OPTIONS
+  --filter <app>    For monorepos, specify the name of the application to run the command in
+  -h, --help        display help for command
+  --debug           Print debugging information
+  --auth <token>    Netlify auth token - can be used to run this command without logging in
+
+ALIASES
+  $ netlify log
+
+EXAMPLES
+  $ netlify logs:deploy
+  $ netlify logs:function
+  $ netlify logs:function my-function
+
+COMMANDS
+  $ logs:deploy     Stream the logs of deploys currently being built to the
+                    console
+  $ logs:function   Stream netlify function logs to the console
+
+  ---
+
 ## 📞 **CONTATOS DE EMERGÊNCIA**
 
 ### **Suporte Técnico**

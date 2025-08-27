@@ -5,7 +5,7 @@ import Footer from '../../../components/Footer';
 import SEOHead from '../../../components/SEOHead';
 import { useAnalytics } from '../../../hooks/useAnalytics';
 
-export default function JudgeSuccessPage() {
+export default function AudiovisualSuccessPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -55,8 +55,8 @@ export default function JudgeSuccessPage() {
     setPaymentData({
       correlationID: orderId,
       status,
-      amount: '19,90',
-      description: 'Taxa de Inscrição - JUDGE INTERBØX 2025',
+      amount: '29,90',
+      description: 'Taxa de Inscrição - AUDIOVISUAL INTERBØX 2025',
       paidAt: new Date().toLocaleString('pt-BR'),
     });
 
@@ -92,7 +92,7 @@ export default function JudgeSuccessPage() {
               <h1 className="text-2xl font-bold text-gray-900 mb-4">Erro na Verificação</h1>
               <p className="text-gray-600 mb-6">{error}</p>
               <button
-                onClick={() => navigate('/judge/form')}
+                onClick={() => navigate('/audiovisual')}
                 className="bg-pink-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-pink-700 transition-all duration-200"
               >
                 Voltar ao Formulário
@@ -109,7 +109,7 @@ export default function JudgeSuccessPage() {
     <>
       <SEOHead
         title="Pagamento Confirmado - INTERBØX 2025"
-        description="Sua inscrição como JUDGE foi confirmada com sucesso! Bem-vindo ao time INTERBØX 2025."
+        description="Sua inscrição como AUDIOVISUAL foi confirmada com sucesso! Bem-vindo ao time INTERBØX 2025."
         image="/images/og-interbox.png"
         type="website"
       />
@@ -143,7 +143,7 @@ export default function JudgeSuccessPage() {
 
             {/* Card de sucesso */}
             <div className="bg-gray-50 border border-green-300 rounded-2xl shadow-[0_8px_32px_0_rgba(34,197,94,0.25)] p-8 text-center relative grunge-card">
-              <div className="text-green-600 text-8xl mb-6">🎉</div>
+              <div className="text-green-600 text-8xl mb-6">🎬</div>
 
               <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4 tracking-tight">
                 Pagamento Confirmado!
@@ -151,7 +151,7 @@ export default function JudgeSuccessPage() {
 
               <p className="text-gray-600 mb-8 text-lg">
                 Seu pagamento foi processado com sucesso.
-                Bem-vindo ao time de <span className="font-bold text-blue-600">JUDGES</span> da <span className="font-bold text-pink-600">INTERBØX 2025</span>!
+                Bem-vindo ao time de <span className="font-bold text-purple-600">CRIADORES AUDIOVISUAIS</span> da <span className="font-bold text-pink-600">INTERBØX 2025</span>!
               </p>
 
               {/* Detalhes do pagamento */}
@@ -184,22 +184,26 @@ export default function JudgeSuccessPage() {
               )}
 
               {/* Próximos passos */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
-                <h3 className="text-lg font-semibold text-blue-900 mb-4">
-                  📋 Próximos Passos
+              <div className="bg-purple-50 border border-purple-200 rounded-lg p-6 mb-8">
+                <h3 className="text-lg font-semibold text-purple-900 mb-4">
+                  🎬 Próximos Passos
                 </h3>
-                <ul className="text-blue-800 space-y-2 text-left">
+                <ul className="text-purple-800 space-y-2 text-left">
                   <li className="flex items-start">
-                    <span className="text-blue-600 mr-2">✓</span>
-                    <span>Você receberá um email de confirmação em breve</span>
+                    <span className="text-purple-600 mr-2">✓</span>
+                    <span>Você receberá um email de confirmação com as diretrizes criativas</span>
                   </li>
                   <li className="flex items-start">
-                    <span className="text-blue-600 mr-2">✓</span>
-                    <span>Nossa equipe entrará em contato para agendar o treinamento</span>
+                    <span className="text-purple-600 mr-2">✓</span>
+                    <span>Nossa equipe enviará o briefing completo do projeto</span>
                   </li>
                   <li className="flex items-start">
-                    <span className="text-blue-600 mr-2">✓</span>
-                    <span>Prepare-se para fazer parte do maior evento!</span>
+                    <span className="text-purple-600 mr-2">✓</span>
+                    <span>Prepare-se para criar conteúdo único e impactante</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-purple-600 mr-2">✓</span>
+                    <span>Mantenha-se atento aos prazos de entrega</span>
                   </li>
                 </ul>
               </div>
@@ -212,7 +216,7 @@ export default function JudgeSuccessPage() {
                 <ul className="text-yellow-800 space-y-2 text-left">
                   <li>• Guarde o comprovante de pagamento</li>
                   <li>• Verifique sua caixa de spam para o email de confirmação</li>
-                  <li>• Mantenha seu curso de Judge atualizado</li>
+                  <li>• Leia atentamente as diretrizes criativas</li>
                   <li>• Em caso de dúvidas, entre em contato conosco</li>
                 </ul>
               </div>
@@ -223,7 +227,7 @@ export default function JudgeSuccessPage() {
                   href="/home"
                   className="inline-block bg-pink-600 text-white py-4 px-8 rounded-lg font-semibold hover:bg-pink-700 focus:ring-4 focus:ring-pink-200 transition-all duration-200 text-lg"
                 >
-                                      Voltar ao Dashboard
+                  Voltar ao Dashboard
                 </a>
 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -235,7 +239,7 @@ export default function JudgeSuccessPage() {
                   </a>
                   <a
                     href="/comunidade"
-                    className="inline-block bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition-all duration-200"
+                    className="inline-block bg-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-purple-700 transition-all duration-200"
                   >
                     Comunidade
                   </a>
@@ -247,7 +251,7 @@ export default function JudgeSuccessPage() {
             <div className="text-center mt-8">
               <p className="text-gray-500 text-sm">
                 Obrigado por fazer parte da <span className="font-semibold">CERRADO INTERBØX 2025</span>!
-                Juntos vamos garantir a integridade e excelência do evento! 🏆
+                Sua criatividade vai transformar este evento! 🎬✨
               </p>
             </div>
           </div>
