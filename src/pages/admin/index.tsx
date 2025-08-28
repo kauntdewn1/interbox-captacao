@@ -285,10 +285,36 @@ export default function AdminDashboard() {
         return;
       }
       
+      // 🆕 CAPTURAR LOCALIZAÇÃO DO USUÁRIO
+      let userLocation = null;
+      try {
+        console.log('🌍 Capturando localização do usuário...');
+        const locationResponse = await fetch('https://ipinfo.io/json');
+        if (locationResponse.ok) {
+          userLocation = await locationResponse.json();
+          console.log('📍 Localização capturada:', userLocation);
+        }
+      } catch (error) {
+        console.log('⚠️ Erro ao capturar localização:', error);
+      }
+      
       // Gerar ID único para este dispositivo
       const deviceId = `device_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
-      console.log(`🔄 Sincronizando ${inscricoesLocal.length} inscrições com o servidor em tempo real...`);
+      // 🆕 ADICIONAR LOCALIZAÇÃO A CADA INSCRIÇÃO
+      const inscricoesComLocalizacao = inscricoesLocal.map((inscricao: Inscricao) => ({
+        ...inscricao,
+        user_location: userLocation,
+        device_info: {
+          userAgent: navigator.userAgent,
+          language: navigator.language,
+          platform: navigator.platform,
+          timestamp: new Date().toISOString()
+        }
+      }));
+      
+      console.log(`🔄 Sincronizando ${inscricoesComLocalizacao.length} inscrições com o servidor em tempo real...`);
+      console.log('📍 Dados de localização incluídos:', userLocation ? 'Sim' : 'Não');
       
       const response = await fetch('https://interbox-captacao.netlify.app/.netlify/functions/real-time-sync', {
         method: 'POST',
@@ -297,14 +323,14 @@ export default function AdminDashboard() {
           'Authorization': 'Bearer interbox2025'
         },
         body: JSON.stringify({ 
-          inscricoes: inscricoesLocal,
+          inscricoes: inscricoesComLocalizacao,
           deviceId: deviceId
         })
       });
       
       if (response.ok) {
         const result = await response.json();
-        alert(`✅ Sincronização em tempo real concluída!\n\n${result.message}\n\nTotal: ${result.total_inscricoes} inscrições`);
+        alert(`✅ Sincronização em tempo real concluída!\n\n${result.message}\n\nTotal: ${result.total_inscricoes} inscrições\n📍 Localização: ${userLocation ? 'Capturada' : 'Não disponível'}`);
         console.log('✅ Sincronização em tempo real:', result);
         
         // Recarregar dados
