@@ -88,16 +88,16 @@ export default function AdminDashboard() {
           });
           
                 // 🧹 LIMPEZA AUTOMÁTICA: Remover dados falsos e adicionar dados verdadeiros
-      const inscricoesLimpos = limparDadosAutomaticamente(todasInscricoes);
-      
-      // 🆕 APLICAR FILTROS aos dados limpos
-      const inscricoesFiltradas = aplicarFiltros(inscricoesLimpos, filtros);
-      setInscricoes(inscricoesFiltradas);
-      
-      // Atualizar localStorage com dados limpos
-      localStorage.setItem('interbox_inscricoes', JSON.stringify(inscricoesLimpos));
-      
-      console.log(`✅ Dados sincronizados e limpos: ${inscricoesLocal.length} locais + ${inscricoesData.inscricoes?.length || 0} servidor = ${inscricoesLimpos.length} total (após limpeza)`);
+          const inscricoesLimpos = limparDadosAutomaticamente(todasInscricoes);
+          
+          // 🆕 APLICAR FILTROS aos dados limpos
+          const inscricoesFiltradas = aplicarFiltros(inscricoesLimpos, filtros);
+          setInscricoes(inscricoesFiltradas);
+          
+          // Atualizar localStorage com dados limpos
+          localStorage.setItem('interbox_inscricoes', JSON.stringify(inscricoesLimpos));
+          
+          console.log(`✅ Dados sincronizados e limpos: ${inscricoesLocal.length} locais + ${inscricoesData.inscricoes?.length || 0} servidor = ${inscricoesLimpos.length} total (após limpeza)`);
         } else {
           // Se servidor não estiver disponível, usar apenas dados locais com filtros
           const inscricoesFiltradas = aplicarFiltros(inscricoesLocal, filtros);
@@ -111,15 +111,15 @@ export default function AdminDashboard() {
       }
 
       // 🆕 Calcular estatísticas dos dados combinados
-      const todasInscricoes = JSON.parse(localStorage.getItem('interbox_inscricoes') || '[]');
+      const inscricoesParaStats = inscricoesLocal;
       const stats = {
-        total_inscricoes: todasInscricoes.length,
+        total_inscricoes: inscricoesParaStats.length,
         tipos: {
-          judge: todasInscricoes.filter((i: Inscricao) => i.tipo === 'judge').length,
-          audiovisual: todasInscricoes.filter((i: Inscricao) => i.tipo === 'audiovisual').length,
-          staff: todasInscricoes.filter((i: Inscricao) => i.tipo === 'staff').length
+          judge: inscricoesParaStats.filter((i: Inscricao) => i.tipo === 'judge').length,
+          audiovisual: inscricoesParaStats.filter((i: Inscricao) => i.tipo === 'audiovisual').length,
+          staff: inscricoesParaStats.filter((i: Inscricao) => i.tipo === 'staff').length
         },
-        valor_total: todasInscricoes.reduce((total: number, i: Inscricao) => total + (i.valor || 0), 0),
+        valor_total: inscricoesParaStats.reduce((total: number, i: Inscricao) => total + (i.valor || 0), 0),
         inscricoes_por_mes: {} // Campo obrigatório da interface
       };
       
