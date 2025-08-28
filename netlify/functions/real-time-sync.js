@@ -20,15 +20,24 @@ const isAuthorized = (event) => {
 // 📖 Ler dados existentes
 const readData = () => {
   try {
+    console.log('📁 Tentando ler arquivo:', DATA_FILE);
+    
     if (fs.existsSync(DATA_FILE)) {
+      console.log('✅ Arquivo existe, lendo...');
       const data = fs.readFileSync(DATA_FILE, 'utf8');
-      return JSON.parse(data);
+      const parsedData = JSON.parse(data);
+      console.log('📖 Dados lidos com sucesso:', parsedData.inscricoes.length, 'inscrições');
+      return parsedData;
+    } else {
+      console.log('⚠️ Arquivo não existe, criando estrutura padrão');
     }
   } catch (error) {
-    console.error('Erro ao ler arquivo de dados:', error);
+    console.error('❌ Erro ao ler arquivo de dados:', error);
+    console.error('📁 Caminho tentado:', DATA_FILE);
   }
   
   // Retornar estrutura padrão se arquivo não existir
+  console.log('🆕 Criando estrutura padrão de dados');
   return {
     inscricoes: [],
     metadata: {
@@ -66,11 +75,17 @@ const saveData = (data) => {
       fs.mkdirSync(dir, { recursive: true });
     }
     
+    // Debug: Verificar caminho e dados
+    console.log('📁 Caminho do arquivo:', DATA_FILE);
+    console.log('📊 Dados para salvar:', JSON.stringify(data, null, 2));
+    
     fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf8');
     console.log('✅ Dados sincronizados em tempo real');
     return true;
   } catch (error) {
     console.error('❌ Erro ao salvar dados:', error);
+    console.error('📁 Caminho tentado:', DATA_FILE);
+    console.error('📊 Dados que falharam:', JSON.stringify(data, null, 2));
     return false;
   }
 };
@@ -83,17 +98,25 @@ const generateId = () => {
 // 🔄 Sincronização inteligente
 const smartSync = (dadosNovos, deviceId) => {
   try {
+    console.log('🔄 Iniciando sincronização inteligente...');
+    console.log('📱 Device ID:', deviceId);
+    console.log('📊 Dados novos recebidos:', dadosNovos.length);
+    
     const data = readData();
+    console.log('📖 Dados existentes carregados:', data.inscricoes.length);
     
     // Adicionar dispositivo à lista
     if (!data.metadata.dispositivos.includes(deviceId)) {
       data.metadata.dispositivos.push(deviceId);
+      console.log('📱 Novo dispositivo registrado:', deviceId);
     }
     
     let inscricoesAdicionadas = 0;
     let inscricoesAtualizadas = 0;
     
-    dadosNovos.forEach(inscricaoNova => {
+    dadosNovos.forEach((inscricaoNova, index) => {
+      console.log(`🔍 Processando inscrição ${index + 1}/${dadosNovos.length}:`, inscricaoNova.email || inscricaoNova.nome);
+      
       // Verificar se já existe por múltiplos critérios
       const existingIndex = data.inscricoes.findIndex(
         i => i.id === inscricaoNova.id || 
@@ -105,6 +128,7 @@ const smartSync = (dadosNovos, deviceId) => {
       if (existingIndex >= 0) {
         // Atualizar inscrição existente (preservar dados importantes)
         const inscricaoExistente = data.inscricoes[existingIndex];
+        console.log(`🔄 Atualizando inscrição existente: ${inscricaoExistente.email || inscricaoExistente.nome}`);
         
         data.inscricoes[existingIndex] = {
           ...inscricaoExistente,
@@ -136,8 +160,13 @@ const smartSync = (dadosNovos, deviceId) => {
       }
     });
     
+    console.log(`📊 Resumo: ${inscricoesAdicionadas} novas, ${inscricoesAtualizadas} atualizadas`);
+    console.log(`📊 Total final: ${data.inscricoes.length} inscrições`);
+    
     // Salvar dados
+    console.log('💾 Salvando dados...');
     if (saveData(data)) {
+      console.log('✅ Dados salvos com sucesso!');
       return {
         success: true,
         inscricoesAdicionadas,
@@ -146,6 +175,7 @@ const smartSync = (dadosNovos, deviceId) => {
         message: `Sincronização concluída: ${inscricoesAdicionadas} novas, ${inscricoesAtualizadas} atualizadas`
       };
     } else {
+      console.log('❌ Falha ao salvar dados');
       return { success: false, error: 'Erro ao salvar dados' };
     }
     
