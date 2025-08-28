@@ -235,12 +235,12 @@ export default function AdminDashboard() {
 
   // 🆕 ADICIONAR DADOS RECUPERADOS MANUALMENTE
   const adicionarDadosRecuperados = () => {
-    if (!confirm('🚨 ADICIONAR DADOS RECUPERADOS?\n\nVou adicionar os dados que você me forneceu:\n- Bruno Peixoto Santos Borges (Judge)\n- Olavo Filipe Ferreira Leal (Judge)\n\nContinuar?')) {
+    if (!confirm('🚨 ADICIONAR DADOS RECUPERADOS?\n\nVou:\n1. REMOVER os 3 dados falsos (Candidato staff, Candidato judge, Candidato judge 2)\n2. ADICIONAR os dados verdadeiros:\n- Bruno Peixoto Santos Borges (Judge)\n- Olavo Filipe Ferreira Leal (Judge)\n\nContinuar?')) {
       return;
     }
 
     try {
-      console.log('🚨 Adicionando dados recuperados manualmente...');
+      console.log('🚨 Limpando dados falsos e adicionando dados verdadeiros...');
       
       // Dados recuperados com muito custo
       const dadosRecuperados = [
@@ -278,19 +278,25 @@ export default function AdminDashboard() {
         }
       ];
       
-      // Adicionar ao localStorage
+      // 🧹 REMOVER DADOS FALSOS (Candidato staff, Candidato judge, Candidato judge 2)
       const inscricoesExistentes = JSON.parse(localStorage.getItem('interbox_inscricoes') || '[]');
-      const novasInscricoes = [...inscricoesExistentes, ...dadosRecuperados];
+      const inscricoesLimpas = inscricoesExistentes.filter((inscricao: Inscricao) => {
+        // Manter apenas dados verdadeiros (não são "Candidato...")
+        return !inscricao.nome.startsWith('Candidato');
+      });
+      
+      // Adicionar dados recuperados
+      const novasInscricoes = [...inscricoesLimpas, ...dadosRecuperados];
       localStorage.setItem('interbox_inscricoes', JSON.stringify(novasInscricoes));
       
       // Recarregar dados
       loadData();
       
-      alert(`✅ Dados recuperados adicionados com sucesso!\n\n- Bruno Peixoto Santos Borges (Judge)\n- Olavo Filipe Ferreira Leal (Judge)\n\nTotal: ${dadosRecuperados.length} inscrições adicionadas`);
+      alert(`✅ Dados limpos e recuperados com sucesso!\n\n🧹 REMOVIDOS: 3 dados falsos (Candidato...)\n✅ ADICIONADOS:\n- Bruno Peixoto Santos Borges (Judge)\n- Olavo Filipe Ferreira Leal (Judge)\n\nTotal final: ${novasInscricoes.length} inscrições verdadeiras`);
       
     } catch (error) {
-      console.error('❌ Erro ao adicionar dados recuperados:', error);
-      alert('❌ Erro ao adicionar dados recuperados');
+      console.error('❌ Erro ao limpar e adicionar dados:', error);
+      alert('❌ Erro ao limpar e adicionar dados');
     }
   };
 
@@ -1021,7 +1027,7 @@ export default function AdminDashboard() {
               onClick={adicionarDadosRecuperados}
               className="px-3 lg:px-6 py-2 lg:py-3 bg-orange-600 hover:bg-orange-700 border border-orange-500 rounded-xl font-medium transition-colors text-sm lg:text-base"
             >
-              🚨 Adicionar Dados Recuperados
+              🧹 Limpar Falsos + Adicionar Verdadeiros
             </button>
             <button
               onClick={() => navigate('/')}
