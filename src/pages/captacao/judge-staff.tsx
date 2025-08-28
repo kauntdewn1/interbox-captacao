@@ -15,17 +15,17 @@ export default function JudgeStaffCaptacao() {
     trackPage();
   }, [trackPage]);
 
-  const handleJudgePayment = () => {
+  const handleJudgeCadastro = () => {
     setIsLoadingJudge(true);
-    // ✅ CORRIGIDO: Redirecionar para checkout próprio
-    navigate('/judge/pagar');
+    // ✅ ALTERADO: Redirecionar para cadastro gratuito
+    navigate('/judge/cadastro');
     setIsLoadingJudge(false);
   };
 
-  const handleStaffPayment = () => {
+  const handleStaffCadastro = () => {
     setIsLoadingStaff(true);
-    // ✅ CORRIGIDO: Redirecionar para checkout próprio
-    navigate('/staff/pagar');
+    // ✅ ALTERADO: Redirecionar para cadastro gratuito
+    navigate('/staff/cadastro');
     setIsLoadingStaff(false);
   };
 
@@ -79,10 +79,10 @@ export default function JudgeStaffCaptacao() {
 
 
 
-                {/* Botão de pagamento */}
+                {/* Botão de cadastro */}
                 <div className="text-center">
                   <button
-                    onClick={handleJudgePayment}
+                    onClick={handleJudgeCadastro}
                     disabled={isLoadingJudge}
                     className="group relative inline-flex items-center justify-center w-full px-6 py-3 text-lg font-semibold text-white bg-gradient-to-r from-pink-500 to-pink-600 rounded-3xl shadow-lg shadow-pink-500/20 hover:from-pink-600 hover:to-pink-700 transform hover:scale-105 transition-all duration-200 ease-out disabled:opacity-50 disabled:cursor-not-allowed"
                   >
@@ -93,8 +93,8 @@ export default function JudgeStaffCaptacao() {
                       </>
                     ) : (
                       <>
-                        <span className="mr-2">•</span>
-                        Inscrever-se como Judge
+                        <span className="mr-2">📝</span>
+                        Cadastrar-se como Judge
                         <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
                       </>
                     )}
@@ -124,10 +124,10 @@ export default function JudgeStaffCaptacao() {
 
 
 
-                {/* Botão de pagamento */}
+                {/* Botão de cadastro */}
                 <div className="text-center">
                   <button
-                    onClick={handleStaffPayment}
+                    onClick={handleStaffCadastro}
                     disabled={isLoadingStaff}
                     className="group relative inline-flex items-center justify-center w-full px-6 py-3 text-lg font-semibold text-white bg-gradient-to-r from-purple-500 to-purple-600 rounded-3xl shadow-lg shadow-purple-500/20 hover:from-purple-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 ease-out disabled:opacity-50 disabled:cursor-not-allowed"
                   >
@@ -138,8 +138,8 @@ export default function JudgeStaffCaptacao() {
                       </>
                     ) : (
                       <>
-                        <span className="mr-2">•</span>
-                        Inscrever-se como STAFF
+                        <span className="mr-2">📝</span>
+                        Cadastrar-se como STAFF
                         <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
                       </>
                     )}
@@ -162,7 +162,7 @@ export default function JudgeStaffCaptacao() {
                 </div>
                 
                 <div className="text-center">
-                  <p className="text-sm mb-4">A inscrição existe porque temos custo operacional real (plataforma, organização, suporte), mas também porque vamos entregar uma estrutura que nenhum outro campeonato oferece:</p>
+                  <p className="text-sm mb-4">Vamos entregar uma estrutura que nenhum outro campeonato oferece:</p>
                   
                   <div className="grid md:grid-cols-2 gap-4 text-left text-sm">
                     <div className="flex items-start gap-2">
@@ -201,7 +201,7 @@ export default function JudgeStaffCaptacao() {
                 <div className="text-center">
                   <div className="text-3xl mb-3">🎯</div>
                   <h4 className="font-medium mb-2">Ou seja:</h4>
-                  <p className="text-sm">o valor da inscrição não é sobre "pagar pra trabalhar" é sobre garantir suporte, formação e valorização à altura do que o INTERBØX exige.</p>
+                  <p className="text-sm">vamos garantir suporte, formação e valorização à altura do que o INTERBØX exige.</p>
                 </div>
               </div>
             </div>
