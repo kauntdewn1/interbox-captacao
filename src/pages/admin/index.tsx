@@ -514,8 +514,8 @@ export default function AdminDashboard() {
         {
           id: 'insc_audiovisual_969c7cc1_restored',
           nome: 'RAFAEL MESSIAS DOS SANTOS',
-          email: 'rafael@interbox.com',
-          whatsapp: 'WhatsApp não informado',
+          email: 'puroestiloacessorios@outlook.com',
+          whatsapp: '62 98268-5031',
           cpf: 'CPF não informado',
           tipo: 'audiovisual',
           valor: 29.90,
@@ -568,7 +568,7 @@ export default function AdminDashboard() {
         {
           id: 'insc_audiovisual_02f9c9c6_restored',
           nome: 'Waldinez de Oliveira Luz Junior',
-          email: 'waldinez@interbox.com',
+          email: 'cobyti18@gmail.com',
           whatsapp: 'WhatsApp não informado',
           cpf: 'CPF não informado',
           tipo: 'audiovisual',
@@ -586,8 +586,8 @@ export default function AdminDashboard() {
         {
           id: 'insc_audiovisual_8b78a81e_restored',
           nome: 'André Luiz Corrêa dos Santos',
-          email: 'andre@interbox.com',
-          whatsapp: 'WhatsApp não informado',
+          email: 'andrelcds30@gmail.com',
+          whatsapp: '62 98217-3637',
           cpf: 'CPF não informado',
           tipo: 'audiovisual',
           valor: 29.90,
@@ -622,8 +622,8 @@ export default function AdminDashboard() {
         {
           id: 'insc_audiovisual_0bbaa801_restored',
           nome: 'RENATA CRISTINA COSTA E SILVA',
-          email: 'renata@interbox.com',
-          whatsapp: 'WhatsApp não informado',
+          email: 'rebioespecifica@gmail.com',
+          whatsapp: '62 99122-3167',
           cpf: 'CPF não informado',
           tipo: 'audiovisual',
           valor: 29.90,
@@ -640,8 +640,8 @@ export default function AdminDashboard() {
         {
           id: 'insc_audiovisual_96297a5a_restored',
           nome: 'RODRIGO JOSE GONCALVES',
-          email: 'rodrigo@interbox.com',
-          whatsapp: 'WhatsApp não informado',
+          email: 'rodrigojosegoncalves@hotmail.com',
+          whatsapp: '62 99391-3203',
           cpf: 'CPF não informado',
           tipo: 'audiovisual',
           valor: 29.90,
