@@ -314,6 +314,18 @@ const handlePost = async (event) => {
   };
 
   try {
+    // 🆕 VERIFICAR AUTENTICAÇÃO PRIMEIRO
+    if (!isAuthorized(event)) {
+      return {
+        statusCode: 401,
+        headers,
+        body: JSON.stringify({ 
+          error: 'Não autorizado',
+          message: 'API Key inválida'
+        })
+      };
+    }
+
     // Parsear dados da requisição
     const { inscricoes, deviceId } = JSON.parse(event.body);
     
