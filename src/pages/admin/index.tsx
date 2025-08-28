@@ -33,28 +33,16 @@ interface Estatisticas {
 }
 
 export default function AdminDashboard() {
-  const [inscricoes, setInscricoes] = useState<Inscricao[]>([]);
+  const [inscricoes , setInscricoes] = useState<Inscricao[]>([]);
   const [estatisticas, setEstatisticas] = useState<Estatisticas | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isSyncing, setIsSyncing] = useState(false);
   const [filtros, setFiltros] = useState({
     tipo: '',
     status: '',
     data_inicio: '',
     data_fim: ''
   });
-  const [apiKey, setApiKey] = useState('');
-  const navigate = useNavigate();
-
-  const ADMIN_API_BASE = 'https://interbox-captacao.netlify.app/.netlify/functions/admin-inscricoes';
-
-  // 🔑 Verificar autenticação
-  useEffect(() => {
-    const savedApiKey = localStorage.getItem('interbox_admin_api_key');
-    if (savedApiKey) {
-      setApiKey(savedApiKey);
-    }
-  }, []);
+        
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -187,61 +175,27 @@ export default function AdminDashboard() {
   }, [apiKey, loadData]);
 
   // 📤 Exportar dados
-  const exportData = async (formato: 'csv' | 'excel') => {
-    try {
-      const response = await fetch(`${ADMIN_API_BASE}/export?formato=${formato}`);
-      if (response.ok) {
-        const data = await response.text();
-        
-        // Criar download
-        const blob = new Blob([data], { 
-          type: formato === 'csv' ? 'text/csv' : 'application/json' 
-        });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `inscricoes_interbox_2025.${formato === 'csv' ? 'csv' : 'json'}`;
-        a.click();
-        window.URL.revokeObjectURL(url);
-      }
-    } catch (error) {
-      console.error('Erro ao exportar:', error);
+  const exportarDados = () => {
+    if (!inscricoes.length) {
+      alert('Não há dados para exportar');
+      return;
     }
+    const dados = inscricoes.map(i => ({
+      ...i,
+      data_criacao: new Date(i.data_criacao).toLocaleDateString('pt-BR'),
+      data_atualizacao: new Date(i.data_atualizacao).toLocaleDateString('pt-BR')
+    }));
+    const csv = Papa.unparse(dados);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `inscricoes_${new Date().toISOString()}.csv`;
+    link.click();
   };
 
   // 🔐 Salvar API Key
-  const handleSaveApiKey = () => {
-    // Validar senha mínima
-    if (apiKey.length < 8) {
-      alert('❌ Senha deve ter pelo menos 8 caracteres!');
-      return;
-    }
-    
-    localStorage.setItem('interbox_admin_api_key', apiKey);
-    loadData();
-  };
 
   // 🗑️ Remover inscrição
-  const deleteInscricao = async (id: string) => {
-    if (!confirm('Tem certeza que deseja remover esta inscrição?')) return;
-    
-    try {
-      const response = await fetch(`${ADMIN_API_BASE}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({ id })
-      });
-      
-      if (response.ok) {
-        loadData(); // Recarregar dados
-      }
-    } catch (error) {
-      console.error('Erro ao remover inscrição:', error);
-    }
-  };
 
   // 🧹 LIMPEZA AUTOMÁTICA: Remove dados falsos e adiciona dados verdadeiros
   const limparDadosAutomaticamente = (inscricoes: Inscricao[]) => {
@@ -434,122 +388,8 @@ export default function AdminDashboard() {
   };
 
   // 🔍 Verificar status do pagamento
-  const checkPaymentStatus = async (correlationID: string | undefined) => {
-    if (!correlationID) {
-      alert('❌ ID de correlação não encontrado');
-      return;
-    }
-    try {
-      const response = await fetch(`https://interbox-captacao.netlify.app/.netlify/functions/check-charge?chargeId=${correlationID}`);
-      
-      if (response.ok) {
-        const data = await response.json();
-        
-        if (data.success && data.charge) {
-          const charge = data.charge;
-          
-          // 🎯 CORREÇÃO: A API retorna charge.charge (estrutura aninhada)
-          const chargeData = charge.charge || charge;
-          const newStatus = chargeData.status === 'COMPLETED' || charge.paid ? 'confirmado' : 'pendente';
-          
-          console.log(`🔍 Lupa - Status da Woovi: ${chargeData.status}, Status calculado: ${newStatus}`);
-          
-          // Atualizar status no localStorage
-          const inscricoesLocal = JSON.parse(localStorage.getItem('interbox_inscricoes') || '[]');
-          const inscricaoIndex = inscricoesLocal.findIndex((i: Inscricao) => i.correlationID === correlationID);
-          
-          if (inscricaoIndex !== -1) {
-            inscricoesLocal[inscricaoIndex].status = newStatus;
-            if (newStatus === 'confirmado') {
-              inscricoesLocal[inscricaoIndex].data_confirmacao = new Date().toISOString();
-            }
-            localStorage.setItem('interbox_inscricoes', JSON.stringify(inscricoesLocal));
-            
-            // Recarregar dados
-            loadData();
-            
-            alert(`Status atualizado: ${newStatus === 'confirmado' ? '✅ Pagamento confirmado!' : '⏳ Ainda pendente'}`);
-          }
-        } else {
-          alert('❌ Erro ao verificar status do pagamento');
-        }
-      } else {
-        alert('❌ Erro ao conectar com a API de pagamento');
-      }
-    } catch (error) {
-      console.error('Erro ao verificar status:', error);
-      alert('❌ Erro ao verificar status do pagamento');
-    }
-  };
 
   // 🔄 Sincronizar com servidor em tempo real
-  const syncWithServer = async () => {
-    try {
-      const inscricoesLocal = JSON.parse(localStorage.getItem('interbox_inscricoes') || '[]');
-      
-      if (inscricoesLocal.length === 0) {
-        alert('📱 Nenhum dado local para sincronizar');
-        return;
-      }
-      
-      // 🆕 CAPTURAR LOCALIZAÇÃO DO USUÁRIO
-      let userLocation = null;
-      try {
-        console.log('🌍 Capturando localização do usuário...');
-        const locationResponse = await fetch('https://ipinfo.io/json');
-        if (locationResponse.ok) {
-          userLocation = await locationResponse.json();
-          console.log('📍 Localização capturada:', userLocation);
-        }
-      } catch (error) {
-        console.log('⚠️ Erro ao capturar localização:', error);
-      }
-      
-      // Gerar ID único para este dispositivo
-      const deviceId = `device_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      
-      // 🆕 ADICIONAR LOCALIZAÇÃO A CADA INSCRIÇÃO
-      const inscricoesComLocalizacao = inscricoesLocal.map((inscricao: Inscricao) => ({
-        ...inscricao,
-        user_location: userLocation,
-        device_info: {
-          userAgent: navigator.userAgent,
-          language: navigator.language,
-          platform: navigator.platform,
-          timestamp: new Date().toISOString()
-        }
-      }));
-      
-      console.log(`🔄 Sincronizando ${inscricoesComLocalizacao.length} inscrições com o servidor em tempo real...`);
-      console.log('📍 Dados de localização incluídos:', userLocation ? 'Sim' : 'Não');
-      
-      const response = await fetch('https://interbox-captacao.netlify.app/.netlify/functions/real-time-sync', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer interbox2025'
-        },
-        body: JSON.stringify({ 
-          inscricoes: inscricoesComLocalizacao,
-          deviceId: deviceId
-        })
-      });
-      
-      if (response.ok) {
-        const result = await response.json();
-        alert(`✅ Sincronização em tempo real concluída!\n\n${result.message}\n\nTotal: ${result.total_inscricoes} inscrições\n📍 Localização: ${userLocation ? 'Capturada' : 'Não disponível'}`);
-        console.log('✅ Sincronização em tempo real:', result);
-        
-        // Recarregar dados
-        loadData();
-      } else {
-        throw new Error('Erro na sincronização');
-      }
-    } catch (error) {
-      console.error('❌ Erro na sincronização com servidor:', error);
-      alert('❌ Erro na sincronização com servidor');
-    }
-  };
 
   // 🚨 FUNÇÃO REMOVIDA - CONFLITAVA COM LIMPEZA AUTOMÁTICA
   // const restoreLostData = async () => {
@@ -1026,11 +866,11 @@ export default function AdminDashboard() {
       // Recarregar dados
       await loadData();
       
-              alert(`🔄 Sincronização concluída!\n${inscricoesAtualizadas} inscrições atualizadas com dados reais.\n${inscricoesNovas} novas inscrições encontradas.`);
+      alert(`🔄 Sincronização concluída!\n${inscricoesAtualizadas} inscrições atualizadas com dados reais.\n${inscricoesNovas} novas inscrições encontradas.`);
       
     } catch (error) {
       console.error('Erro na sincronização:', error);
-      alert('❌ Erro durante a sincronização');
+      alert('❌ Erro durante a sincronização. Por favor, tente novamente mais tarde.');
     } finally {
       setIsSyncing(false);
     }
@@ -1078,7 +918,7 @@ export default function AdminDashboard() {
     if (tipo === 'audiovisual') return 2990; // R$ 29,90
     if (tipo === 'judge' || tipo === 'staff') return 1990; // R$ 19,90
     
-    // return 1990; // padrão
+      return 1990; // padrão
   };
 
   if (!apiKey) {
