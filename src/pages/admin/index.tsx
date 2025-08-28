@@ -354,6 +354,28 @@ export default function AdminDashboard() {
           };
         }
         
+        // 🆕 ADICIONAR LEONARDO JAIME (STAFF) SE NÃO EXISTIR
+        const leonardoExiste = inscricoes.some(i => i.email === 'leonardojaime.s235@gmail.com');
+        if (!leonardoExiste) {
+          const leonardoJaime = {
+            id: `staff_leonardo_jaime_${Date.now()}`,
+            nome: 'Leonardo Jaime',
+            email: 'leonardojaime.s235@gmail.com',
+            whatsapp: '62 993814700',
+            cpf: 'CPF não informado',
+            tipo: 'staff' as const,
+            valor: 0,
+            status: 'cadastrado',
+            data_criacao: new Date().toISOString(),
+            data_atualizacao: new Date().toISOString(),
+            experiencia: 'Experiência não informada',
+            disponibilidade: 'Disponibilidade não informada',
+            motivacao: 'Motivação não informada'
+          };
+          inscricoes.push(leonardoJaime);
+          console.log('✅ Leonardo Jaime (STAFF) adicionado automaticamente');
+        }
+        
         return inscricao;
       });
       
