@@ -169,13 +169,11 @@ export default function AdminDashboard() {
 
   // 📊 Carregar dados
   useEffect(() => {
-    if (apiKey) {
-      loadData();
-    }
-  }, [apiKey, loadData]);
+    loadData();
+  }, [loadData]);
 
   // 📤 Exportar dados
-  const exportarDados = () => {
+  const exportarDados  = () => {
     if (!inscricoes.length) {
       alert('Não há dados para exportar');
       return;
@@ -864,7 +862,7 @@ export default function AdminDashboard() {
       localStorage.setItem('interbox_inscricoes', JSON.stringify(inscricoesLocal));
       
       // Recarregar dados
-      await loadData();
+      await fetchInscricoes();
       
       alert(`🔄 Sincronização concluída!\n${inscricoesAtualizadas} inscrições atualizadas com dados reais.\n${inscricoesNovas} novas inscrições encontradas.`);
       
@@ -980,16 +978,10 @@ export default function AdminDashboard() {
               {isSyncing ? '🔄...' : '🔄 FlowPay'}
             </button>
             <button
-              onClick={() => exportData('csv')}
+              onClick={exportarDados}
               className="px-3 lg:px-6 py-2 lg:py-3 bg-green-600 hover:bg-green-700 rounded-xl font-medium transition-colors text-sm lg:text-base"
             >
               📊 CSV
-            </button>
-            <button
-              onClick={() => exportData('excel')}
-              className="px-3 lg:px-6 py-2 lg:py-3 bg-blue-600 hover:bg-blue-700 rounded-xl font-medium transition-colors text-sm lg:text-base"
-            >
-              📈 Excel
             </button>
 
             <button
