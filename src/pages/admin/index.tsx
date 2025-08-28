@@ -545,7 +545,7 @@ export default function AdminDashboard() {
           motivacao: 'Motivação não informada'
         }
       ];
-
+      
       console.log(`🚨 Restaurando ${dadosPerdidos.length} inscrições perdidas...`);
       
       // Salvar no localStorage
@@ -583,7 +583,7 @@ export default function AdminDashboard() {
     }
   };
 
-  // 🔄 Sincronizar com plataforma Woovi/OpenPix
+  // 🔄 Sincronizar com plataforma FlowPay/OpenPix
   const syncWithWoovi = async () => {
     setIsSyncing(true);
     try {
@@ -627,12 +627,12 @@ export default function AdminDashboard() {
         }
       }
       
-      // 🆕 SEGUNDA ETAPA: Buscar TODAS as charges da Woovi
+      // 🆕 SEGUNDA ETAPA: Buscar TODAS as charges da FlowPay
       try {
-        console.log('🔍 Buscando TODAS as inscrições da Woovi...');
+        console.log('🔍 Buscando TODAS as inscrições da FlowPay...');
         
         // 🎯 BUSCAR TODAS AS CHARGES (não apenas as 12 hardcoded)
-        // Vamos usar a API de listagem da Woovi para pegar todas
+        // Vamos usar a API de listagem da FlowPay para pegar todas
         const response = await fetch('https://interbox-captacao.netlify.app/.netlify/functions/real-time-sync', {
           method: 'GET',
           headers: {
@@ -707,13 +707,13 @@ export default function AdminDashboard() {
                 
                 if (response.ok) {
                   const data = await response.json();
-                  console.log(`📡 Dados da Woovi para ${chargeId}:`, data);
+                  console.log(`📡 Dados da FlowPay para ${chargeId}:`, data);
                   
                   if (data.success && data.charge) {
                     const charge = data.charge;
                     const chargeData = charge.charge || charge;
                     
-                    // Atualizar dados com informações reais da Woovi
+                    // Atualizar dados com informações reais da FlowPay
                     existeLocal.nome = extractNameFromCharge(chargeData, chargeId);
                     existeLocal.email = chargeData.customer?.email || 'email@nao.informado';
                     existeLocal.whatsapp = chargeData.customer?.phone || 'WhatsApp não informado';
@@ -909,7 +909,7 @@ export default function AdminDashboard() {
               disabled={isSyncing}
               className="px-3 lg:px-6 py-2 lg:py-3 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 rounded-xl font-medium transition-colors text-sm lg:text-base"
             >
-              {isSyncing ? '🔄...' : '🔄 Woovi'}
+              {isSyncing ? '🔄...' : '🔄 FlowPay'}
             </button>
             <button
               onClick={() => exportData('csv')}
