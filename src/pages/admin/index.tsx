@@ -233,6 +233,67 @@ export default function AdminDashboard() {
     }
   };
 
+  // 🆕 ADICIONAR DADOS RECUPERADOS MANUALMENTE
+  const adicionarDadosRecuperados = () => {
+    if (!confirm('🚨 ADICIONAR DADOS RECUPERADOS?\n\nVou adicionar os dados que você me forneceu:\n- Bruno Peixoto Santos Borges (Judge)\n- Olavo Filipe Ferreira Leal (Judge)\n\nContinuar?')) {
+      return;
+    }
+
+    try {
+      console.log('🚨 Adicionando dados recuperados manualmente...');
+      
+      // Dados recuperados com muito custo
+      const dadosRecuperados = [
+        {
+          id: `judge_bruno_peixoto_${Date.now()}`,
+          nome: 'Bruno Peixoto Santos Borges',
+          email: 'brunaocross85@gmail.com',
+          whatsapp: '62981660285',
+          cpf: 'CPF não informado',
+          tipo: 'judge' as const,
+          valor: 0,
+          status: 'cadastrado',
+          data_criacao: '2025-08-28T21:50:00.000Z',
+          data_atualizacao: new Date().toISOString(),
+          experiencia: 'Experiência não informada',
+          disponibilidade: 'Disponibilidade não informada',
+          motivacao: 'Motivação não informada',
+          certificacoes: 'Certificações não informadas'
+        },
+        {
+          id: `judge_olavo_filipe_${Date.now()}`,
+          nome: 'Olavo Filipe Ferreira Leal',
+          email: 'olavofilipeleal@gmail.com',
+          whatsapp: '(62) 9 9909-6846',
+          cpf: 'CPF não informado',
+          tipo: 'judge' as const,
+          valor: 0,
+          status: 'cadastrado',
+          data_criacao: '2025-08-28T21:50:00.000Z',
+          data_atualizacao: new Date().toISOString(),
+          experiencia: 'Experiência não informada',
+          disponibilidade: 'Disponibilidade não informada',
+          motivacao: 'Motivação não informada',
+          certificacoes: 'Certificações não informadas'
+        }
+      ];
+      
+      // Adicionar ao localStorage
+      const inscricoesExistentes = JSON.parse(localStorage.getItem('interbox_inscricoes') || '[]');
+      const novasInscricoes = [...inscricoesExistentes, ...dadosRecuperados];
+      localStorage.setItem('interbox_inscricoes', JSON.stringify(novasInscricoes));
+      
+      // Recarregar dados
+      loadData();
+      
+      alert(`✅ Dados recuperados adicionados com sucesso!\n\n- Bruno Peixoto Santos Borges (Judge)\n- Olavo Filipe Ferreira Leal (Judge)\n\nTotal: ${dadosRecuperados.length} inscrições adicionadas`);
+      
+    } catch (error) {
+      console.error('❌ Erro ao adicionar dados recuperados:', error);
+      alert('❌ Erro ao adicionar dados recuperados');
+    }
+  };
+
   // 🔍 Verificar status do pagamento
   const checkPaymentStatus = async (correlationID: string | undefined) => {
     if (!correlationID) {
@@ -955,6 +1016,12 @@ export default function AdminDashboard() {
               className="px-3 lg:px-6 py-2 lg:py-3 bg-blue-600 hover:bg-blue-700 rounded-xl font-medium transition-colors text-sm lg:text-base"
             >
               📈 Excel
+            </button>
+            <button
+              onClick={adicionarDadosRecuperados}
+              className="px-3 lg:px-6 py-2 lg:py-3 bg-orange-600 hover:bg-orange-700 border border-orange-500 rounded-xl font-medium transition-colors text-sm lg:text-base"
+            >
+              🚨 Adicionar Dados Recuperados
             </button>
             <button
               onClick={() => navigate('/')}
