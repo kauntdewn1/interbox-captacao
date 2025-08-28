@@ -1078,7 +1078,7 @@ export default function AdminDashboard() {
     if (tipo === 'audiovisual') return 2990; // R$ 29,90
     if (tipo === 'judge' || tipo === 'staff') return 1990; // R$ 19,90
     
-    return 1990; // padrão
+    // return 1990; // padrão
   };
 
   if (!apiKey) {
