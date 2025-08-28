@@ -374,6 +374,12 @@ export default function AdminDashboard() {
           };
           inscricoes.push(leonardoJaime);
           console.log('✅ Leonardo Jaime (STAFF) adicionado automaticamente');
+          
+          // 🚨 FORÇAR ATUALIZAÇÃO DO ESTADO
+          setInscricoes([...inscricoes]);
+          
+          // 🚨 FORÇAR SALVAMENTO NO LOCALSTORAGE
+          localStorage.setItem('interbox_inscricoes', JSON.stringify(inscricoes));
         }
         
         return inscricao;
