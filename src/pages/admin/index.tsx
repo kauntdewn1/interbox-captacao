@@ -551,8 +551,8 @@ export default function AdminDashboard() {
     }
   };
 
-  // 🚨 RESTAURAR DADOS PERDIDOS AUTOMATICAMENTE
-  const restoreLostData = async () => {
+  // 🚨 FUNÇÃO REMOVIDA - CONFLITAVA COM LIMPEZA AUTOMÁTICA
+  // const restoreLostData = async () => {
     if (!confirm('🚨 DADOS PERDIDOS DETECTADOS!\n\nVou restaurar automaticamente todos os dados que você me forneceu anteriormente.\n\nContinuar?')) {
       return;
     }
@@ -1131,12 +1131,7 @@ export default function AdminDashboard() {
             >
               🔄 Sincronizar
             </button>
-            <button
-              onClick={restoreLostData}
-              className="px-3 lg:px-6 py-2 lg:py-3 bg-red-600 hover:bg-red-700 rounded-xl font-medium transition-colors text-sm lg:text-base"
-            >
-              🚨 Restaurar
-            </button>
+            {/* 🚨 BOTÃO RESTAURAR REMOVIDO - CONFLITAVA COM LIMPEZA AUTOMÁTICA */}
             <button
               onClick={syncWithWoovi}
               disabled={isSyncing}
