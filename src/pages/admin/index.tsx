@@ -6,6 +6,7 @@ interface Inscricao {
   nome: string;
   email: string;
   whatsapp: string;
+  cpf?: string;
   tipo: 'judge' | 'audiovisual' | 'staff';
   valor: number;
   status: string;
@@ -13,6 +14,12 @@ interface Inscricao {
   data_confirmacao?: string;
   correlationID?: string;
   charge_id?: string;
+  // Campos específicos por tipo
+  portfolio?: string;
+  experiencia?: string;
+  disponibilidade?: string;
+  motivacao?: string;
+  certificacoes?: string;
 }
 interface Estatisticas {
   total_inscricoes: number;
@@ -1026,14 +1033,14 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Lista de Inscrições */}
-        <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
+        {/* 🎬 TABELA AUDIOVISUAL (PAGOS) */}
+        <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-green-500/20 mb-8">
           <div className="flex justify-between items-center mb-6">
-            <h3 className="text-xl font-semibold">📝 Inscrições ({inscricoes.length})</h3>
+            <h3 className="text-xl font-semibold text-green-400">🎬 Audiovisual - Inscrições Pagas ({inscricoes.filter(i => i.tipo === 'audiovisual').length})</h3>
             <button
               onClick={loadData}
               disabled={loading}
-              className="px-4 py-2 bg-pink-600 hover:bg-pink-700 disabled:opacity-50 rounded-lg font-medium transition-colors"
+              className="px-4 py-2 bg-green-600 hover:bg-green-700 disabled:opacity-50 rounded-lg font-medium transition-colors"
             >
               {loading ? '🔄 Carregando...' : '🔄 Atualizar'}
             </button>
@@ -1041,12 +1048,12 @@ export default function AdminDashboard() {
           
           {loading ? (
             <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500 mx-auto mb-4"></div>
-              <p className="text-white/80">Carregando inscrições...</p>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto mb-4"></div>
+              <p className="text-white/80">Carregando inscrições audiovisual...</p>
             </div>
-          ) : inscricoes.length === 0 ? (
+          ) : inscricoes.filter(i => i.tipo === 'audiovisual').length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-white/80">Nenhuma inscrição encontrada</p>
+              <p className="text-white/80">Nenhuma inscrição audiovisual encontrada</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -1056,7 +1063,8 @@ export default function AdminDashboard() {
                     <th className="text-left py-3 px-4">Nome</th>
                     <th className="text-left py-3 px-4">Email</th>
                     <th className="text-left py-3 px-4">WhatsApp</th>
-                    <th className="text-left py-3 px-4">Tipo</th>
+                    <th className="text-left py-3 px-4">CPF</th>
+                    <th className="text-left py-3 px-4">Portfolio</th>
                     <th className="text-left py-3 px-4">Valor</th>
                     <th className="text-left py-3 px-4">Status</th>
                     <th className="text-left py-3 px-4">Data</th>
@@ -1064,21 +1072,14 @@ export default function AdminDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {inscricoes.map((inscricao) => (
+                  {inscricoes.filter(i => i.tipo === 'audiovisual').map((inscricao) => (
                     <tr key={inscricao.id} className="border-b border-white/10 hover:bg-white/5">
                       <td className="py-3 px-4">{inscricao.nome}</td>
                       <td className="py-3 px-4">{inscricao.email}</td>
                       <td className="py-3 px-4">{inscricao.whatsapp}</td>
-                      <td className="py-3 px-4">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          inscricao.tipo === 'judge' ? 'bg-blue-500/20 text-blue-300' :
-                          inscricao.tipo === 'audiovisual' ? 'bg-green-500/20 text-green-300' :
-                          'bg-yellow-500/20 text-yellow-300'
-                        }`}>
-                          {inscricao.tipo}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4">R$ {(inscricao.valor / 100).toFixed(2)}</td>
+                      <td className="py-3 px-4">{inscricao.cpf}</td>
+                      <td className="py-3 px-4">{inscricao.portfolio || 'Não informado'}</td>
+                      <td className="py-3 px-4 text-green-400 font-semibold">R$ {(inscricao.valor || 0).toFixed(2)}</td>
                       <td className="py-3 px-4">
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                           inscricao.status === 'confirmado' ? 'bg-green-500/20 text-green-300' :
@@ -1104,6 +1105,83 @@ export default function AdminDashboard() {
                               🔍
                             </button>
                           )}
+                          <button
+                            onClick={() => deleteInscricao(inscricao.id)}
+                            className="px-3 py-1 bg-red-600 hover:bg-red-700 rounded-lg text-xs font-medium transition-colors"
+                            title="Remover inscrição"
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        {/* 👥 TABELA JUDGE & STAFF (GRATUITOS) */}
+        <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-blue-500/20">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-xl font-semibold text-blue-400">👥 Judge & Staff - Inscrições Gratuitas ({inscricoes.filter(i => i.tipo === 'judge' || i.tipo === 'staff').length})</h3>
+            <button
+              onClick={loadData}
+              disabled={loading}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-lg font-medium transition-colors"
+            >
+              {loading ? '🔄 Carregando...' : '🔄 Atualizar'}
+            </button>
+          </div>
+          
+          {loading ? (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+              <p className="text-white/80">Carregando inscrições judge & staff...</p>
+            </div>
+          ) : inscricoes.filter(i => i.tipo === 'judge' || i.tipo === 'staff').length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-white/80">Nenhuma inscrição judge & staff encontrada</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-white/20">
+                    <th className="text-left py-3 px-4">Nome</th>
+                    <th className="text-left py-3 px-4">Email</th>
+                    <th className="text-left py-3 px-4">WhatsApp</th>
+                    <th className="text-left py-3 px-4">CPF</th>
+                    <th className="text-left py-3 px-4">Tipo</th>
+                    <th className="text-left py-3 px-4">Experiência</th>
+                    <th className="text-left py-3 px-4">Disponibilidade</th>
+                    <th className="text-left py-3 px-4">Data</th>
+                    <th className="text-left py-3 px-4">Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {inscricoes.filter(i => i.tipo === 'judge' || i.tipo === 'staff').map((inscricao) => (
+                    <tr key={inscricao.id} className="border-b border-white/10 hover:bg-white/5">
+                      <td className="py-3 px-4">{inscricao.nome}</td>
+                      <td className="py-3 px-4">{inscricao.email}</td>
+                      <td className="py-3 px-4">{inscricao.whatsapp}</td>
+                      <td className="py-3 px-4">{inscricao.cpf}</td>
+                      <td className="py-3 px-4">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          inscricao.tipo === 'judge' ? 'bg-blue-500/20 text-blue-300' :
+                          'bg-yellow-500/20 text-yellow-300'
+                        }`}>
+                          {inscricao.tipo === 'judge' ? '👨‍⚖️ Judge' : '👥 Staff'}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4">{inscricao.experiencia || 'Não informado'}</td>
+                      <td className="py-3 px-4">{inscricao.disponibilidade || 'Não informado'}</td>
+                      <td className="py-3 px-4">
+                        {new Date(inscricao.data_criacao).toLocaleDateString('pt-BR')}
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="flex gap-2">
                           <button
                             onClick={() => deleteInscricao(inscricao.id)}
                             className="px-3 py-1 bg-red-600 hover:bg-red-700 rounded-lg text-xs font-medium transition-colors"
