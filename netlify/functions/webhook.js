@@ -64,7 +64,7 @@ exports.handler = async (event, context) => {
         };
         
         // Chamar API para salvar
-        const response = await fetch(`${process.env.URL || 'http://localhost:8888'}/.netlify/functions/save-inscricao`, {
+        const response = await fetch(`${process.env.URL || 'https://interbox-captacao.netlify.app'}/.netlify/functions/save-inscricao`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

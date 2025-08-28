@@ -44,7 +44,7 @@ export default function StaffCadastroPage() {
       };
       
       // Salvar no servidor via API
-      const response = await fetch('/.netlify/functions/save-inscricao', {
+              const response = await fetch('https://interbox-captacao.netlify.app/.netlify/functions/save-inscricao', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

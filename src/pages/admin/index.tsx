@@ -58,7 +58,7 @@ export default function AdminDashboard() {
       
       // 🆕 SEGUNDO: Tentar sincronizar com servidor (se disponível)
       try {
-        const inscricoesResponse = await fetch('/.netlify/functions/real-time-sync', {
+        const inscricoesResponse = await fetch('https://interbox-captacao.netlify.app/.netlify/functions/real-time-sync', {
           method: 'GET',
           headers: {
             'Authorization': 'Bearer interbox2025'
@@ -194,6 +194,12 @@ export default function AdminDashboard() {
 
   // 🔐 Salvar API Key
   const handleSaveApiKey = () => {
+    // Validar senha mínima
+    if (apiKey.length < 8) {
+      alert('❌ Senha deve ter pelo menos 8 caracteres!');
+      return;
+    }
+    
     localStorage.setItem('interbox_admin_api_key', apiKey);
     loadData();
   };
@@ -284,7 +290,7 @@ export default function AdminDashboard() {
       
       console.log(`🔄 Sincronizando ${inscricoesLocal.length} inscrições com o servidor em tempo real...`);
       
-      const response = await fetch('/.netlify/functions/real-time-sync', {
+      const response = await fetch('https://interbox-captacao.netlify.app/.netlify/functions/real-time-sync', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -493,7 +499,7 @@ export default function AdminDashboard() {
           tipo: 'judge',
           valor: 19.90,
           status: 'pago',
-          correlationID: 'judge-78aa15a8-4ff9-4a0f-ac2-06cd868f7bb7',
+          correlationID: 'judge-78aa15a8-4ff9-4a0f-acd2-06cd868f7bb7',
           charge_id: 'efecfa6c2b844b8486ab2c22965de923',
           data_criacao: '2025-08-23T13:49:00.000Z',
           data_atualizacao: new Date().toISOString(),
@@ -545,25 +551,30 @@ export default function AdminDashboard() {
       // Salvar no localStorage
       localStorage.setItem('interbox_inscricoes', JSON.stringify(dadosPerdidos));
       
-      // Sincronizar com servidor
-      const response = await fetch('/.netlify/functions/sync-inscricoes', {
+      // Sincronizar com servidor usando real-time-sync
+      const deviceId = `device_restore_${Date.now()}`;
+      
+      const response = await fetch('https://interbox-captacao.netlify.app/.netlify/functions/real-time-sync', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer interbox2025'
         },
-        body: JSON.stringify({ inscricoes: dadosPerdidos })
+        body: JSON.stringify({ 
+          inscricoes: dadosPerdidos,
+          deviceId: deviceId
+        })
       });
       
       if (response.ok) {
         const result = await response.json();
-        alert(`🚨 RESTAURAÇÃO CONCLUÍDA!\n\n✅ ${dadosPerdidos.length} inscrições restauradas!\n\nDados sincronizados com o servidor.`);
+        alert(`🚨 RESTAURAÇÃO CONCLUÍDA!\n\n✅ ${dadosPerdidos.length} inscrições restauradas!\n\nDados sincronizados com o servidor em tempo real.`);
         console.log('🚨 Restauração concluída:', result);
         
         // Recarregar dados
         loadData();
       } else {
-        throw new Error('Erro na sincronização');
+        throw new Error('Erro na sincronização com servidor');
       }
       
     } catch (error) {
@@ -616,9 +627,48 @@ export default function AdminDashboard() {
         }
       }
       
-      // 🆕 SEGUNDA ETAPA: Buscar charges confirmadas que não estão no localStorage
+      // 🆕 SEGUNDA ETAPA: Buscar TODAS as charges da Woovi
       try {
-        // 🎯 TESTAR COM IDs REAIS DAS COMPRAS CONFIRMADAS
+        console.log('🔍 Buscando TODAS as inscrições da Woovi...');
+        
+        // 🎯 BUSCAR TODAS AS CHARGES (não apenas as 12 hardcoded)
+        // Vamos usar a API de listagem da Woovi para pegar todas
+        const response = await fetch('https://interbox-captacao.netlify.app/.netlify/functions/real-time-sync', {
+          method: 'GET',
+          headers: {
+            'Authorization': 'Bearer interbox2025'
+          }
+        });
+        
+        if (response.ok) {
+          const serverData = await response.json();
+          console.log('📡 Dados do servidor:', serverData);
+          
+          if (serverData.inscricoes && serverData.inscricoes.length > 0) {
+            console.log(`🎯 Encontradas ${serverData.inscricoes.length} inscrições no servidor`);
+            
+            // Adicionar todas as inscrições do servidor que não estão no localStorage
+            for (const inscricaoServidor of serverData.inscricoes) {
+              const existeLocal = inscricoesLocal.find((i: Inscricao) => 
+                i.id === inscricaoServidor.id || 
+                i.correlationID === inscricaoServidor.correlationID ||
+                (i.email === inscricaoServidor.email && i.tipo === inscricaoServidor.tipo)
+              );
+              
+              if (!existeLocal) {
+                // Adicionar nova inscrição do servidor
+                inscricoesLocal.push({
+                  ...inscricaoServidor,
+                  data_atualizacao: new Date().toISOString()
+                });
+                inscricoesNovas++;
+                console.log(`✅ Nova inscrição adicionada:`, inscricaoServidor.email);
+              }
+            }
+          }
+        }
+        
+        // 🎯 TESTAR COM IDs REAIS DAS COMPRAS CONFIRMADAS (fallback)
         const idsParaTestar = [
           // IDs novos (formato interbox_)
           'interbox_staff_1756323495080',
