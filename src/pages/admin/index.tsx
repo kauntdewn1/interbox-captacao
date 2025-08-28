@@ -862,7 +862,7 @@ export default function AdminDashboard() {
       localStorage.setItem('interbox_inscricoes', JSON.stringify(inscricoesLocal));
       
       // Recarregar dados
-      await fetchInscricoes();
+      await loadData();
       
       alert(`🔄 Sincronização concluída!\n${inscricoesAtualizadas} inscrições atualizadas com dados reais.\n${inscricoesNovas} novas inscrições encontradas.`);
       
@@ -870,7 +870,7 @@ export default function AdminDashboard() {
       console.error('Erro na sincronização:', error);
       alert('❌ Erro durante a sincronização. Por favor, tente novamente mais tarde.');
     } finally {
-      setIsSyncing(false);
+      // setIsSyncing(false);
     }
   };
 
@@ -919,7 +919,7 @@ export default function AdminDashboard() {
       return 1990; // padrão
   };
 
-  if (!apiKey) {
+    if (apiKey) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white p-8">
         <div className="max-w-4xl mx-auto">
