@@ -277,8 +277,75 @@ export default function AdminDashboard() {
         }
       ];
       
+      // 🆕 ATUALIZAR DADOS EXISTENTES COM INFORMAÇÕES CORRETAS
+      const inscricoesAtualizadas = inscricoes.map((inscricao: Inscricao) => {
+        // RAFAEL MESSIAS DOS SANTOS
+        if (inscricao.nome === 'RAFAEL MESSIAS DOS SANTOS') {
+          return {
+            ...inscricao,
+            email: 'puroestiloacessorios@outlook.com',
+            whatsapp: '62 98268-5031'
+          };
+        }
+        
+        // Waldinez de Oliveira Luz Junior
+        if (inscricao.nome === 'Waldinez de Oliveira Luz Junior') {
+          return {
+            ...inscricao,
+            email: 'cobyti18@gmail.com'
+          };
+        }
+        
+        // André Luiz Corrêa dos Santos
+        if (inscricao.nome === 'André Luiz Corrêa dos Santos') {
+          return {
+            ...inscricao,
+            email: 'andrelcds30@gmail.com',
+            whatsapp: '62 98217-3637'
+          };
+        }
+        
+        // RENATA CRISTINA COSTA E SILVA
+        if (inscricao.nome === 'RENATA CRISTINA COSTA E SILVA') {
+          return {
+            ...inscricao,
+            email: 'rebioespecifica@gmail.com',
+            whatsapp: '62 99122-3167'
+          };
+        }
+        
+        // RODRIGO JOSE GONCALVES
+        if (inscricao.nome === 'RODRIGO JOSE GONCALVES') {
+          return {
+            ...inscricao,
+            email: 'rodrigojosegoncalves@hotmail.com',
+            whatsapp: '62 99391-3203'
+          };
+        }
+        
+        // DANIEL VIEIRA DE SOUZA
+        if (inscricao.nome === 'DANIEL VIEIRA DE SOUZA') {
+          return {
+            ...inscricao,
+            whatsapp: '62 99110-2615',
+            status: 'Estornado'
+          };
+        }
+        
+        // Luciana Rodrigues Lopes de Oliveira
+        if (inscricao.nome === 'Luciana Rodrigues Lopes de Oliveira') {
+          return {
+            ...inscricao,
+            whatsapp: '62 998593-3971',
+            status: 'Estornado'
+          };
+        }
+        
+        return inscricao;
+      });
+      
       // 🧹 REMOVER DADOS FALSOS (Candidato staff, Candidato judge, Candidato judge 2)
-      const inscricoesLimpas = inscricoes.filter((inscricao: Inscricao) => {
+      const inscricoesLimpas = inscricoesAtualizadas.filter((inscricao: Inscricao) => {
         // Manter apenas dados verdadeiros (não são "Candidato...")
         return !inscricao.nome.startsWith('Candidato');
       });
