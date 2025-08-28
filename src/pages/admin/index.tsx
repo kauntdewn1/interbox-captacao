@@ -1254,12 +1254,14 @@ export default function AdminDashboard() {
                       <td className="py-3 px-4 text-green-400 font-semibold">R$ {(inscricao.valor || 0).toFixed(2)}</td>
                       <td className="py-3 px-4">
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          inscricao.status === 'confirmado' ? 'bg-green-500/20 text-green-300' :
+                          inscricao.status === 'confirmado' || inscricao.status === 'pago' ? 'bg-green-500/20 text-green-300' :
                           inscricao.status === 'pendente' ? 'bg-yellow-500/20 text-yellow-300' :
+                          inscricao.status === 'Estornado' ? 'bg-red-500/20 text-red-300' :
                           'bg-gray-500/20 text-gray-300'
                         }`}>
-                          {inscricao.status === 'confirmado' ? '✅ Pago' : 
+                          {inscricao.status === 'confirmado' || inscricao.status === 'pago' ? '✅ Pago' : 
                            inscricao.status === 'pendente' ? '⏳ Pendente' : 
+                           inscricao.status === 'Estornado' ? '❌ Estornado' :
                            '❓ Desconhecido'}
                         </span>
                       </td>
