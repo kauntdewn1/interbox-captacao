@@ -284,7 +284,8 @@ export default function AdminDashboard() {
           return {
             ...inscricao,
             email: 'puroestiloacessorios@outlook.com',
-            whatsapp: '62 98268-5031'
+            whatsapp: '62 98268-5031',
+            portfolio: 'Typeform'
           };
         }
         
@@ -292,7 +293,8 @@ export default function AdminDashboard() {
         if (inscricao.nome === 'Waldinez de Oliveira Luz Junior') {
           return {
             ...inscricao,
-            email: 'cobyti18@gmail.com'
+            email: 'cobyti18@gmail.com',
+            portfolio: 'Typeform'
           };
         }
         
@@ -301,7 +303,8 @@ export default function AdminDashboard() {
           return {
             ...inscricao,
             email: 'andrelcds30@gmail.com',
-            whatsapp: '62 98217-3637'
+            whatsapp: '62 98217-3637',
+            portfolio: 'Typeform'
           };
         }
         
@@ -310,7 +313,8 @@ export default function AdminDashboard() {
           return {
             ...inscricao,
             email: 'rebioespecifica@gmail.com',
-            whatsapp: '62 99122-3167'
+            whatsapp: '62 99122-3167',
+            portfolio: 'Typeform'
           };
         }
         
@@ -319,7 +323,8 @@ export default function AdminDashboard() {
           return {
             ...inscricao,
             email: 'rodrigojosegoncalves@hotmail.com',
-            whatsapp: '62 99391-3203'
+            whatsapp: '62 99391-3203',
+            portfolio: 'Typeform'
           };
         }
         
@@ -338,6 +343,14 @@ export default function AdminDashboard() {
             ...inscricao,
             whatsapp: '62 998593-3971',
             status: 'Estornado'
+          };
+        }
+        
+        // 🎨 ATUALIZAR PORTFÓLIO PARA TODOS OS AUDIOVISUAL
+        if (inscricao.tipo === 'audiovisual') {
+          return {
+            ...inscricao,
+            portfolio: 'Typeform'
           };
         }
         
@@ -1224,7 +1237,20 @@ export default function AdminDashboard() {
                       <td className="py-3 px-4">{inscricao.email}</td>
                       <td className="py-3 px-4">{inscricao.whatsapp}</td>
                       <td className="py-3 px-4">{inscricao.cpf}</td>
-                      <td className="py-3 px-4">{inscricao.portfolio || 'Não informado'}</td>
+                      <td className="py-3 px-4">
+                        {inscricao.portfolio === 'Typeform' ? (
+                          <a 
+                            href="https://admin.typeform.com/form/MEENUFvK/results#responses" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-blue-400 hover:text-blue-300 underline"
+                          >
+                            {inscricao.portfolio}
+                          </a>
+                        ) : (
+                          inscricao.portfolio || 'Não informado'
+                        )}
+                      </td>
                       <td className="py-3 px-4 text-green-400 font-semibold">R$ {(inscricao.valor || 0).toFixed(2)}</td>
                       <td className="py-3 px-4">
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${
