@@ -127,88 +127,97 @@ const smartSync = (dadosNovos, deviceId) => {
   try {
     console.log('🔄 Iniciando sincronização inteligente...');
     console.log('📱 Device ID:', deviceId);
-    console.log('📊 Dados novos recebidos:', dadosNovos.length);
     
-    const data = readData();
-    console.log('📖 Dados existentes carregados:', data.inscricoes.length);
-    
-    // Adicionar dispositivo à lista
-    if (!data.metadata.dispositivos.includes(deviceId)) {
-      data.metadata.dispositivos.push(deviceId);
-      console.log('📱 Novo dispositivo registrado:', deviceId);
+    // 🆕 FORÇAR SINCRONIZAÇÃO DE /tmp PARA ARQUIVO LOCAL
+    const dadosTmp = readDataFromTmp();
+    if (dadosTmp && dadosTmp.inscricoes.length > 0) {
+      console.log('📁 Dados encontrados em /tmp, sincronizando...');
+      saveData(dadosTmp);
     }
     
+    // Ler dados atualizados
+    const dadosExistentes = readData();
+    console.log('📖 Dados existentes carregados:', dadosExistentes.inscricoes.length, 'inscrições');
+    
+    // Adicionar device ID se não existir
+    if (!dadosExistentes.metadata.dispositivos.includes(deviceId)) {
+      dadosExistentes.metadata.dispositivos.push(deviceId);
+    }
+    
+    // Processar cada nova inscrição
     let inscricoesAdicionadas = 0;
     let inscricoesAtualizadas = 0;
     
-    dadosNovos.forEach((inscricaoNova, index) => {
-      console.log(`🔍 Processando inscrição ${index + 1}/${dadosNovos.length}:`, inscricaoNova.email || inscricaoNova.nome);
-      
-      // Verificar se já existe por múltiplos critérios
-      const existingIndex = data.inscricoes.findIndex(
-        i => i.id === inscricaoNova.id || 
-             i.correlationID === inscricaoNova.correlationID ||
-             (i.email === inscricaoNova.email && i.tipo === inscricaoNova.tipo) ||
-             (i.cpf === inscricaoNova.cpf && i.cpf !== 'CPF não informado')
+    dadosNovos.forEach((inscricaoNova) => {
+      // Verificar se já existe (por ID ou correlationID)
+      const existe = dadosExistentes.inscricoes.find(
+        (i) => i.id === inscricaoNova.id || 
+               i.correlationID === inscricaoNova.correlationID ||
+               (i.email === inscricaoNova.email && i.tipo === inscricaoNova.tipo)
       );
       
-      if (existingIndex >= 0) {
-        // Atualizar inscrição existente (preservar dados importantes)
-        const inscricaoExistente = data.inscricoes[existingIndex];
-        console.log(`🔄 Atualizando inscrição existente: ${inscricaoExistente.email || inscricaoExistente.nome}`);
-        
-        data.inscricoes[existingIndex] = {
-          ...inscricaoExistente,
-          ...inscricaoNova,
-          id: inscricaoExistente.id, // Manter ID original
-          data_criacao: inscricaoExistente.data_criacao || inscricaoNova.data_criacao,
-          data_atualizacao: new Date().toISOString(),
-          // Preservar dados reais se existirem
-          nome: inscricaoNova.nome !== 'Candidato staff' ? inscricaoNova.nome : inscricaoExistente.nome,
-          email: inscricaoNova.email !== 'staff@interbox.com' ? inscricaoNova.email : inscricaoExistente.email,
-          whatsapp: inscricaoNova.whatsapp !== 'WhatsApp não informado' ? inscricaoNova.whatsapp : inscricaoExistente.whatsapp,
-          cpf: inscricaoNova.cpf !== 'CPF não informado' ? inscricaoNova.cpf : inscricaoExistente.cpf
-        };
-        
+      if (existe) {
+        // Atualizar inscrição existente
+        Object.assign(existe, inscricaoNova, {
+          data_atualizacao: new Date().toISOString()
+        });
         inscricoesAtualizadas++;
-        console.log(`✅ Inscrição atualizada: ${inscricaoNova.email || inscricaoNova.nome}`);
+        console.log(`🔄 Inscrição atualizada: ${inscricaoNova.email}`);
       } else {
         // Adicionar nova inscrição
-        const novaInscricao = {
+        const inscricaoCompleta = {
           ...inscricaoNova,
-          id: generateId(),
-          data_atualizacao: new Date().toISOString(),
-          device_id: deviceId
+          id: inscricaoNova.id || generateId(),
+          data_criacao: inscricaoNova.data_criacao || new Date().toISOString(),
+          data_atualizacao: new Date().toISOString()
         };
         
-        data.inscricoes.push(novaInscricao);
+        dadosExistentes.inscricoes.push(inscricaoCompleta);
         inscricoesAdicionadas++;
-        console.log(`✅ Nova inscrição adicionada: ${inscricaoNova.email || inscricaoNova.nome}`);
+        console.log(`✅ Nova inscrição adicionada: ${inscricaoNova.email}`);
       }
     });
     
-    console.log(`📊 Resumo: ${inscricoesAdicionadas} novas, ${inscricoesAtualizadas} atualizadas`);
-    console.log(`📊 Total final: ${data.inscricoes.length} inscrições`);
-    
-    // Salvar dados
-    console.log('💾 Salvando dados...');
-    if (saveData(data)) {
-      console.log('✅ Dados salvos com sucesso!');
+    // Salvar dados atualizados
+    if (saveData(dadosExistentes)) {
+      console.log(`✅ Sincronização concluída: ${inscricoesAdicionadas} adicionadas, ${inscricoesAtualizadas} atualizadas`);
+      
       return {
         success: true,
-        inscricoesAdicionadas,
-        inscricoesAtualizadas,
-        total_inscricoes: data.inscricoes.length,
-        message: `Sincronização concluída: ${inscricoesAdicionadas} novas, ${inscricoesAtualizadas} atualizadas`
+        message: `Sincronização em tempo real concluída`,
+        inscricoes_adicionadas: inscricoesAdicionadas,
+        inscricoes_atualizadas: inscricoesAtualizadas,
+        total_inscricoes: dadosExistentes.inscricoes.length,
+        device_id: deviceId
       };
     } else {
-      console.log('❌ Falha ao salvar dados');
-      return { success: false, error: 'Erro ao salvar dados' };
+      throw new Error('Falha ao salvar dados sincronizados');
     }
     
   } catch (error) {
     console.error('❌ Erro na sincronização inteligente:', error);
-    return { success: false, error: error.message };
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+};
+
+// 🆕 FUNÇÃO PARA LER DADOS DE /tmp
+const readDataFromTmp = () => {
+  try {
+    console.log('📁 Tentando ler dados de /tmp...');
+    if (fs.existsSync(NETLIFY_DATA_FILE)) {
+      const data = fs.readFileSync(NETLIFY_DATA_FILE, 'utf8');
+      const parsedData = JSON.parse(data);
+      console.log('✅ Dados de /tmp lidos com sucesso:', parsedData.inscricoes.length, 'inscrições');
+      return parsedData;
+    }
+    console.log('⚠️ Nenhum arquivo encontrado em /tmp');
+    return null;
+  } catch (error) {
+    console.error('❌ Erro ao ler dados de /tmp:', error);
+    return null;
   }
 };
 
