@@ -58,7 +58,7 @@ export default function AdminDashboard() {
       
       // 🆕 SEGUNDO: Tentar sincronizar com servidor (se disponível)
       try {
-        const inscricoesResponse = await fetch('/.netlify/functions/save-inscricao', {
+        const inscricoesResponse = await fetch('/.netlify/functions/real-time-sync', {
           method: 'GET',
           headers: {
             'Authorization': 'Bearer interbox2025'
@@ -67,7 +67,7 @@ export default function AdminDashboard() {
         
         if (inscricoesResponse.ok) {
           const inscricoesData = await inscricoesResponse.json();
-          console.log('🌐 Dados do servidor:', inscricoesData.inscricoes || []);
+          console.log('🌐 Dados do servidor em tempo real:', inscricoesData.inscricoes || []);
           
           // Combinar dados locais e do servidor (evitar duplicatas)
           const todasInscricoes = [...inscricoesLocal];
@@ -86,10 +86,13 @@ export default function AdminDashboard() {
           
           // Atualizar localStorage com dados combinados
           localStorage.setItem('interbox_inscricoes', JSON.stringify(todasInscricoes));
+          
+          console.log(`✅ Dados sincronizados: ${inscricoesLocal.length} locais + ${inscricoesData.inscricoes?.length || 0} servidor = ${todasInscricoes.length} total`);
         } else {
           // Se servidor não estiver disponível, usar apenas dados locais com filtros
           const inscricoesFiltradas = aplicarFiltros(inscricoesLocal, filtros);
           setInscricoes(inscricoesFiltradas);
+          console.log('⚠️ Servidor não disponível, usando apenas dados locais');
         }
       } catch (error) {
         console.log('⚠️ Servidor não disponível, usando dados locais:', error);
@@ -266,7 +269,7 @@ export default function AdminDashboard() {
     }
   };
 
-  // 🔄 Sincronizar com servidor local
+  // 🔄 Sincronizar com servidor em tempo real
   const syncWithServer = async () => {
     try {
       const inscricoesLocal = JSON.parse(localStorage.getItem('interbox_inscricoes') || '[]');
@@ -276,21 +279,27 @@ export default function AdminDashboard() {
         return;
       }
       
-      console.log(`🔄 Sincronizando ${inscricoesLocal.length} inscrições com o servidor...`);
+      // Gerar ID único para este dispositivo
+      const deviceId = `device_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
-      const response = await fetch('/.netlify/functions/sync-inscricoes', {
+      console.log(`🔄 Sincronizando ${inscricoesLocal.length} inscrições com o servidor em tempo real...`);
+      
+      const response = await fetch('/.netlify/functions/real-time-sync', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer interbox2025'
         },
-        body: JSON.stringify({ inscricoes: inscricoesLocal })
+        body: JSON.stringify({ 
+          inscricoes: inscricoesLocal,
+          deviceId: deviceId
+        })
       });
       
       if (response.ok) {
         const result = await response.json();
-        alert(`✅ Sincronização concluída!\n${inscricoesLocal.length} inscrições processadas`);
-        console.log('✅ Sincronização com servidor:', result);
+        alert(`✅ Sincronização em tempo real concluída!\n\n${result.message}\n\nTotal: ${result.total_inscricoes} inscrições`);
+        console.log('✅ Sincronização em tempo real:', result);
         
         // Recarregar dados
         loadData();
@@ -837,7 +846,7 @@ export default function AdminDashboard() {
               onClick={syncWithServer}
               className="px-6 py-3 bg-orange-600 hover:bg-orange-700 rounded-xl font-medium transition-colors"
             >
-              💾 Sincronizar com Servidor
+              🔄 Sincronização em Tempo Real
             </button>
             <button
               onClick={restoreLostData}
