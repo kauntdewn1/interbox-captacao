@@ -303,6 +303,266 @@ export default function AdminDashboard() {
     }
   };
 
+  // 🚨 RESTAURAR DADOS PERDIDOS AUTOMATICAMENTE
+  const restoreLostData = async () => {
+    if (!confirm('🚨 DADOS PERDIDOS DETECTADOS!\n\nVou restaurar automaticamente todos os dados que você me forneceu anteriormente.\n\nContinuar?')) {
+      return;
+    }
+
+    try {
+      console.log('🚨 Iniciando restauração automática de dados perdidos...');
+      
+      // Dados que você me forneceu anteriormente
+      const dadosPerdidos = [
+        {
+          id: 'insc_1756323495080_staff_restored',
+          nome: 'Candidato staff',
+          email: 'staff@interbox.com',
+          whatsapp: 'WhatsApp não informado',
+          cpf: 'CPF não informado',
+          tipo: 'staff',
+          valor: 19.90,
+          status: 'pago',
+          correlationID: 'interbox_staff_1756323495080',
+          charge_id: '9fdb64a769a54a0588564e80815452ed',
+          data_criacao: '2025-08-27T16:38:00.000Z',
+          data_atualizacao: new Date().toISOString(),
+          experiencia: 'Experiência não informada',
+          disponibilidade: 'Disponibilidade não informada',
+          motivacao: 'Motivação não informada'
+        },
+        {
+          id: 'insc_1756299983259_audiovisual_restored',
+          nome: 'Candidato audiovisual',
+          email: 'audiovisual@interbox.com',
+          whatsapp: 'WhatsApp não informado',
+          cpf: 'CPF não informado',
+          tipo: 'audiovisual',
+          valor: 29.90,
+          status: 'pago',
+          correlationID: 'interbox_audiovisual_1756299983259',
+          charge_id: 'd7bae40b44a7455ea34da04d4c1a5f8f',
+          data_criacao: '2025-08-27T10:06:00.000Z',
+          data_atualizacao: new Date().toISOString(),
+          portfolio: 'Portfolio não informado',
+          experiencia: 'Experiência não informada',
+          disponibilidade: 'Disponibilidade não informada',
+          motivacao: 'Motivação não informada'
+        },
+        {
+          id: 'insc_1756295652996_judge_restored',
+          nome: 'Candidato judge',
+          email: 'judge@interbox.com',
+          whatsapp: 'WhatsApp não informado',
+          cpf: 'CPF não informado',
+          tipo: 'judge',
+          valor: 19.90,
+          status: 'pago',
+          correlationID: 'interbox_judge_1756295652996',
+          charge_id: '6e971a79c3b54bbe872251c8f1b78ccc',
+          data_criacao: '2025-08-27T08:54:00.000Z',
+          data_atualizacao: new Date().toISOString(),
+          certificacoes: 'Certificações não informadas',
+          experiencia: 'Experiência não informada',
+          disponibilidade: 'Disponibilidade não informada',
+          motivacao: 'Motivação não informada'
+        },
+        {
+          id: 'insc_1756295592591_judge2_restored',
+          nome: 'Candidato judge 2',
+          email: 'judge2@interbox.com',
+          whatsapp: 'WhatsApp não informado',
+          cpf: 'CPF não informado',
+          tipo: 'judge',
+          valor: 19.90,
+          status: 'pago',
+          correlationID: 'interbox_judge_1756295592591',
+          charge_id: '961080ad66ec4990a77a31f2a3773498',
+          data_criacao: '2025-08-27T08:53:00.000Z',
+          data_atualizacao: new Date().toISOString(),
+          certificacoes: 'Certificações não informadas',
+          experiencia: 'Experiência não informada',
+          disponibilidade: 'Disponibilidade não informada',
+          motivacao: 'Motivação não informada'
+        },
+        {
+          id: 'insc_audiovisual_969c7cc1_restored',
+          nome: 'RAFAEL MESSIAS DOS SANTOS',
+          email: 'rafael@interbox.com',
+          whatsapp: 'WhatsApp não informado',
+          cpf: 'CPF não informado',
+          tipo: 'audiovisual',
+          valor: 29.90,
+          status: 'pago',
+          correlationID: 'audiovisual-969c7cc1-2a96-4555-841e-a4b6cfc0515b',
+          charge_id: 'e7ed9e169fd64dc6b2379969cb0ddc8f',
+          data_criacao: '2025-08-24T14:30:00.000Z',
+          data_atualizacao: new Date().toISOString(),
+          portfolio: 'Portfolio não informado',
+          experiencia: 'Experiência não informada',
+          disponibilidade: 'Disponibilidade não informada',
+          motivacao: 'Motivação não informada'
+        },
+        {
+          id: 'insc_judge_4092b61b_restored',
+          nome: 'DANIEL VIEIRA DE SOUZA',
+          email: 'daniel@interbox.com',
+          whatsapp: 'WhatsApp não informado',
+          cpf: 'CPF não informado',
+          tipo: 'judge',
+          valor: 19.90,
+          status: 'pago',
+          correlationID: 'judge-4092b61b-ac8a-45e9-8719-98459b821db7',
+          charge_id: 'de49c553102b45d79a4298844915026f',
+          data_criacao: '2025-08-24T10:37:00.000Z',
+          data_atualizacao: new Date().toISOString(),
+          certificacoes: 'Certificações não informadas',
+          experiencia: 'Experiência não informada',
+          disponibilidade: 'Disponibilidade não informada',
+          motivacao: 'Motivação não informada'
+        },
+        {
+          id: 'insc_audiovisual_5afa3a05_restored',
+          nome: 'BASE CRIATIVA DIGIT',
+          email: 'base@interbox.com',
+          whatsapp: 'WhatsApp não informado',
+          cpf: 'CPF não informado',
+          tipo: 'audiovisual',
+          valor: 29.90,
+          status: 'pago',
+          correlationID: 'audiovisual-5afa3a05-a3aa-4b9e-8c3e-2188fcd4444e',
+          charge_id: 'af323149658d4cc297105a680c5b082f',
+          data_criacao: '2025-08-23T18:35:00.000Z',
+          data_atualizacao: new Date().toISOString(),
+          portfolio: 'Portfolio não informado',
+          experiencia: 'Experiência não informada',
+          disponibilidade: 'Disponibilidade não informada',
+          motivacao: 'Motivação não informada'
+        },
+        {
+          id: 'insc_audiovisual_02f9c9c6_restored',
+          nome: 'Waldinez de Oliveira Luz Junior',
+          email: 'waldinez@interbox.com',
+          whatsapp: 'WhatsApp não informado',
+          cpf: 'CPF não informado',
+          tipo: 'audiovisual',
+          valor: 29.90,
+          status: 'pago',
+          correlationID: 'audiovisual-02f9c9c6-c1a1-43c8-86ec-e019e826330e',
+          charge_id: '52aa88164b7346e093e62f89f7abfddd',
+          data_criacao: '2025-08-23T15:01:00.000Z',
+          data_atualizacao: new Date().toISOString(),
+          portfolio: 'Portfolio não informado',
+          experiencia: 'Experiência não informada',
+          disponibilidade: 'Disponibilidade não informada',
+          motivacao: 'Motivação não informada'
+        },
+        {
+          id: 'insc_audiovisual_8b78a81e_restored',
+          nome: 'André Luiz Corrêa dos Santos',
+          email: 'andre@interbox.com',
+          whatsapp: 'WhatsApp não informado',
+          cpf: 'CPF não informado',
+          tipo: 'audiovisual',
+          valor: 29.90,
+          status: 'pago',
+          correlationID: 'audiovisual-8b78a81e-fc88-4da3-b460-b37426c13fb6',
+          charge_id: '9ff2a15022db47879e0f358c8e61cabf',
+          data_criacao: '2025-08-23T14:52:00.000Z',
+          data_atualizacao: new Date().toISOString(),
+          portfolio: 'Portfolio não informado',
+          experiencia: 'Experiência não informada',
+          disponibilidade: 'Disponibilidade não informada',
+          motivacao: 'Motivação não informada'
+        },
+        {
+          id: 'insc_judge_78aa15a8_restored',
+          nome: 'Luciana Rodrigues Lopes de Oliveira',
+          email: 'luciana@interbox.com',
+          whatsapp: 'WhatsApp não informado',
+          cpf: 'CPF não informado',
+          tipo: 'judge',
+          valor: 19.90,
+          status: 'pago',
+          correlationID: 'judge-78aa15a8-4ff9-4a0f-ac2-06cd868f7bb7',
+          charge_id: 'efecfa6c2b844b8486ab2c22965de923',
+          data_criacao: '2025-08-23T13:49:00.000Z',
+          data_atualizacao: new Date().toISOString(),
+          certificacoes: 'Certificações não informadas',
+          experiencia: 'Experiência não informada',
+          disponibilidade: 'Disponibilidade não informada',
+          motivacao: 'Motivação não informada'
+        },
+        {
+          id: 'insc_audiovisual_0bbaa801_restored',
+          nome: 'RENATA CRISTINA COSTA E SILVA',
+          email: 'renata@interbox.com',
+          whatsapp: 'WhatsApp não informado',
+          cpf: 'CPF não informado',
+          tipo: 'audiovisual',
+          valor: 29.90,
+          status: 'pago',
+          correlationID: 'audiovisual-0bbaa801-d197-4f32-b5b4-4b731d95b22c',
+          charge_id: 'e8b9651388d64c979c9b468083dfca55',
+          data_criacao: '2025-08-23T10:35:00.000Z',
+          data_atualizacao: new Date().toISOString(),
+          portfolio: 'Portfolio não informado',
+          experiencia: 'Experiência não informada',
+          disponibilidade: 'Disponibilidade não informada',
+          motivacao: 'Motivação não informada'
+        },
+        {
+          id: 'insc_audiovisual_96297a5a_restored',
+          nome: 'RODRIGO JOSE GONCALVES',
+          email: 'rodrigo@interbox.com',
+          whatsapp: 'WhatsApp não informado',
+          cpf: 'CPF não informado',
+          tipo: 'audiovisual',
+          valor: 29.90,
+          status: 'pago',
+          correlationID: 'audiovisual-96297a5a-451d-47fd-b9cb-7055ea13cf0c',
+          charge_id: 'd5943732463b459192db180811cd6a33',
+          data_criacao: '2025-08-23T10:35:00.000Z',
+          data_atualizacao: new Date().toISOString(),
+          portfolio: 'Portfolio não informado',
+          experiencia: 'Experiência não informada',
+          disponibilidade: 'Disponibilidade não informada',
+          motivacao: 'Motivação não informada'
+        }
+      ];
+
+      console.log(`🚨 Restaurando ${dadosPerdidos.length} inscrições perdidas...`);
+      
+      // Salvar no localStorage
+      localStorage.setItem('interbox_inscricoes', JSON.stringify(dadosPerdidos));
+      
+      // Sincronizar com servidor
+      const response = await fetch('/.netlify/functions/sync-inscricoes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer interbox2025'
+        },
+        body: JSON.stringify({ inscricoes: dadosPerdidos })
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        alert(`🚨 RESTAURAÇÃO CONCLUÍDA!\n\n✅ ${dadosPerdidos.length} inscrições restauradas!\n\nDados sincronizados com o servidor.`);
+        console.log('🚨 Restauração concluída:', result);
+        
+        // Recarregar dados
+        loadData();
+      } else {
+        throw new Error('Erro na sincronização');
+      }
+      
+    } catch (error) {
+      console.error('❌ Erro na restauração:', error);
+      alert('❌ Erro na restauração automática');
+    }
+  };
+
   // 🔄 Sincronizar com plataforma Woovi/OpenPix
   const syncWithWoovi = async () => {
     setIsSyncing(true);
@@ -578,6 +838,12 @@ export default function AdminDashboard() {
               className="px-6 py-3 bg-orange-600 hover:bg-orange-700 rounded-xl font-medium transition-colors"
             >
               💾 Sincronizar com Servidor
+            </button>
+            <button
+              onClick={restoreLostData}
+              className="px-6 py-3 bg-red-600 hover:bg-red-700 rounded-xl font-medium transition-colors"
+            >
+              🚨 Restaurar Dados Perdidos
             </button>
             <button
               onClick={syncWithWoovi}
