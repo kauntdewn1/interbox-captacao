@@ -1,12 +1,22 @@
 {
-  "inscricoes": [],
-  "metadata": {
-    "ultima_atualizacao": "",
-    "total_inscricoes": 0,
-    "tipos": {
-      "judge": 0,
-      "audiovisual": 0,
-      "staff": 0
+  "inscricoes": [
+    {
+      "id": "test_001",
+      "nome": "Teste",
+      "email": "teste@teste.com",
+      "tipo": "audiovisual",
+      "status": "pendente"
     }
+  ],
+  "metadata": {
+    "ultima_atualizacao": "2025-08-28T21:17:04.407Z",
+    "total_inscricoes": 1,
+    "tipos": {
+      "audiovisual": 1
+    },
+    "dispositivos": [
+      "test_device"
+    ],
+    "ultima_sincronizacao": "2025-08-28T21:17:04.408Z"
   }
 }

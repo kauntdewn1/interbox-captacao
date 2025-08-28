@@ -6,8 +6,11 @@
 import fs from 'fs';
 import path from 'path';
 
-// 📁 Caminho para o arquivo de dados
+// 📁 Caminho para o arquivo de dados (Netlify)
 const DATA_FILE = path.join(process.cwd(), 'data', 'inscricoes.json');
+
+// 🆕 CAMINHO ALTERNATIVO PARA NETLIFY
+const NETLIFY_DATA_FILE = '/tmp/inscricoes.json';
 
 // 🔐 Verificação básica de autenticação
 const isAuthorized = (event) => {
@@ -20,20 +23,31 @@ const isAuthorized = (event) => {
 // 📖 Ler dados existentes
 const readData = () => {
   try {
-    console.log('📁 Tentando ler arquivo:', DATA_FILE);
+    console.log('📁 Tentando ler arquivo local:', DATA_FILE);
     
+    // 🆕 TENTAR LER DO DIRETÓRIO DATA PRIMEIRO
     if (fs.existsSync(DATA_FILE)) {
-      console.log('✅ Arquivo existe, lendo...');
+      console.log('✅ Arquivo local existe, lendo...');
       const data = fs.readFileSync(DATA_FILE, 'utf8');
       const parsedData = JSON.parse(data);
-      console.log('📖 Dados lidos com sucesso:', parsedData.inscricoes.length, 'inscrições');
+      console.log('📖 Dados locais lidos com sucesso:', parsedData.inscricoes.length, 'inscrições');
       return parsedData;
-    } else {
-      console.log('⚠️ Arquivo não existe, criando estrutura padrão');
     }
+    
+    // 🆕 FALLBACK: TENTAR LER DE /tmp (Netlify)
+    console.log('📁 Tentando ler arquivo Netlify:', NETLIFY_DATA_FILE);
+    if (fs.existsSync(NETLIFY_DATA_FILE)) {
+      console.log('✅ Arquivo Netlify existe, lendo...');
+      const data = fs.readFileSync(NETLIFY_DATA_FILE, 'utf8');
+      const parsedData = JSON.parse(data);
+      console.log('📖 Dados Netlify lidos com sucesso:', parsedData.inscricoes.length, 'inscrições');
+      return parsedData;
+    }
+    
+    console.log('⚠️ Nenhum arquivo encontrado, criando estrutura padrão');
   } catch (error) {
     console.error('❌ Erro ao ler arquivo de dados:', error);
-    console.error('📁 Caminho tentado:', DATA_FILE);
+    console.error('📁 Caminhos tentados:', DATA_FILE, 'e', NETLIFY_DATA_FILE);
   }
   
   // Retornar estrutura padrão se arquivo não existir
@@ -69,22 +83,35 @@ const saveData = (data) => {
       staff: data.inscricoes.filter(i => i.tipo === 'staff').length
     };
     
-    // Garantir que o diretório existe
-    const dir = path.dirname(DATA_FILE);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
+    // 🆕 TENTAR SALVAR NO DIRETÓRIO DATA PRIMEIRO
+    try {
+      // Garantir que o diretório existe
+      const dir = path.dirname(DATA_FILE);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+      
+      console.log('📁 Tentando salvar em:', DATA_FILE);
+      fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf8');
+      console.log('✅ Dados salvos em data/inscricoes.json');
+      return true;
+    } catch (localError) {
+      console.log('⚠️ Erro ao salvar localmente, tentando /tmp:', localError.message);
+      
+      // 🆕 FALLBACK: SALVAR EM /tmp (Netlify)
+      try {
+        console.log('📁 Tentando salvar em:', NETLIFY_DATA_FILE);
+        fs.writeFileSync(NETLIFY_DATA_FILE, JSON.stringify(data, null, 2), 'utf8');
+        console.log('✅ Dados salvos em /tmp/inscricoes.json (Netlify)');
+        return true;
+      } catch (tmpError) {
+        console.error('❌ Erro ao salvar em /tmp:', tmpError.message);
+        throw tmpError;
+      }
     }
-    
-    // Debug: Verificar caminho e dados
-    console.log('📁 Caminho do arquivo:', DATA_FILE);
-    console.log('📊 Dados para salvar:', JSON.stringify(data, null, 2));
-    
-    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf8');
-    console.log('✅ Dados sincronizados em tempo real');
-    return true;
   } catch (error) {
     console.error('❌ Erro ao salvar dados:', error);
-    console.error('📁 Caminho tentado:', DATA_FILE);
+    console.error('📁 Caminhos tentados:', DATA_FILE, 'e', NETLIFY_DATA_FILE);
     console.error('📊 Dados que falharam:', JSON.stringify(data, null, 2));
     return false;
   }
