@@ -169,6 +169,13 @@ export default function AdminDashboard() {
     }
     
     console.log(`🎯 Total de inscrições após filtros: ${inscricoesFiltradas.length}`);
+    console.log(`🔍 Filtros aplicados:`, filtros);
+    console.log(`📊 Tipos após filtros:`, {
+      total: inscricoesFiltradas.length,
+      staff: inscricoesFiltradas.filter(i => i.tipo === 'staff').length,
+      judge: inscricoesFiltradas.filter(i => i.tipo === 'judge').length,
+      audiovisual: inscricoesFiltradas.filter(i => i.tipo === 'audiovisual').length
+    });
     return inscricoesFiltradas;
   };
 
@@ -356,6 +363,8 @@ export default function AdminDashboard() {
         
         // 🆕 ADICIONAR LEONARDO JAIME (STAFF) SE NÃO EXISTIR
         const leonardoExiste = inscricoes.some(i => i.email === 'leonardojaime.s235@gmail.com');
+        console.log('🔍 Verificando Leonardo Jaime:', { leonardoExiste, totalInscricoes: inscricoes.length });
+        
         if (!leonardoExiste) {
           const leonardoJaime = {
             id: `staff_leonardo_jaime_${Date.now()}`,
@@ -374,6 +383,11 @@ export default function AdminDashboard() {
           };
           inscricoes.push(leonardoJaime);
           console.log('✅ Leonardo Jaime (STAFF) adicionado automaticamente');
+          console.log('📊 Dados após adição:', { 
+            total: inscricoes.length, 
+            staff: inscricoes.filter(i => i.tipo === 'staff').length,
+            leonardo: inscricoes.find(i => i.email === 'leonardojaime.s235@gmail.com')
+          });
           
           // 🚨 FORÇAR ATUALIZAÇÃO DO ESTADO
           setInscricoes([...inscricoes]);
