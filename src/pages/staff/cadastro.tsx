@@ -28,12 +28,8 @@ export default function StaffCadastroPage() {
     setIsSubmitting(true);
     
     try {
-      // Simular envio do formulário
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Salvar no localStorage
+      // Preparar dados da inscrição
       const inscricaoData = {
-        id: `staff_insc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         nome: formData.nome,
         email: formData.email,
         whatsapp: formData.whatsapp,
@@ -47,14 +43,56 @@ export default function StaffCadastroPage() {
         motivacao: formData.motivacao
       };
       
+      // Salvar no servidor via API
+      const response = await fetch('/.netlify/functions/save-inscricao', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer interbox2025'
+        },
+        body: JSON.stringify(inscricaoData)
+      });
+      
+      if (!response.ok) {
+        throw new Error('Erro ao salvar no servidor');
+      }
+      
+      const result = await response.json();
+      console.log('✅ Cadastro staff salvo no servidor:', result);
+      
+      // Também salvar no localStorage como backup
+      const inscricoesExistentes = JSON.parse(localStorage.getItem('interbox_inscricoes') || '[]');
+      inscricoesExistentes.push({
+        ...inscricaoData,
+        id: result.inscricao.id
+      });
+      localStorage.setItem('interbox_inscricoes', JSON.stringify(inscricoesExistentes));
+      
+      setIsSubmitted(true);
+    } catch (error) {
+      console.error('❌ Erro ao salvar cadastro:', error);
+      
+      // Fallback: salvar apenas no localStorage
+      const inscricaoData = {
+        id: `staff_insc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        nome: formData.nome,
+        email: formData.email,
+        whatsapp: formData.whatsapp,
+        cpf: formData.cpf,
+        tipo: 'staff',
+        valor: 0,
+        status: 'cadastrado',
+        data_criacao: new Date().toISOString(),
+        experiencia: formData.experiencia,
+        disponibilidade: formData.disponibilidade,
+        motivacao: formData.motivacao
+      };
+      
       const inscricoesExistentes = JSON.parse(localStorage.getItem('interbox_inscricoes') || '[]');
       inscricoesExistentes.push(inscricaoData);
       localStorage.setItem('interbox_inscricoes', JSON.stringify(inscricoesExistentes));
       
       setIsSubmitted(true);
-      console.log('✅ Cadastro staff salvo:', inscricaoData);
-    } catch (error) {
-      console.error('❌ Erro ao salvar cadastro:', error);
     } finally {
       setIsSubmitting(false);
     }

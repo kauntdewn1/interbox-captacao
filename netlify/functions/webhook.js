@@ -47,31 +47,39 @@ exports.handler = async (event, context) => {
       console.log(`Valor: R$ ${(charge.value / 100).toFixed(2)}`);
       console.log(`Status: ${charge.status}`);
       
-      // Salvar inscrição confirmada no banco JSON
+      // Salvar inscrição confirmada via API
       try {
-        const { addInscricao } = await import('../../src/utils/database.js');
-        
         const inscricaoData = {
-          correlation_id: charge.correlationID,
           nome: charge.customer?.name || 'Nome não informado',
           email: charge.customer?.email || 'Email não informado',
           whatsapp: charge.customer?.phone || 'WhatsApp não informado',
           cpf: charge.customer?.taxID || 'CPF não informado',
           tipo: extractTypeFromCorrelationID(charge.correlationID),
-          valor: charge.value,
-          status: 'confirmado',
-          data_confirmacao: new Date().toISOString()
+          valor: charge.value / 100, // Converter de centavos para reais
+          status: 'pago',
+          correlationID: charge.correlationID,
+          charge_id: charge.identifier || charge.correlationID,
+          data_criacao: new Date(charge.createdAt).toISOString(),
+          data_atualizacao: new Date().toISOString()
         };
         
-        const success = addInscricao(inscricaoData);
+        // Chamar API para salvar
+        const response = await fetch(`${process.env.URL || 'http://localhost:8888'}/.netlify/functions/save-inscricao`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer interbox2025'
+          },
+          body: JSON.stringify(inscricaoData)
+        });
         
-        if (success) {
-          console.log('✅ Inscrição salva no banco:', inscricaoData.nome);
+        if (response.ok) {
+          console.log('✅ Inscrição paga salva via API:', inscricaoData.nome);
         } else {
-          console.error('❌ Erro ao salvar inscrição no banco');
+          console.error('❌ Erro ao salvar inscrição paga via API');
         }
       } catch (error) {
-        console.error('Erro ao salvar inscrição:', error);
+        console.error('Erro ao salvar inscrição paga:', error);
       }
     }
 

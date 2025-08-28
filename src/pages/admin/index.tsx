@@ -58,37 +58,55 @@ export default function AdminDashboard() {
       
       // 🆕 SEGUNDO: Tentar sincronizar com servidor (se disponível)
       try {
-        const inscricoesResponse = await fetch(`${ADMIN_API_BASE}/inscricoes?${new URLSearchParams(filtros)}`);
+        const inscricoesResponse = await fetch('/.netlify/functions/save-inscricao', {
+          method: 'GET',
+          headers: {
+            'Authorization': 'Bearer interbox2025'
+          }
+        });
+        
         if (inscricoesResponse.ok) {
           const inscricoesData = await inscricoesResponse.json();
-          console.log('🌐 Dados do servidor:', inscricoesData.data || []);
+          console.log('🌐 Dados do servidor:', inscricoesData.inscricoes || []);
           
-          // Combinar dados locais e do servidor
-          const todasInscricoes = [...inscricoesLocal, ...(inscricoesData.data || [])];
+          // Combinar dados locais e do servidor (evitar duplicatas)
+          const todasInscricoes = [...inscricoesLocal];
+          
+          // Adicionar dados do servidor que não existem localmente
+          inscricoesData.inscricoes?.forEach((inscricao: Inscricao) => {
+            const existeLocal = inscricoesLocal.find((i: Inscricao) => i.id === inscricao.id || i.correlationID === inscricao.correlationID);
+            if (!existeLocal) {
+              todasInscricoes.push(inscricao);
+            }
+          });
           
           // 🆕 APLICAR FILTROS aos dados combinados
           const inscricoesFiltradas = aplicarFiltros(todasInscricoes, filtros);
           setInscricoes(inscricoesFiltradas);
+          
+          // Atualizar localStorage com dados combinados
+          localStorage.setItem('interbox_inscricoes', JSON.stringify(todasInscricoes));
         } else {
           // Se servidor não estiver disponível, usar apenas dados locais com filtros
           const inscricoesFiltradas = aplicarFiltros(inscricoesLocal, filtros);
           setInscricoes(inscricoesFiltradas);
         }
-      } catch {
-        console.log('⚠️ Servidor não disponível, usando dados locais');
+      } catch (error) {
+        console.log('⚠️ Servidor não disponível, usando dados locais:', error);
         const inscricoesFiltradas = aplicarFiltros(inscricoesLocal, filtros);
         setInscricoes(inscricoesFiltradas);
       }
 
-      // 🆕 Calcular estatísticas dos dados locais
+      // 🆕 Calcular estatísticas dos dados combinados
+      const todasInscricoes = JSON.parse(localStorage.getItem('interbox_inscricoes') || '[]');
       const stats = {
-        total_inscricoes: inscricoesLocal.length,
+        total_inscricoes: todasInscricoes.length,
         tipos: {
-          judge: inscricoesLocal.filter((i: Inscricao) => i.tipo === 'judge').length,
-          audiovisual: inscricoesLocal.filter((i: Inscricao) => i.tipo === 'audiovisual').length,
-          staff: inscricoesLocal.filter((i: Inscricao) => i.tipo === 'staff').length
+          judge: todasInscricoes.filter((i: Inscricao) => i.tipo === 'judge').length,
+          audiovisual: todasInscricoes.filter((i: Inscricao) => i.tipo === 'audiovisual').length,
+          staff: todasInscricoes.filter((i: Inscricao) => i.tipo === 'staff').length
         },
-        valor_total: inscricoesLocal.reduce((total: number, i: Inscricao) => total + i.valor, 0),
+        valor_total: todasInscricoes.reduce((total: number, i: Inscricao) => total + (i.valor || 0), 0),
         inscricoes_por_mes: {} // Campo obrigatório da interface
       };
       
@@ -245,6 +263,43 @@ export default function AdminDashboard() {
     } catch (error) {
       console.error('Erro ao verificar status:', error);
       alert('❌ Erro ao verificar status do pagamento');
+    }
+  };
+
+  // 🔄 Sincronizar com servidor local
+  const syncWithServer = async () => {
+    try {
+      const inscricoesLocal = JSON.parse(localStorage.getItem('interbox_inscricoes') || '[]');
+      
+      if (inscricoesLocal.length === 0) {
+        alert('📱 Nenhum dado local para sincronizar');
+        return;
+      }
+      
+      console.log(`🔄 Sincronizando ${inscricoesLocal.length} inscrições com o servidor...`);
+      
+      const response = await fetch('/.netlify/functions/sync-inscricoes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer interbox2025'
+        },
+        body: JSON.stringify({ inscricoes: inscricoesLocal })
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        alert(`✅ Sincronização concluída!\n${inscricoesLocal.length} inscrições processadas`);
+        console.log('✅ Sincronização com servidor:', result);
+        
+        // Recarregar dados
+        loadData();
+      } else {
+        throw new Error('Erro na sincronização');
+      }
+    } catch (error) {
+      console.error('❌ Erro na sincronização com servidor:', error);
+      alert('❌ Erro na sincronização com servidor');
     }
   };
 
@@ -518,6 +573,12 @@ export default function AdminDashboard() {
           </div>
           
           <div className="flex gap-4">
+            <button
+              onClick={syncWithServer}
+              className="px-6 py-3 bg-orange-600 hover:bg-orange-700 rounded-xl font-medium transition-colors"
+            >
+              💾 Sincronizar com Servidor
+            </button>
             <button
               onClick={syncWithWoovi}
               disabled={isSyncing}

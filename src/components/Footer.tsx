@@ -12,10 +12,12 @@ export default function Footer() {
           INTERBØX 2025 é mais que evento. É comunidade.
           </p>
           <p className="text-blue-400 text-xs mt-1 font-medium">
-            Desenvolvido por{' '}
+            Desenvolvido por{' '} NEØ Protocol
+            {/* Temporariamente desativado - será reativado futuramente
             <a href="/neo-protocol" className="hover:text-blue-300 transition-colors underline">
               NEØ Protocol
             </a>
+            */}
           </p>
         </div>
       </div>
