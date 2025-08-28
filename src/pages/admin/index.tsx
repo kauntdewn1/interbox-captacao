@@ -533,11 +533,11 @@ export default function AdminDashboard() {
           id: 'insc_judge_4092b61b_restored',
           nome: 'DANIEL VIEIRA DE SOUZA',
           email: 'daniel@interbox.com',
-          whatsapp: 'WhatsApp não informado',
+          whatsapp: '62 99110-2615',
           cpf: 'CPF não informado',
           tipo: 'judge',
           valor: 19.90,
-          status: 'pago',
+          status: 'Estornado',
           correlationID: 'judge-4092b61b-ac8a-45e9-8719-98459b821db7',
           charge_id: 'de49c553102b45d79a4298844915026f',
           data_criacao: '2025-08-24T10:37:00.000Z',
@@ -605,11 +605,11 @@ export default function AdminDashboard() {
           id: 'insc_judge_78aa15a8_restored',
           nome: 'Luciana Rodrigues Lopes de Oliveira',
           email: 'luciana@interbox.com',
-          whatsapp: 'WhatsApp não informado',
+          whatsapp: '62 998593-3971',
           cpf: 'CPF não informado',
           tipo: 'judge',
           valor: 19.90,
-          status: 'pago',
+          status: 'Estornado',
           correlationID: 'judge-78aa15a8-4ff9-4a0f-acd2-06cd868f7bb7',
           charge_id: 'efecfa6c2b844b8486ab2c22965de923',
           data_criacao: '2025-08-23T13:49:00.000Z',
@@ -1231,11 +1231,8 @@ export default function AdminDashboard() {
                     <th className="text-left py-3 px-4">Nome</th>
                     <th className="text-left py-3 px-4">Email</th>
                     <th className="text-left py-3 px-4">WhatsApp</th>
-                    <th className="text-left py-3 px-4">CPF</th>
                     <th className="text-left py-3 px-4">Tipo</th>
-                    <th className="text-left py-3 px-4">Experiência</th>
-                    <th className="text-left py-3 px-4">Disponibilidade</th>
-                    <th className="text-left py-3 px-4">Data</th>
+                    <th className="text-left py-3 px-4">Data de Inscrição</th>
                     <th className="text-left py-3 px-4">Ações</th>
                   </tr>
                 </thead>
@@ -1245,7 +1242,6 @@ export default function AdminDashboard() {
                       <td className="py-3 px-4">{inscricao.nome}</td>
                       <td className="py-3 px-4">{inscricao.email}</td>
                       <td className="py-3 px-4">{inscricao.whatsapp}</td>
-                      <td className="py-3 px-4">{inscricao.cpf}</td>
                       <td className="py-3 px-4">
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                           inscricao.tipo === 'judge' ? 'bg-blue-500/20 text-blue-300' :
@@ -1254,8 +1250,6 @@ export default function AdminDashboard() {
                           {inscricao.tipo === 'judge' ? '👨‍⚖️ Judge' : '👥 Staff'}
                         </span>
                       </td>
-                      <td className="py-3 px-4">{inscricao.experiencia || 'Não informado'}</td>
-                      <td className="py-3 px-4">{inscricao.disponibilidade || 'Não informado'}</td>
                       <td className="py-3 px-4">
                         {new Date(inscricao.data_criacao).toLocaleDateString('pt-BR')}
                       </td>
