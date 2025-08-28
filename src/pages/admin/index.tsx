@@ -87,14 +87,17 @@ export default function AdminDashboard() {
             }
           });
           
-          // 🆕 APLICAR FILTROS aos dados combinados
-          const inscricoesFiltradas = aplicarFiltros(todasInscricoes, filtros);
-          setInscricoes(inscricoesFiltradas);
-          
-          // Atualizar localStorage com dados combinados
-          localStorage.setItem('interbox_inscricoes', JSON.stringify(todasInscricoes));
-          
-          console.log(`✅ Dados sincronizados: ${inscricoesLocal.length} locais + ${inscricoesData.inscricoes?.length || 0} servidor = ${todasInscricoes.length} total`);
+                // 🧹 LIMPEZA AUTOMÁTICA: Remover dados falsos e adicionar dados verdadeiros
+      const inscricoesLimpos = limparDadosAutomaticamente(todasInscricoes);
+      
+      // 🆕 APLICAR FILTROS aos dados limpos
+      const inscricoesFiltradas = aplicarFiltros(inscricoesLimpos, filtros);
+      setInscricoes(inscricoesFiltradas);
+      
+      // Atualizar localStorage com dados limpos
+      localStorage.setItem('interbox_inscricoes', JSON.stringify(inscricoesLimpos));
+      
+      console.log(`✅ Dados sincronizados e limpos: ${inscricoesLocal.length} locais + ${inscricoesData.inscricoes?.length || 0} servidor = ${inscricoesLimpos.length} total (após limpeza)`);
         } else {
           // Se servidor não estiver disponível, usar apenas dados locais com filtros
           const inscricoesFiltradas = aplicarFiltros(inscricoesLocal, filtros);
@@ -233,14 +236,10 @@ export default function AdminDashboard() {
     }
   };
 
-  // 🆕 ADICIONAR DADOS RECUPERADOS MANUALMENTE
-  const adicionarDadosRecuperados = () => {
-    if (!confirm('🚨 ADICIONAR DADOS RECUPERADOS?\n\nVou:\n1. REMOVER os 3 dados falsos (Candidato staff, Candidato judge, Candidato judge 2)\n2. ADICIONAR os dados verdadeiros:\n- Bruno Peixoto Santos Borges (Judge)\n- Olavo Filipe Ferreira Leal (Judge)\n\nContinuar?')) {
-      return;
-    }
-
+  // 🧹 LIMPEZA AUTOMÁTICA: Remove dados falsos e adiciona dados verdadeiros
+  const limparDadosAutomaticamente = (inscricoes: Inscricao[]) => {
     try {
-      console.log('🚨 Limpando dados falsos e adicionando dados verdadeiros...');
+      console.log('🧹 Executando limpeza automática...');
       
       // Dados recuperados com muito custo
       const dadosRecuperados = [
@@ -279,24 +278,36 @@ export default function AdminDashboard() {
       ];
       
       // 🧹 REMOVER DADOS FALSOS (Candidato staff, Candidato judge, Candidato judge 2)
-      const inscricoesExistentes = JSON.parse(localStorage.getItem('interbox_inscricoes') || '[]');
-      const inscricoesLimpas = inscricoesExistentes.filter((inscricao: Inscricao) => {
+      const inscricoesLimpas = inscricoes.filter((inscricao: Inscricao) => {
         // Manter apenas dados verdadeiros (não são "Candidato...")
         return !inscricao.nome.startsWith('Candidato');
       });
       
-      // Adicionar dados recuperados
-      const novasInscricoes = [...inscricoesLimpas, ...dadosRecuperados];
-      localStorage.setItem('interbox_inscricoes', JSON.stringify(novasInscricoes));
+      // Verificar se Bruno e Olavo já existem
+      const brunoExiste = inscricoesLimpas.some(i => i.email === 'brunaocross85@gmail.com');
+      const olavoExiste = inscricoesLimpas.some(i => i.email === 'olavofilipeleal@gmail.com');
       
-      // Recarregar dados
-      loadData();
+      // Adicionar apenas se não existirem
+      const inscricoesFinais = [
+        ...inscricoesLimpas,
+        ...(brunoExiste ? [] : [dadosRecuperados[0]]),
+        ...(olavoExiste ? [] : [dadosRecuperados[1]])
+      ];
       
-      alert(`✅ Dados limpos e recuperados com sucesso!\n\n🧹 REMOVIDOS: 3 dados falsos (Candidato...)\n✅ ADICIONADOS:\n- Bruno Peixoto Santos Borges (Judge)\n- Olavo Filipe Ferreira Leal (Judge)\n\nTotal final: ${novasInscricoes.length} inscrições verdadeiras`);
+      if (!brunoExiste) {
+        console.log('✅ Bruno Peixoto adicionado automaticamente');
+      }
+      
+      if (!olavoExiste) {
+        console.log('✅ Olavo Filipe adicionado automaticamente');
+      }
+      
+      console.log(`🧹 Limpeza automática concluída: ${inscricoes.length} → ${inscricoesFinais.length} inscrições`);
+      return inscricoesFinais;
       
     } catch (error) {
-      console.error('❌ Erro ao limpar e adicionar dados:', error);
-      alert('❌ Erro ao limpar e adicionar dados');
+      console.error('❌ Erro na limpeza automática:', error);
+      return inscricoes; // Retornar dados originais em caso de erro
     }
   };
 
@@ -1023,12 +1034,7 @@ export default function AdminDashboard() {
             >
               📈 Excel
             </button>
-            <button
-              onClick={adicionarDadosRecuperados}
-              className="px-3 lg:px-6 py-2 lg:py-3 bg-orange-600 hover:bg-orange-700 border border-orange-500 rounded-xl font-medium transition-colors text-sm lg:text-base"
-            >
-              🧹 Limpar Falsos + Adicionar Verdadeiros
-            </button>
+
             <button
               onClick={() => navigate('/')}
               className="px-3 lg:px-6 py-2 lg:py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl font-medium transition-colors text-sm lg:text-base"
