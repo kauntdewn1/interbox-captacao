@@ -835,49 +835,49 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4">
           <div>
-            <h1 className="text-4xl font-bold mb-2">📊 Dashboard INTERBØX 2025</h1>
+            <h1 className="text-2xl lg:text-4xl font-bold mb-2">📊 Dashboard INTERBØX 2025</h1>
             <p className="text-white/80">Gerencie inscrições e visualize estatísticas</p>
           </div>
           
-          <div className="flex gap-4">
+          <div className="grid grid-cols-2 lg:flex gap-2 lg:gap-4 w-full lg:w-auto">
             <button
               onClick={syncWithServer}
-              className="px-6 py-3 bg-orange-600 hover:bg-orange-700 rounded-xl font-medium transition-colors"
+              className="px-3 lg:px-6 py-2 lg:py-3 bg-orange-600 hover:bg-orange-700 rounded-xl font-medium transition-colors text-sm lg:text-base"
             >
-              🔄 Sincronização em Tempo Real
+              🔄 Sincronizar
             </button>
             <button
               onClick={restoreLostData}
-              className="px-6 py-3 bg-red-600 hover:bg-red-700 rounded-xl font-medium transition-colors"
+              className="px-3 lg:px-6 py-2 lg:py-3 bg-red-600 hover:bg-red-700 rounded-xl font-medium transition-colors text-sm lg:text-base"
             >
-              🚨 Restaurar Dados Perdidos
+              🚨 Restaurar
             </button>
             <button
               onClick={syncWithWoovi}
               disabled={isSyncing}
-              className="px-6 py-3 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 rounded-xl font-medium transition-colors"
+              className="px-3 lg:px-6 py-2 lg:py-3 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 rounded-xl font-medium transition-colors text-sm lg:text-base"
             >
-              {isSyncing ? '🔄 Sincronizando...' : '🔄 Sincronizar com Woovi'}
+              {isSyncing ? '🔄...' : '🔄 Woovi'}
             </button>
             <button
               onClick={() => exportData('csv')}
-              className="px-6 py-3 bg-green-600 hover:bg-green-700 rounded-xl font-medium transition-colors"
+              className="px-3 lg:px-6 py-2 lg:py-3 bg-green-600 hover:bg-green-700 rounded-xl font-medium transition-colors text-sm lg:text-base"
             >
-              📊 Exportar CSV
+              📊 CSV
             </button>
             <button
               onClick={() => exportData('excel')}
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl font-medium transition-colors"
+              className="px-3 lg:px-6 py-2 lg:py-3 bg-blue-600 hover:bg-blue-700 rounded-xl font-medium transition-colors text-sm lg:text-base"
             >
-              📈 Exportar Excel
+              📈 Excel
             </button>
             <button
               onClick={() => navigate('/')}
-              className="px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl font-medium transition-colors"
+              className="px-3 lg:px-6 py-2 lg:py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl font-medium transition-colors text-sm lg:text-base"
             >
-              🏠 Voltar ao App
+              🏠 Voltar
             </button>
           </div>
         </div>
