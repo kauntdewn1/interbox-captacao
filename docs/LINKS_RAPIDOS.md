@@ -109,7 +109,7 @@ Estamos recrutando para o maior evento fitness de times da América Latina:
 ## 🔐 **ADMIN (RESTRITO)**
 ```
 📊 Dashboard: https://interbox-captacao.netlify.app/admin
-🔑 Senha: i
+🔑 Senha: xxx
 ```
 
 ---
