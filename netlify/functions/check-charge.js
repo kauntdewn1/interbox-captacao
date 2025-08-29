@@ -36,8 +36,8 @@ const checkOpenPixCharge = async (chargeId) => {
 
 
 
-// 🚀 Handler principal da Netlify Function
-exports.handler = async (event, context) => {
+  // 🚀 Handler principal da Netlify Function
+  export const handler = async (event, context) => {
   // Habilitar CORS
   const headers = {
     'Access-Control-Allow-Origin': '*',

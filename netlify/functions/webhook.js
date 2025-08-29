@@ -6,7 +6,7 @@ const extractTypeFromCorrelationID = (correlationID) => {
   return 'desconhecido';
 };
 
-exports.handler = async (event, context) => {
+export const handler = async (event, context) => {
   // Habilitar CORS
   const headers = {
     'Access-Control-Allow-Origin': '*',
