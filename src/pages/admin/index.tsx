@@ -623,8 +623,8 @@ export default function AdminDashboard() {
               <p className="text-white/80">Nenhuma inscrição audiovisual encontrada</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
+            <div className="overflow-x-auto -mx-4 sm:mx-0">
+              <table className="w-full min-w-[800px] sm:min-w-0">
                 <thead>
                   <tr className="border-b border-white/20">
                     <th className="text-left py-3 px-4">Nome</th>
@@ -633,7 +633,7 @@ export default function AdminDashboard() {
                     <th className="text-left py-3 px-4">CPF</th>
                     <th className="text-left py-3 px-4">Portfolio</th>
                     <th className="text-left py-3 px-4">Valor</th>
-                    <th className="text-left py-3 px-4">Status</th>
+                    <th className="text-left py-3 px-4 min-w-[120px]">Status</th>
                     <th className="text-left py-3 px-4">Data</th>
                     <th className="text-left py-3 px-4">Ações</th>
                   </tr>
@@ -660,8 +660,8 @@ export default function AdminDashboard() {
                         )}
                       </td>
                       <td className="py-3 px-4 text-green-400 font-semibold">R$ {(inscricao.valor || 0).toFixed(2)}</td>
-                      <td className="py-3 px-4">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      <td className="py-3 px-4 min-w-[120px]">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap inline-block ${
                           inscricao.status === 'confirmado' || inscricao.status === 'pago' ? 'bg-green-500/20 text-green-300' :
                           inscricao.status === 'pendente' ? 'bg-yellow-500/20 text-yellow-300' :
                           inscricao.status === 'Estornado' ? 'bg-red-500/20 text-red-300' :
@@ -729,14 +729,14 @@ export default function AdminDashboard() {
               <p className="text-white/80">Nenhuma inscrição judge & staff encontrada</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
+            <div className="overflow-x-auto -mx-4 sm:mx-0">
+              <table className="w-full min-w-[600px] sm:min-w-0">
                 <thead>
                   <tr className="border-b border-white/20">
                     <th className="text-left py-3 px-4">Nome</th>
                     <th className="text-left py-3 px-4">Email</th>
                     <th className="text-left py-3 px-4">WhatsApp</th>
-                    <th className="text-left py-3 px-4">Tipo</th>
+                    <th className="text-left py-3 px-4 min-w-[100px]">Tipo</th>
                     <th className="text-left py-3 px-4">Data de Inscrição</th>
                     <th className="text-left py-3 px-4">Ações</th>
                   </tr>
@@ -747,8 +747,8 @@ export default function AdminDashboard() {
                       <td className="py-3 px-4">{inscricao.nome}</td>
                       <td className="py-3 px-4">{inscricao.email}</td>
                       <td className="py-3 px-4">{inscricao.whatsapp}</td>
-                      <td className="py-3 px-4">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      <td className="py-3 px-4 min-w-[100px]">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap inline-block ${
                           inscricao.tipo === 'judge' ? 'bg-blue-500/20 text-blue-300' :
                           'bg-yellow-500/20 text-yellow-300'
                         }`}>
