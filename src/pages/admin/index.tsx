@@ -86,140 +86,27 @@ export default function AdminDashboard() {
     return inscricoesFiltradas;
   }, []);
 
-  // Função para limpar e normalizar dados
-  const limparDadosAutomaticamente = useCallback((inscricoes: Inscricao[]): Inscricao[] => {
+  // 🆕 Função simplificada para normalizar dados do Supabase
+  const normalizarDados = useCallback((inscricoes: Inscricao[]): Inscricao[] => {
     try {
-      console.log('Executando limpeza automática...');
+      console.log('Normalizando dados do Supabase...');
       
-      // Dados pré-definidos para restauração
-      const dadosRecuperados: Inscricao[] = [
-        {
-          id: `judge_bruno_peixoto_${Date.now()}`,
-          nome: 'Bruno Peixoto Santos Borges',
-          email: 'brunaocross85@gmail.com',
-          whatsapp: '62981660285',
-          cpf: 'CPF não informado',
-          tipo: 'judge',
-          valor: 0,
-          status: 'cadastrado',
-          data_criacao: '2025-08-28T21:50:00.000Z',
-          data_atualizacao: new Date().toISOString(),
-          experiencia: 'Experiência não informada',
-          disponibilidade: 'Disponibilidade não informada',
-          motivacao: 'Motivação não informada',
-          certificacoes: 'Certificações não informadas'
-        },
-        {
-          id: `judge_olavo_filipe_${Date.now()}`,
-          nome: 'Olavo Filipe Ferreira Leal',
-          email: 'olavofilipeleal@gmail.com',
-          whatsapp: '(62) 9 9909-6846',
-          cpf: 'CPF não informado',
-          tipo: 'judge',
-          valor: 0,
-          status: 'cadastrado',
-          data_criacao: '2025-08-28T21:50:00.000Z',
-          data_atualizacao: new Date().toISOString(),
-          experiencia: 'Experiência não informada',
-          disponibilidade: 'Disponibilidade não informada',
-          motivacao: 'Motivação não informada',
-          certificacoes: 'Certificações não informadas'
-        }
-      ];
+      // Apenas normalizar campos que podem estar undefined
+      const inscricoesNormalizadas = inscricoes.map(inscricao => ({
+        ...inscricao,
+        cpf: inscricao.cpf || 'Não informado',
+        portfolio: inscricao.portfolio || undefined,
+        experiencia: inscricao.experiencia || 'Não informada',
+        disponibilidade: inscricao.disponibilidade || 'Não informada',
+        motivacao: inscricao.motivacao || 'Não informada',
+        certificacoes: inscricao.certificacoes || 'Não informadas'
+      }));
       
-      // Atualizar dados existentes com informações corretas
-      const inscricoesAtualizadas = inscricoes.map((inscricao: Inscricao) => {
-        // Mapeamento de atualizações por nome
-        const atualizacoes: Record<string, Partial<Inscricao>> = {
-          'RAFAEL MESSIAS DOS SANTOS': {
-            email: 'puroestiloacessorios@outlook.com',
-            whatsapp: '62 98268-5031',
-            portfolio: 'Typeform'
-          },
-          'Waldinez de Oliveira Luz Junior': {
-            email: 'cobyti18@gmail.com',
-            portfolio: 'Typeform'
-          },
-          'André Luiz Corrêa dos Santos': {
-            email: 'andrelcds30@gmail.com',
-            whatsapp: '62 98217-3637',
-            portfolio: 'Typeform'
-          },
-          'RENATA CRISTINA COSTA E SILVA': {
-            email: 'rebioespecifica@gmail.com',
-            whatsapp: '62 99122-3167',
-            portfolio: 'Typeform'
-          },
-          'RODRIGO JOSE GONCALVES': {
-            email: 'rodrigojosegoncalves@hotmail.com',
-            whatsapp: '62 99391-3203',
-            portfolio: 'Typeform'
-          },
-          'DANIEL VIEIRA DE SOUZA': {
-            whatsapp: '62 99110-2615',
-            status: 'Estornado'
-          },
-          'Luciana Rodrigues Lopes de Oliveira': {
-            whatsapp: '62 998593-3971',
-            status: 'Estornado'
-          }
-        };
-
-        const atualizacao = atualizacoes[inscricao.nome];
-        if (atualizacao) {
-          return { ...inscricao, ...atualizacao };
-        }
-
-        // Atualizar portfólio para todos os audiovisual
-        if (inscricao.tipo === 'audiovisual') {
-          return { ...inscricao, portfolio: 'Typeform' };
-        }
-
-        return inscricao;
-      });
-      
-      // Remover dados falsos (começam com "Candidato")
-      const inscricoesLimpas = inscricoesAtualizadas.filter((inscricao: Inscricao) => {
-        return !inscricao.nome.startsWith('Candidato');
-      });
-      
-      // Verificar se Bruno e Olavo já existem
-      const brunoExiste = inscricoesLimpas.some(i => i.email === 'brunaocross85@gmail.com');
-      const olavoExiste = inscricoesLimpas.some(i => i.email === 'olavofilipeleal@gmail.com');
-      
-      // Adicionar dados recuperados se não existirem
-      const inscricoesFinais = [
-        ...inscricoesLimpas,
-        ...(brunoExiste ? [] : [dadosRecuperados[0]]),
-        ...(olavoExiste ? [] : [dadosRecuperados[1]])
-      ];
-      
-      // Adicionar Leonardo Jaime se não existir
-      const leonardoExiste = inscricoesFinais.some(i => i.email === 'leonardojaime.s235@gmail.com');
-      if (!leonardoExiste) {
-        const leonardoJaime: Inscricao = {
-          id: `staff_leonardo_jaime_${Date.now()}`,
-          nome: 'Leonardo Jaime',
-          email: 'leonardojaime.s235@gmail.com',
-          whatsapp: '62 993814700',
-          cpf: 'CPF não informado',
-          tipo: 'staff',
-          valor: 0,
-          status: 'cadastrado',
-          data_criacao: new Date().toISOString(),
-          data_atualizacao: new Date().toISOString(),
-          experiencia: 'Experiência não informada',
-          disponibilidade: 'Disponibilidade não informada',
-          motivacao: 'Motivação não informada'
-        };
-        inscricoesFinais.push(leonardoJaime);
-      }
-      
-      console.log(`Limpeza automática concluída: ${inscricoes.length} → ${inscricoesFinais.length} inscrições`);
-      return inscricoesFinais;
+      console.log(`✅ Dados normalizados: ${inscricoes.length} inscrições`);
+      return inscricoesNormalizadas;
       
     } catch (error) {
-      console.error('Erro na limpeza automática:', error);
+      console.error('Erro na normalização:', error);
       return inscricoes;
     }
   }, []);
@@ -228,15 +115,12 @@ export default function AdminDashboard() {
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      // Carregar dados do localStorage
-      const inscricoesLocal: Inscricao[] = JSON.parse(localStorage.getItem('interbox_inscricoes') || '[]');
-      console.log('Dados locais carregados:', inscricoesLocal.length);
-      
-      const todasInscricoes = [...inscricoesLocal];
+      // 🆕 Dados vêm diretamente do Supabase
+      const todasInscricoes: Inscricao[] = [];
 
-      // Tentar sincronizar com servidor
+      // 🆕 Buscar dados diretamente do Supabase
       try {
-        const response = await fetch('https://interbox-captacao.netlify.app/.netlify/functions/real-time-sync', {
+        const response = await fetch('https://interbox-captacao.netlify.app/.netlify/functions/save-inscricao', {
           method: 'GET',
           headers: {
             'Authorization': 'Bearer interbox2025'
@@ -245,45 +129,38 @@ export default function AdminDashboard() {
         
         if (response.ok) {
           const serverData = await response.json();
-          console.log('Dados do servidor:', serverData.inscricoes?.length || 0);
+          console.log('✅ Dados do Supabase carregados:', serverData.inscricoes?.length || 0);
           
-          // Combinar dados sem duplicatas
+          // Usar dados do Supabase como fonte principal
           if (serverData.inscricoes?.length > 0) {
-            serverData.inscricoes.forEach((inscricao: Inscricao) => {
-              const existeLocal = inscricoesLocal.find((i: Inscricao) => 
-                i.id === inscricao.id || 
-                i.correlationID === inscricao.correlationID ||
-                (i.email === inscricao.email && i.tipo === inscricao.tipo)
-              );
-              if (!existeLocal) {
-                todasInscricoes.push(inscricao);
-              }
-            });
+            todasInscricoes.length = 0; // Limpar array
+            todasInscricoes.push(...serverData.inscricoes);
           }
+        } else {
+          console.error('❌ Erro ao carregar dados do Supabase:', response.status);
         }
       } catch (error) {
-        console.log('Servidor não disponível, usando dados locais:', error);
+        console.error('❌ Erro ao conectar com Supabase:', error);
       }
 
-      // Aplicar limpeza automática
-      const inscricoesLimpos = limparDadosAutomaticamente(todasInscricoes);
+      // Aplicar normalização
+      const inscricoesNormalizados = normalizarDados(todasInscricoes);
       
       // Aplicar filtros
-      const inscricoesFiltradas = aplicarFiltros(inscricoesLimpos, filtros);
+      const inscricoesFiltradas = aplicarFiltros(inscricoesNormalizados, filtros);
       setInscricoes(inscricoesFiltradas);
       
-      // Atualizar localStorage com dados limpos
-      localStorage.setItem('interbox_inscricoes', JSON.stringify(inscricoesLimpos));
+      // 🆕 Não precisamos mais do localStorage - dados vêm do Supabase
       
       // Calcular estatísticas
       const stats: Estatisticas = {
-        total_inscricoes: inscricoesLimpos.length,
+        total_inscricoes: inscricoesNormalizados.length,
         tipos: {
-          judge: inscricoesLimpos.filter(i => i.tipo === 'judge').length,
-          audiovisual: inscricoesLimpos.filter(i => i.tipo === 'audiovisual').length,
-          staff: inscricoesLimpos.filter(i => i.tipo === 'staff').length
+          judge: inscricoesNormalizados.filter(i => i.tipo === 'judge').length,
+          audiovisual: inscricoesNormalizados.filter(i => i.tipo === 'audiovisual').length,
+          staff: inscricoesNormalizados.filter(i => i.tipo === 'staff').length
         },
-        valor_total: inscricoesLimpos.reduce((total, i) => total + (i.valor || 0), 0),
+        valor_total: inscricoesNormalizados.reduce((total, i) => total + (i.valor || 0), 0),
         inscricoes_por_mes: {}
       };
       
@@ -294,7 +171,7 @@ export default function AdminDashboard() {
     } finally {
       setLoading(false);
     }
-  }, [filtros, aplicarFiltros, limparDadosAutomaticamente]);
+  }, [filtros, aplicarFiltros, normalizarDados]);
 
   // Carregar dados quando componente monta ou filtros mudam
   useEffect(() => {

@@ -6,10 +6,12 @@
 import { createClient } from '@supabase/supabase-js';
 
 // 🔗 Configuração Supabase
-const supabaseUrl = 'https://ymriypyyirnwctyitcsu.supabase.co';
-const supabaseKey = process.env.SUPABASE_ANON_KEY;
+const supabaseUrl = 'https://vlwuwutoulfbbieznios.supabase.co';
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 const supabase = createClient(supabaseUrl, supabaseKey);
+
+
 
 // 🔐 Verificação básica de autenticação
 const isAuthorized = (event) => {
