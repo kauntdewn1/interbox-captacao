@@ -88,7 +88,7 @@ Estamos recrutando para o maior evento fitness de times da América Latina:
 ```
 
 ### **TikTok/Reels**
-```
+
 🏆 INTERBØX 2025 - Você pode participar!
 
 🎯 Escolha seu papel:
@@ -102,19 +102,20 @@ Estamos recrutando para o maior evento fitness de times da América Latina:
 
 🔗 Link na bio
 #INTERBØX2025 #FitnessBrasil #EventosFitness
-```
+
 
 ---
 
 ## 🔐 **ADMIN (RESTRITO)**
-```
+
 📊 Dashboard: https://interbox-captacao.netlify.app/admin
 🔑 Senha: xxx
-```
+
 
 ---
 
 ## 📊 **ESTRUTURA ATUALIZADA**
+
 - **JUDGE**: Cadastro gratuito em `/judge/cadastro`
 - **STAFF**: Cadastro gratuito em `/staff/cadastro`  
 - **AUDIOVISUAL**: Pagamento R$ 29,90 em `/audiovisual/pagar`
@@ -122,4 +123,4 @@ Estamos recrutando para o maior evento fitness de times da América Latina:
 
 ---
 
-**🚀 PRONTO PARA DIVULGAR! 🏆**
+<<🚀 PRONTO PARA DIVULGAR! 🏆*>>

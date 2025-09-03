@@ -28,6 +28,15 @@
   API_BASE_URL = "https://api.woovi.com"
   WEBHOOK_URL = "https://interbox-captacao.netlify.app/webhook"
   ADMIN_API_KEY = "interbox2025"
+  # Configurações para o sistema de seguros
+  SEGURO_VALOR_FIXO = "39.90"
+  SEGURO_PARCEIRO_CNPJ = "00.283.283/0001-26"
+  SEGURO_EMAIL_COMPROVANTE = "financeirocorretora@gruposaga.com.br"
+  
+  # Supabase - NOVAS CHAVES
+  SUPABASE_URL = "https://vlwuwutoulfbbieznios.supabase.co"
+  SUPABASE_ANON_KEY = "sb_publishable_RjBxJhgkUDdPwDlsg2Jm7g_GBl22lPp"
+  SUPABASE_SERVICE_ROLE_KEY = "sb_secret_gvC3er6Tw9EWFtUARltPsw_8UBN7P2F"
 
 # Headers de segurança
 [[headers]]

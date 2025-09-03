@@ -3,10 +3,12 @@ import AudiovisualAnalysis from './components/AudiovisualAnalysis';
 import CheckoutCard from './components/CheckoutCard';
 import JudgeStaff from './pages/captacao/judge-staff';
 import AdminDashboard from './pages/admin';
+import AdminSeguro from './pages/admin/seguro';
 import NeoProtocol from './pages/neo-protocol';
 import AudiovisualSuccessPage from './pages/audiovisual/success';
 import JudgeCadastro from './pages/judge/cadastro';
 import StaffCadastro from './pages/staff/cadastro';
+import SeguroPage from './pages/seguro';
 
 function App() {
   return (
@@ -18,7 +20,9 @@ function App() {
         <Route path="/captacao/judge-staff" element={<JudgeStaff />} />
         <Route path="/judge/cadastro" element={<JudgeCadastro />} />
         <Route path="/staff/cadastro" element={<StaffCadastro />} />
+        <Route path="/adm_seguro" element={<AdminSeguro />} />
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/seguro" element={<SeguroPage />} />
         <Route path="/neo-protocol" element={<NeoProtocol />} />
         <Route path="/" element={<AudiovisualAnalysis />} />
       </Routes>
