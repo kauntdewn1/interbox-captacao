@@ -1,5 +1,5 @@
 -- 📝 Criar Tabela Inscrições no Novo Projeto Supabase
--- Execute este SQL no SQL Editor do Supabase: https://vlwuwutoulfbbieznios.supabase.co
+-- Execute este SQL no SQL Editor do Supabase: https://ymriypyyirnwctyitcsu.supabase.co
 
 -- Criar tabela de inscrições
 CREATE TABLE IF NOT EXISTS inscricoes (

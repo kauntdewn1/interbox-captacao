@@ -79,6 +79,38 @@ export default function AudiovisualInscricaoPage() {
       
       localStorage.setItem('interbox_contact_info', JSON.stringify(contactData));
       
+      // 🆕 SALVAR NO SUPABASE IMEDIATAMENTE
+      const inscricaoData = {
+        nome: contactInfo.email.split('@')[0], // Usar parte do email como nome temporário
+        email: contactInfo.email,
+        whatsapp: contactInfo.whatsapp,
+        cpf: '', // CPF será preenchido no checkout
+        tipo: 'audiovisual',
+        valor: 29.90,
+        status: 'cadastrado',
+        portfolio: '',
+        experiencia: '',
+        disponibilidade: '',
+        motivacao: '',
+        certificacoes: ''
+      };
+      
+      const response = await fetch('https://interbox-captacao.netlify.app/.netlify/functions/save-inscricao', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer interbox2025'
+        },
+        body: JSON.stringify(inscricaoData)
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        console.log('✅ Inscrição audiovisual salva no Supabase:', result.inscricao?.id);
+      } else {
+        console.error('❌ Erro ao salvar inscrição no Supabase:', response.status);
+      }
+      
       // Log para debug e acompanhamento
       console.log('📧 INTERBØX - Dados de contato capturados:', {
         ...contactData,

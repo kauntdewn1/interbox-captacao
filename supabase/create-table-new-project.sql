@@ -1,5 +1,5 @@
 -- 🆕 Script para criar tabela seguros no NOVO projeto Supabase
--- Execute este SQL no SQL Editor do Supabase: https://vlwuwutoulfbbieznios.supabase.co
+-- Execute este SQL no SQL Editor do Supabase: https://ymriypyyirnwctyitcsu.supabase.co
 
 -- 1. Criar tabela de seguros
 CREATE TABLE IF NOT EXISTS seguros (

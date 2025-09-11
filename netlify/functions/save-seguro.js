@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 console.log('All environment variables:', Object.keys(process.env));
 console.log('NODE_ENV:', process.env.NODE_ENV);
 
-const supabaseUrl = process.env.SUPABASE_URL || 'https://vlwuwutoulfbbieznios.supabase.co';
+const supabaseUrl = process.env.SUPABASE_URL || 'https://ymriypyyirnwctyitcsu.supabase.co';
 // Voltando para a chave de serviço que deve ter acesso total
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 

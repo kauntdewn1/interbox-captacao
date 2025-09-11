@@ -34,9 +34,9 @@
   SEGURO_EMAIL_COMPROVANTE = "financeirocorretora@gruposaga.com.br"
   
   # Supabase - NOVAS CHAVES
-  SUPABASE_URL = "https://vlwuwutoulfbbieznios.supabase.co"
-  SUPABASE_ANON_KEY = "sb_publishable_RjBxJhgkUDdPwDlsg2Jm7g_GBl22lPp"
-  SUPABASE_SERVICE_ROLE_KEY = "sb_secret_gvC3er6Tw9EWFtUARltPsw_8UBN7P2F"
+  SUPABASE_URL = "https://ymriypyyirnwctyitcsu.supabase.co"
+  SUPABASE_ANON_KEY = "your_supabase_anon_key_here"
+  SUPABASE_SERVICE_ROLE_KEY = "your_supabase_service_role_key_here"
 
 # Headers de segurança
 [[headers]]

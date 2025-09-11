@@ -1,5 +1,5 @@
 -- 🚀 MIGRAÇÃO COMPLETA DE DADOS PARA SUPABASE
--- Execute este SQL no SQL Editor do Supabase: https://vlwuwutoulfbbieznios.supabase.co
+-- Execute este SQL no SQL Editor do Supabase: https://ymriypyyirnwctyitcsu.supabase.co
 
 -- 1️⃣ PRIMEIRO: Criar tabela inscricoes se não existir
 CREATE TABLE IF NOT EXISTS inscricoes (

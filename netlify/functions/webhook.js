@@ -1,9 +1,13 @@
 // 🔧 Função auxiliar para extrair tipo da inscrição
 const extractTypeFromCorrelationID = (correlationID) => {
-  if (correlationID.includes('judge')) return 'judge';
-  if (correlationID.includes('audiovisual')) return 'audiovisual';
-  if (correlationID.includes('staff')) return 'staff';
-  return 'desconhecido';
+  if (!correlationID) return 'audiovisual'; // Default
+  
+  const id = correlationID.toLowerCase();
+  if (id.includes('audiovisual')) return 'audiovisual';
+  if (id.includes('judge')) return 'judge';
+  if (id.includes('staff')) return 'staff';
+  if (id.includes('interbox')) return 'audiovisual'; // Default para INTERBØX
+  return 'audiovisual'; // Default
 };
 
 export const handler = async (event, context) => {
@@ -40,46 +44,42 @@ export const handler = async (event, context) => {
     console.log('Webhook OpenPix recebido:', JSON.stringify(webhookData, null, 2));
 
     // Verificar se é uma notificação de pagamento
-    if (webhookData.event === 'charge.confirmed') {
-      const { charge } = webhookData;
+    if (webhookData.event === 'OPENPIX:TRANSACTION_RECEIVED') {
+      const { transaction } = webhookData;
       
-      console.log(`Pagamento confirmado para charge: ${charge.correlationID}`);
-      console.log(`Valor: R$ ${(charge.value / 100).toFixed(2)}`);
-      console.log(`Status: ${charge.status}`);
+      console.log(`Pagamento PIX recebido: ${transaction.correlationID}`);
+      console.log(`Valor: R$ ${(transaction.value / 100).toFixed(2)}`);
+      console.log(`End-to-End ID: ${transaction.transactionEndToEndId}`);
       
-      // Salvar inscrição confirmada via API
+      // Atualizar inscrição existente no Supabase
       try {
-        const inscricaoData = {
-          nome: charge.customer?.name || 'Nome não informado',
-          email: charge.customer?.email || 'Email não informado',
-          whatsapp: charge.customer?.phone || 'WhatsApp não informado',
-          cpf: charge.customer?.taxID || 'CPF não informado',
-          tipo: extractTypeFromCorrelationID(charge.correlationID),
-          valor: charge.value / 100, // Converter de centavos para reais
+        const updateData = {
+          email: transaction.customer?.email || 'Email não informado',
+          tipo: extractTypeFromCorrelationID(transaction.correlationID),
           status: 'pago',
-          correlationID: charge.correlationID,
-          charge_id: charge.identifier || charge.correlationID,
-          data_criacao: new Date(charge.createdAt).toISOString(),
-          data_atualizacao: new Date().toISOString()
+          data_confirmacao: new Date().toISOString(),
+          correlationID: transaction.correlationID,
+          charge_id: transaction.correlationID
         };
         
-        // Chamar API para salvar
-        const response = await fetch(`${process.env.URL || 'https://interbox-captacao.netlify.app'}/.netlify/functions/save-inscricao`, {
-          method: 'POST',
+        // Chamar API para atualizar
+        const response = await fetch(`${process.env.URL || 'https://interbox-captacao.netlify.app'}/.netlify/functions/update-inscricao`, {
+          method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer interbox2025'
           },
-          body: JSON.stringify(inscricaoData)
+          body: JSON.stringify(updateData)
         });
         
         if (response.ok) {
-          console.log('✅ Inscrição paga salva via API:', inscricaoData.nome);
+          const result = await response.json();
+          console.log('✅ Inscrição atualizada para pago:', result.inscricao?.id);
         } else {
-          console.error('❌ Erro ao salvar inscrição paga via API');
+          console.error('❌ Erro ao atualizar inscrição para pago');
         }
       } catch (error) {
-        console.error('Erro ao salvar inscrição paga:', error);
+        console.error('Erro ao atualizar inscrição para pago:', error);
       }
     }
 

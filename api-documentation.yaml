@@ -1,0 +1,584 @@
+openapi: 3.0.3
+info:
+  title: INTERBØX 2025 API
+  description: |-
+    API para gerenciamento de inscrições e seguros do INTERBØX 2025.
+    
+    Esta API permite:
+    - Gerenciar inscrições (judge, staff, audiovisual)
+    - Gerenciar seguros
+    - Sincronizar com OpenPix/Woovi
+    - Verificar status de pagamentos
+    
+    **Base URL:** https://interbox-captacao.netlify.app/.netlify/functions/
+    
+    **Autenticação:** Bearer Token (interbox2025)
+  version: 1.0.0
+  contact:
+    name: INTERBØX 2025
+    email: contato@interbox.com.br
+
+servers:
+  - url: https://interbox-captacao.netlify.app/.netlify/functions
+    description: Produção
+
+security:
+  - BearerAuth: []
+
+paths:
+  /save-inscricao:
+    get:
+      summary: Listar inscrições
+      description: Retorna todas as inscrições cadastradas no sistema
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Lista de inscrições retornada com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  inscricoes:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Inscricao'
+                  metadata:
+                    $ref: '#/components/schemas/Metadata'
+        '401':
+          description: Não autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Erro interno do servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    post:
+      summary: Criar nova inscrição
+      description: Cria uma nova inscrição no sistema
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InscricaoInput'
+      responses:
+        '200':
+          description: Inscrição criada com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Inscrição salva com sucesso"
+                  inscricao:
+                    $ref: '#/components/schemas/Inscricao'
+        '400':
+          description: Dados inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Email já possui inscrição deste tipo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /save-seguro:
+    get:
+      summary: Listar seguros
+      description: Retorna todos os seguros cadastrados no sistema
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Lista de seguros retornada com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  seguros:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Seguro'
+        '401':
+          description: Não autorizado
+        '500':
+          description: Erro interno do servidor
+    
+    post:
+      summary: Criar novo seguro
+      description: Cria um novo seguro no sistema
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SeguroInput'
+      responses:
+        '200':
+          description: Seguro criado com sucesso
+        '400':
+          description: Dados inválidos
+        '409':
+          description: CPF já possui seguro cadastrado
+
+  /check-charge:
+    get:
+      summary: Verificar status de pagamento
+      description: Verifica o status de uma charge no OpenPix/Woovi
+      parameters:
+        - name: chargeId
+          in: query
+          required: true
+          description: ID da charge no OpenPix/Woovi
+          schema:
+            type: string
+            example: "interbox_audiovisual_1234567890"
+      responses:
+        '200':
+          description: Status da charge retornado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  charge:
+                    $ref: '#/components/schemas/Charge'
+                  status:
+                    type: string
+                    example: "CONFIRMED"
+                  paid:
+                    type: boolean
+                    example: true
+        '400':
+          description: chargeId é obrigatório
+        '500':
+          description: Erro na API OpenPix
+
+  /list-charges:
+    get:
+      summary: Listar charges do OpenPix
+      description: Lista todas as charges do OpenPix/Woovi
+      responses:
+        '200':
+          description: Lista de charges retornada com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  charges:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Charge'
+                  total:
+                    type: integer
+                    example: 25
+        '400':
+          description: OPENPIX_API_KEY não configurada
+        '500':
+          description: Erro interno
+
+  /test-openpix:
+    get:
+      summary: Testar conexão OpenPix
+      description: Testa a conexão com a API do OpenPix/Woovi
+      responses:
+        '200':
+          description: Teste realizado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Conexão OpenPix/Woovi funcionando!"
+                  api_status:
+                    type: integer
+                    example: 200
+                  config:
+                    $ref: '#/components/schemas/OpenPixConfig'
+        '400':
+          description: Variáveis OpenPix não configuradas
+        '500':
+          description: Erro interno no teste
+
+  /webhook:
+    post:
+      summary: Webhook OpenPix
+      description: Recebe notificações de pagamento do OpenPix/Woovi
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebhookPayload'
+      responses:
+        '200':
+          description: Webhook processado com sucesso
+        '400':
+          description: Payload inválido
+        '500':
+          description: Erro ao processar webhook
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Inscricao:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        nome:
+          type: string
+          example: "João Silva Santos"
+        email:
+          type: string
+          format: email
+          example: "joao@email.com"
+        whatsapp:
+          type: string
+          example: "(11) 99999-9999"
+        cpf:
+          type: string
+          example: "123.456.789-00"
+        tipo:
+          type: string
+          enum: [judge, audiovisual, staff]
+          example: "audiovisual"
+        valor:
+          type: number
+          format: decimal
+          example: 29.90
+        status:
+          type: string
+          example: "pago"
+        portfolio:
+          type: string
+          example: "https://portfolio.com"
+        experiencia:
+          type: string
+          example: "5 anos de experiência"
+        disponibilidade:
+          type: string
+          example: "Finais de semana"
+        motivacao:
+          type: string
+          example: "Quero contribuir para o evento"
+        certificacoes:
+          type: string
+          example: "CrossFit Level 1, Level 2"
+        correlation_id:
+          type: string
+          example: "interbox_audiovisual_1234567890"
+        charge_id:
+          type: string
+          example: "charge_1234567890"
+        created_at:
+          type: string
+          format: date-time
+          example: "2025-01-01T10:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2025-01-01T10:00:00Z"
+        data_criacao:
+          type: string
+          format: date-time
+          example: "2025-01-01T10:00:00Z"
+
+    InscricaoInput:
+      type: object
+      required:
+        - nome
+        - email
+        - tipo
+      properties:
+        nome:
+          type: string
+          example: "João Silva Santos"
+        email:
+          type: string
+          format: email
+          example: "joao@email.com"
+        whatsapp:
+          type: string
+          example: "(11) 99999-9999"
+        cpf:
+          type: string
+          example: "123.456.789-00"
+        tipo:
+          type: string
+          enum: [judge, audiovisual, staff]
+          example: "audiovisual"
+        valor:
+          type: number
+          format: decimal
+          example: 29.90
+        portfolio:
+          type: string
+          example: "https://portfolio.com"
+        experiencia:
+          type: string
+          example: "5 anos de experiência"
+        disponibilidade:
+          type: string
+          example: "Finais de semana"
+        motivacao:
+          type: string
+          example: "Quero contribuir para o evento"
+        certificacoes:
+          type: string
+          example: "CrossFit Level 1, Level 2"
+
+    Seguro:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        nome:
+          type: string
+          example: "João Silva Santos"
+        cpf:
+          type: string
+          example: "123.456.789-00"
+        data_nascimento:
+          type: string
+          format: date
+          example: "1990-03-15"
+        sexo:
+          type: string
+          enum: [masculino, feminino, outro]
+          example: "masculino"
+        email:
+          type: string
+          format: email
+          example: "joao@email.com"
+        telefone:
+          type: string
+          example: "(11) 99999-9999"
+        nome_time:
+          type: string
+          example: "CrossFit Champions"
+        observacoes:
+          type: string
+          example: "Alergia a penicilina"
+        tipo:
+          type: string
+          example: "seguro"
+        valor:
+          type: number
+          format: decimal
+          example: 39.90
+        status:
+          type: string
+          enum: [pendente_comprovante, comprovante_enviado, pago_confirmado]
+          example: "pendente_comprovante"
+        created_at:
+          type: string
+          format: date-time
+          example: "2025-01-01T10:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2025-01-01T10:00:00Z"
+        data_criacao:
+          type: string
+          format: date-time
+          example: "2025-01-01T10:00:00Z"
+
+    SeguroInput:
+      type: object
+      required:
+        - nome
+        - cpf
+        - data_nascimento
+        - sexo
+        - email
+        - telefone
+        - nome_time
+      properties:
+        nome:
+          type: string
+          example: "João Silva Santos"
+        cpf:
+          type: string
+          example: "123.456.789-00"
+        data_nascimento:
+          type: string
+          format: date
+          example: "1990-03-15"
+        sexo:
+          type: string
+          enum: [masculino, feminino, outro]
+          example: "masculino"
+        email:
+          type: string
+          format: email
+          example: "joao@email.com"
+        telefone:
+          type: string
+          example: "(11) 99999-9999"
+        nome_time:
+          type: string
+          example: "CrossFit Champions"
+        observacoes:
+          type: string
+          example: "Alergia a penicilina"
+
+    Charge:
+      type: object
+      properties:
+        identifier:
+          type: string
+          example: "interbox_audiovisual_1234567890"
+        value:
+          type: integer
+          example: 2990
+        status:
+          type: string
+          enum: [PENDING, CONFIRMED, COMPLETED, CANCELED]
+          example: "CONFIRMED"
+        comment:
+          type: string
+          example: "Inscrição Audiovisual INTERBØX 2025"
+        customer:
+          type: object
+          properties:
+            name:
+              type: string
+              example: "João Silva Santos"
+            email:
+              type: string
+              example: "joao@email.com"
+            phone:
+              type: string
+              example: "(11) 99999-9999"
+            taxID:
+              type: object
+              properties:
+                taxID:
+                  type: string
+                  example: "123.456.789-00"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2025-01-01T10:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2025-01-01T10:00:00Z"
+
+    WebhookPayload:
+      type: object
+      properties:
+        event:
+          type: string
+          example: "OPENPIX_CHARGE_RECEIVED"
+        charge:
+          $ref: '#/components/schemas/Charge'
+
+    Metadata:
+      type: object
+      properties:
+        ultima_atualizacao:
+          type: string
+          format: date-time
+          example: "2025-01-01T10:00:00Z"
+        total_inscricoes:
+          type: integer
+          example: 150
+        tipos:
+          type: object
+          properties:
+            judge:
+              type: integer
+              example: 50
+            audiovisual:
+              type: integer
+              example: 75
+            staff:
+              type: integer
+              example: 25
+
+    OpenPixConfig:
+      type: object
+      properties:
+        api_base_url:
+          type: string
+          example: "https://api.woovi.com"
+        corp_id:
+          type: string
+          example: "d14a8e82-1ab7-4dee-a1a5-6d86c3781ccb"
+        api_key_length:
+          type: integer
+          example: 100
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Erro interno do servidor"
+        message:
+          type: string
+          example: "Detalhes do erro"
+        details:
+          type: string
+          example: "Informações adicionais sobre o erro"
+
+tags:
+  - name: Inscrições
+    description: Gerenciamento de inscrições (judge, staff, audiovisual)
+  - name: Seguros
+    description: Gerenciamento de seguros
+  - name: Pagamentos
+    description: Verificação e sincronização de pagamentos
+  - name: Webhooks
+    description: Recebimento de notificações de pagamento
+  - name: Testes
+    description: Testes de conectividade e configuração

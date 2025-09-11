@@ -13,6 +13,7 @@ interface Inscricao {
   data_criacao: string;
   data_confirmacao?: string;
   correlationID?: string;
+  correlation_id?: string;
   charge_id?: string;
   data_atualizacao?: string;
   // Campos específicos por tipo
@@ -39,6 +40,22 @@ interface Filtros {
   status: string;
   data_inicio: string;
   data_fim: string;
+}
+
+interface Charge {
+  identifier: string;
+  status: string;
+  value: number;
+  comment?: string;
+  customer?: {
+    name?: string;
+    email?: string;
+    phone?: string;
+    taxID?: {
+      taxID?: string;
+    };
+  };
+  createdAt?: string;
 }
 
 export default function AdminDashboard() {
@@ -112,7 +129,7 @@ export default function AdminDashboard() {
   }, []);
 
   // Função principal para carregar dados
-  const loadData = useCallback(async () => {
+  const loadData = useCallback(async (skipHistoricalSync = false) => {
     setLoading(true);
     try {
       // 🆕 Dados vêm diretamente do Supabase
@@ -141,6 +158,33 @@ export default function AdminDashboard() {
         }
       } catch (error) {
         console.error('❌ Erro ao conectar com Supabase:', error);
+      }
+
+      // 🆕 SINCRONIZAÇÃO HISTÓRICA AUTOMÁTICA (apenas se tiver poucos dados)
+      if (!skipHistoricalSync && todasInscricoes.length < 10) {
+        try {
+          console.log('🔄 Executando sincronização histórica automática...');
+          const historicalResponse = await fetch('https://interbox-captacao.netlify.app/.netlify/functions/sync-historical-data?days=20', {
+            method: 'GET',
+            headers: {
+              'Authorization': 'Bearer interbox2025'
+            }
+          });
+          
+          if (historicalResponse.ok) {
+            const historicalData = await historicalResponse.json();
+            console.log('✅ Sincronização histórica concluída:', historicalData);
+            
+            // Se foram criadas/atualizadas inscrições, recarregar dados
+            if (historicalData.synced > 0) {
+              console.log('🔄 Recarregando dados após sincronização histórica...');
+              return await loadData(true); // Evitar loop infinito
+            }
+          }
+        } catch (error) {
+          console.error('❌ Erro na sincronização histórica automática:', error);
+          // Continuar mesmo com erro na sincronização histórica
+        }
       }
 
       // Aplicar normalização
@@ -247,92 +291,127 @@ export default function AdminDashboard() {
     }
   }, []);
 
+
   // Sincronizar com FlowPay
   const syncWithWoovi = useCallback(async () => {
     setIsSyncing(true);
     try {
-      const inscricoesLocal: Inscricao[] = JSON.parse(localStorage.getItem('interbox_inscricoes') || '[]');
+      console.log('🔄 Iniciando sincronização com OpenPix/Woovi...');
+      
+      // 1. Primeiro, listar todas as charges do OpenPix
+      const listResponse = await fetch('https://interbox-captacao.netlify.app/.netlify/functions/list-charges');
+      
+      if (!listResponse.ok) {
+        throw new Error('Erro ao listar charges do OpenPix');
+      }
+      
+      const listData = await listResponse.json();
+      console.log('📋 Charges encontradas:', listData.total);
+      
+      if (!listData.success || !listData.charges || listData.charges.length === 0) {
+        alert('Nenhuma charge encontrada no OpenPix/Woovi');
+        return;
+      }
+      
+      // 2. Filtrar charges relacionadas ao INTERBØX
+      const interboxCharges = listData.charges.filter((charge: Charge) => 
+        charge.comment?.includes('INTERBØX') || 
+        charge.comment?.includes('interbox') ||
+        charge.customer?.name?.includes('INTERBØX') ||
+        charge.identifier?.includes('interbox')
+      );
+      
+      console.log('🎯 Charges do INTERBØX:', interboxCharges.length);
+      
+      if (interboxCharges.length === 0) {
+        alert('Nenhuma charge do INTERBØX encontrada no OpenPix/Woovi');
+        return;
+      }
+      
+      // 3. Processar cada charge encontrada
       let inscricoesAtualizadas = 0;
       let inscricoesNovas = 0;
-
-      // IDs conhecidos para verificação
-      const idsParaTestar = [
-        'interbox_staff_1756323495080',
-        'interbox_audiovisual_1756299983259', 
-        'interbox_judge_1756295652996',
-        'interbox_judge_1756295592591',
-        'audiovisual-969c7cc1-2a96-4555-841e-a4b6cfc0515b',
-        'judge-4092b61b-ac8a-45e9-8719-98459b821db7',
-        'audiovisual-5afa3a05-a3aa-4b9e-8c3e-2188fcd4444e',
-        'audiovisual-02f9c9c6-c1a1-43c8-86ec-e019e826330e',
-        'audiovisual-8b78a81e-fc88-4da3-b460-b37426c13fb6',
-        'judge-78aa15a8-4ff9-4a0f-acd2-06cd868f7bb7',
-        'audiovisual-0bbaa801-d197-4f32-b5b4-4b731d95b22c',
-        'audiovisual-96297a5a-451d-47fd-b9cb-7055ea13cf0c'
-      ];
-
-      for (const chargeId of idsParaTestar) {
+      
+      for (const charge of interboxCharges) {
         try {
-          const existeLocal = inscricoesLocal.find(i => 
-            i.correlationID === chargeId || i.charge_id === chargeId
-          );
-
-          const response = await fetch(`https://interbox-captacao.netlify.app/.netlify/functions/check-charge?chargeId=${chargeId}`);
+          console.log('🔄 Processando charge:', charge.identifier);
+          
+          // Verificar se já existe no Supabase
+          const response = await fetch('https://interbox-captacao.netlify.app/.netlify/functions/save-inscricao', {
+            method: 'GET',
+            headers: {
+              'Authorization': 'Bearer interbox2025'
+            }
+          });
           
           if (response.ok) {
-            const data = await response.json();
+            const serverData = await response.json();
+            const inscricoesExistentes = serverData.inscricoes || [];
             
-                         if (data.success && data.charge) {
-               if (existeLocal) {
-                 // Atualizar existente
-                 existeLocal.status = 'confirmado';
-                 existeLocal.data_confirmacao = new Date().toISOString();
-                 inscricoesAtualizadas++;
-               } else {
-                 // Criar nova inscrição
-                 const charge = data.charge.charge || data.charge;
-                const novaInscricao: Inscricao = {
-                  id: `insc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-                  nome: charge.customer?.name || 'Cliente',
-                  email: charge.customer?.email || 'email@nao.informado',
-                  whatsapp: charge.customer?.phone || 'WhatsApp não informado',
-                  cpf: charge.customer?.taxID?.taxID || 'CPF não informado',
-                  tipo: chargeId.includes('judge') ? 'judge' : chargeId.includes('audiovisual') ? 'audiovisual' : 'staff',
-                  valor: charge.value || (chargeId.includes('audiovisual') ? 2990 : 1990),
-                  correlationID: chargeId,
-                  status: 'confirmado',
-                  data_criacao: charge.createdAt || new Date().toISOString(),
-                  data_confirmacao: charge.updatedAt || new Date().toISOString(),
-                  charge_id: charge.identifier || chargeId
-                };
-                
-                inscricoesLocal.push(novaInscricao);
+            const existeInscricao = inscricoesExistentes.find((i: Inscricao) => 
+              i.correlation_id === charge.identifier || i.charge_id === charge.identifier
+            );
+            
+            if (!existeInscricao && charge.status === 'CONFIRMED') {
+              // Criar nova inscrição no Supabase
+              const novaInscricao = {
+                nome: charge.customer?.name || 'Cliente OpenPix',
+                email: charge.customer?.email || 'email@openpix.com',
+                whatsapp: charge.customer?.phone || 'WhatsApp não informado',
+                cpf: charge.customer?.taxID?.taxID || null,
+                tipo: charge.comment?.includes('audiovisual') ? 'audiovisual' : 
+                      charge.comment?.includes('judge') ? 'judge' : 'staff',
+                valor: charge.value || 0,
+                status: 'pago',
+                correlation_id: charge.identifier,
+                charge_id: charge.identifier,
+                data_criacao: charge.createdAt || new Date().toISOString()
+              };
+              
+              // Salvar no Supabase
+              const saveResponse = await fetch('https://interbox-captacao.netlify.app/.netlify/functions/save-inscricao', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': 'Bearer interbox2025'
+                },
+                body: JSON.stringify(novaInscricao)
+              });
+              
+              if (saveResponse.ok) {
                 inscricoesNovas++;
+                console.log('✅ Nova inscrição criada:', novaInscricao.nome);
               }
+            } else if (existeInscricao && charge.status === 'CONFIRMED') {
+              // Atualizar status se necessário
+              inscricoesAtualizadas++;
+              console.log('🔄 Inscrição atualizada:', existeInscricao.nome);
             }
           }
           
           // Delay entre requisições
-          await new Promise(resolve => setTimeout(resolve, 200));
+          await new Promise(resolve => setTimeout(resolve, 500));
         } catch (error) {
-          console.error(`Erro ao processar ${chargeId}:`, error);
+          console.error(`Erro ao processar charge ${charge.identifier}:`, error);
         }
       }
-
-      // Salvar dados atualizados
-      localStorage.setItem('interbox_inscricoes', JSON.stringify(inscricoesLocal));
       
       // Recarregar dados
       await loadData();
       
-      alert(`Sincronização concluída!\n${inscricoesAtualizadas} atualizadas, ${inscricoesNovas} novas.`);
+      alert(`Sincronização concluída!\n${inscricoesAtualizadas} atualizadas, ${inscricoesNovas} novas inscrições.`);
       
     } catch (error) {
       console.error('Erro na sincronização:', error);
-      alert('Erro durante a sincronização.');
+      alert('Erro durante a sincronização: ' + (error instanceof Error ? error.message : String(error)));
     } finally { 
       setIsSyncing(false);
     }
+  }, [loadData]);
+
+  // Função wrapper para recarregar dados
+  const handleReload = useCallback(() => {
+    loadData();
   }, [loadData]);
 
   // Renderização condicional para autenticação
@@ -381,7 +460,7 @@ export default function AdminDashboard() {
           
           <div className="grid grid-cols-2 lg:flex gap-2 lg:gap-4 w-full lg:w-auto">
             <button
-              onClick={loadData}
+              onClick={handleReload}
               disabled={loading}
               className="px-3 lg:px-6 py-2 lg:py-3 bg-orange-600 hover:bg-orange-700 disabled:opacity-50 rounded-xl font-medium transition-colors text-sm lg:text-base"
             >
@@ -482,7 +561,7 @@ export default function AdminDashboard() {
               🎬 Audiovisual - Inscrições Pagas ({inscricoes.filter(i => i.tipo === 'audiovisual').length})
             </h3>
             <button
-              onClick={loadData}
+              onClick={handleReload}
               disabled={loading}
               className="px-4 py-2 bg-green-600 hover:bg-green-700 disabled:opacity-50 rounded-lg font-medium transition-colors"
             >
@@ -588,7 +667,7 @@ export default function AdminDashboard() {
               👥 Judge & Staff - Inscrições Gratuitas ({inscricoes.filter(i => i.tipo === 'judge' || i.tipo === 'staff').length})
             </h3>
             <button
-              onClick={loadData}
+              onClick={handleReload}
               disabled={loading}
               className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-lg font-medium transition-colors"
             >

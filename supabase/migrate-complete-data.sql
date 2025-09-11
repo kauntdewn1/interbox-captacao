@@ -1,5 +1,5 @@
 -- 🚀 MIGRAÇÃO COMPLETA COM TODOS OS DADOS HISTÓRICOS
--- Execute este SQL no SQL Editor do Supabase: https://vlwuwutoulfbbieznios.supabase.co
+-- Execute este SQL no SQL Editor do Supabase: https://ymriypyyirnwctyitcsu.supabase.co
 
 -- 1️⃣ PRIMEIRO: Limpar dados existentes para inserir os corretos
 DELETE FROM inscricoes;

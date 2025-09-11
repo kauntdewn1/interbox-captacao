@@ -27,6 +27,7 @@ interface ContactInfo {
   cpf: string;
 }
 
+
 export default function CheckoutCard({
   type,
   subtitle,
@@ -90,6 +91,38 @@ export default function CheckoutCard({
       };
       
       localStorage.setItem('interbox_contact_info', JSON.stringify(contactData));
+      
+      // 🆕 SALVAR NO SUPABASE IMEDIATAMENTE
+      const inscricaoData = {
+        nome: contactInfo.email.split('@')[0], // Usar parte do email como nome temporário
+        email: contactInfo.email,
+        whatsapp: contactInfo.whatsapp,
+        cpf: contactInfo.cpf,
+        tipo: type,
+        valor: type === 'audiovisual' ? 29.90 : 0, // Judge e staff são gratuitos
+        status: 'cadastrado',
+        portfolio: '',
+        experiencia: '',
+        disponibilidade: '',
+        motivacao: '',
+        certificacoes: ''
+      };
+      
+      const response = await fetch('https://interbox-captacao.netlify.app/.netlify/functions/save-inscricao', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer interbox2025'
+        },
+        body: JSON.stringify(inscricaoData)
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        console.log(`✅ Inscrição ${type} salva no Supabase:`, result.inscricao?.id);
+      } else {
+        console.error(`❌ Erro ao salvar inscrição ${type} no Supabase:`, response.status);
+      }
       
       // Log para debug e acompanhamento
       console.log('📧 INTERBØX - Dados de contato capturados:', {
@@ -168,30 +201,35 @@ export default function CheckoutCard({
           message: data.message
         });
         
-        // 🆕 SALVAR INSCRIÇÃO NO LOCALSTORAGE PARA ADMIN
+        // 🆕 ATUALIZAR INSCRIÇÃO NO SUPABASE COM CORRELATION ID
         try {
-          const inscricaoData = {
-            id: `insc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            nome: contactInfo.email.split('@')[0], // Usar parte do email como nome
+          const updateData = {
             email: contactInfo.email,
-            whatsapp: contactInfo.whatsapp,
-            cpf: contactInfo.cpf,
             tipo: type,
-            valor: type === 'audiovisual' ? 2990 : 1990,
             correlationID: charge.correlationID,
-            status: 'pendente',
-            data_criacao: new Date().toISOString(),
-            charge_id: charge.identifier || charge.correlationID
+            charge_id: charge.identifier || charge.correlationID,
+            status: 'pendente'
           };
           
-          // Salvar no localStorage
-          const inscricoesExistentes = JSON.parse(localStorage.getItem('interbox_inscricoes') || '[]');
-          inscricoesExistentes.push(inscricaoData);
-          localStorage.setItem('interbox_inscricoes', JSON.stringify(inscricoesExistentes));
+          const updateResponse = await fetch('https://interbox-captacao.netlify.app/.netlify/functions/update-inscricao', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer interbox2025'
+            },
+            body: JSON.stringify(updateData)
+          });
           
-          console.log('✅ Inscrição salva no localStorage:', inscricaoData);
+          if (updateResponse.ok) {
+            const result = await updateResponse.json();
+            console.log('✅ Inscrição atualizada com correlation ID:', result.inscricao?.id);
+          } else {
+            console.error('❌ Erro ao atualizar inscrição:', updateResponse.status);
+          }
+          
+          console.log('✅ PIX gerado para inscrição:', charge.correlationID);
         } catch (error) {
-          console.error('❌ Erro ao salvar inscrição:', error);
+          console.error('❌ Erro ao atualizar inscrição:', error);
         }
       } else {
         throw new Error(data.error || 'Erro ao gerar PIX');
@@ -222,6 +260,34 @@ export default function CheckoutCard({
           
           if (charge.status === 'COMPLETED' || charge.paid) {
             console.log('🎉 Pagamento confirmado!');
+            
+            // 🆕 ATUALIZAR STATUS NO SUPABASE
+            try {
+              const updateData = {
+                email: contactInfo.email,
+                tipo: type,
+                status: 'pago',
+                data_confirmacao: new Date().toISOString()
+              };
+              
+              const updateResponse = await fetch('https://interbox-captacao.netlify.app/.netlify/functions/update-inscricao', {
+                method: 'PUT',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': 'Bearer interbox2025'
+                },
+                body: JSON.stringify(updateData)
+              });
+              
+              if (updateResponse.ok) {
+                console.log('✅ Status de pagamento atualizado no Supabase');
+              } else {
+                console.error('❌ Erro ao atualizar status de pagamento:', updateResponse.status);
+              }
+            } catch (error) {
+              console.error('❌ Erro ao atualizar status de pagamento:', error);
+            }
+            
             // Redirecionar para página de sucesso
             navigate(`/${type}/success`, {
               state: {
