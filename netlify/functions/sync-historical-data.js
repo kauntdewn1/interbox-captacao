@@ -44,7 +44,7 @@ const extractTypeFromComment = (comment) => {
 };
 
 // 🔧 Função para buscar charges da OpenPix
-const fetchChargesFromOpenPix = async (days = 20) => {
+const fetchChargesFromOpenPix = async () => {
   try {
     const apiKey = process.env.OPENPIX_API_KEY;
     const apiUrl = process.env.API_BASE_URL || 'https://api.woovi.com';
@@ -53,15 +53,10 @@ const fetchChargesFromOpenPix = async (days = 20) => {
       throw new Error('OPENPIX_API_KEY não configurada');
     }
 
-    // Calcular data de início (últimos X dias)
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - days);
-    const startDateISO = startDate.toISOString();
+    console.log(`🔍 Buscando todas as charges da OpenPix...`);
 
-    console.log(`🔍 Buscando charges desde: ${startDateISO}`);
-
-    // Buscar charges da OpenPix
-    const response = await fetch(`${apiUrl}/api/v1/charge?start=${startDateISO}`, {
+    // Buscar todas as charges da OpenPix (sem filtro de data)
+    const response = await fetch(`${apiUrl}/api/v1/charge`, {
       method: 'GET',
       headers: {
         'Authorization': apiKey,
@@ -207,13 +202,10 @@ export const handler = async (event, context) => {
       };
     }
 
-    // Parsear parâmetros
-    const { days = 20 } = event.queryStringParameters || {};
-
-    console.log(`🔄 Iniciando sincronização histórica dos últimos ${days} dias...`);
+    console.log(`🔄 Iniciando sincronização histórica de todas as charges...`);
 
     // 1. Buscar charges da OpenPix
-    const allCharges = await fetchChargesFromOpenPix(parseInt(days));
+    const allCharges = await fetchChargesFromOpenPix();
     console.log(`📋 Total de charges encontradas: ${allCharges.length}`);
 
     // 2. Filtrar charges por tipo de inscrição
@@ -236,13 +228,21 @@ export const handler = async (event, context) => {
       };
     }
 
-    // 3. Sincronizar cada charge
+    // 3. Sincronizar cada charge (com limite de tempo)
     let synced = 0;
     let created = 0;
     let updated = 0;
     const errors = [];
+    const startTime = Date.now();
+    const maxExecutionTime = 25000; // 25 segundos (Netlify timeout é 30s)
 
     for (const charge of inscriptionCharges) {
+      // Verificar se ainda temos tempo
+      if (Date.now() - startTime > maxExecutionTime) {
+        console.log('⏰ Tempo limite atingido, parando sincronização...');
+        break;
+      }
+
       try {
         const result = await syncChargeToSupabase(charge);
         synced++;

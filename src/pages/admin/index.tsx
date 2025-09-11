@@ -164,7 +164,7 @@ export default function AdminDashboard() {
       if (!skipHistoricalSync && todasInscricoes.length < 10) {
         try {
           console.log('🔄 Executando sincronização histórica automática...');
-          const historicalResponse = await fetch('https://interbox-captacao.netlify.app/.netlify/functions/sync-historical-data?days=20', {
+          const historicalResponse = await fetch('https://interbox-captacao.netlify.app/.netlify/functions/sync-historical-data', {
             method: 'GET',
             headers: {
               'Authorization': 'Bearer interbox2025'
