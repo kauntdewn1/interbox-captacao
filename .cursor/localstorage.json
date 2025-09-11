@@ -1,4 +1,4 @@
-const dadosCompletos = [
+//dadosCompletos = [
     {
       id: 'insc_1756323495080_staff_restored',
       nome: 'Candidato staff',
@@ -214,4 +214,4 @@ const dadosCompletos = [
       disponibilidade: 'Disponibilidade não informada',
       motivacao: 'Motivação não informada'
     }
-  ];
+  ]; */

@@ -65,7 +65,7 @@ const handlePut = async (event) => {
     if (updateData.status) updateFields.status = updateData.status;
     if (updateData.data_confirmacao) updateFields.data_confirmacao = updateData.data_confirmacao;
     if (updateData.nome) updateFields.nome = updateData.nome;
-    if (updateData.whatsapp) updateFields.whatsapp = updateData.whatsapp;
+    if (updateData.whatsapp) updateFields.whatsapp = String(updateData.whatsapp).substring(0, 20);
     if (updateData.cpf) updateFields.cpf = String(updateData.cpf).substring(0, 14); // Limitar a 14 caracteres
     if (updateData.valor !== undefined) updateFields.valor = updateData.valor;
 

@@ -110,7 +110,7 @@ const syncChargeToSupabase = async (charge) => {
     const inscricaoData = {
       nome: charge.customer?.name || 'Nome não informado',
       email: charge.customer?.email || 'Email não informado',
-      whatsapp: charge.customer?.phone || 'WhatsApp não informado',
+      whatsapp: charge.customer?.phone ? String(charge.customer.phone).substring(0, 20) : 'WhatsApp não informado',
       cpf: charge.customer?.taxID ? String(charge.customer.taxID).substring(0, 14) : null, // Limitar a 14 caracteres
       tipo: tipo,
       valor: charge.value / 100, // Converter de centavos para reais
