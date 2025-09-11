@@ -150,7 +150,7 @@ const handlePost = async (event) => {
       nome: inscricaoData.nome,
       email: inscricaoData.email,
       whatsapp: inscricaoData.whatsapp,
-      cpf: inscricaoData.cpf || null,
+      cpf: inscricaoData.cpf ? inscricaoData.cpf.substring(0, 14) : null, // Limitar a 14 caracteres
       tipo: inscricaoData.tipo,
       valor: inscricaoData.valor || 0,
       status: 'cadastrado',

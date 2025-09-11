@@ -66,7 +66,7 @@ const handlePut = async (event) => {
     if (updateData.data_confirmacao) updateFields.data_confirmacao = updateData.data_confirmacao;
     if (updateData.nome) updateFields.nome = updateData.nome;
     if (updateData.whatsapp) updateFields.whatsapp = updateData.whatsapp;
-    if (updateData.cpf) updateFields.cpf = updateData.cpf;
+    if (updateData.cpf) updateFields.cpf = updateData.cpf.substring(0, 14); // Limitar a 14 caracteres
     if (updateData.valor !== undefined) updateFields.valor = updateData.valor;
 
     // Atualizar no Supabase

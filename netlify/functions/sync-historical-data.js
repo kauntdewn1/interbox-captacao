@@ -116,7 +116,7 @@ const syncChargeToSupabase = async (charge) => {
       nome: charge.customer?.name || 'Nome não informado',
       email: charge.customer?.email || 'Email não informado',
       whatsapp: charge.customer?.phone || 'WhatsApp não informado',
-      cpf: charge.customer?.taxID || null,
+      cpf: charge.customer?.taxID ? charge.customer.taxID.substring(0, 14) : null, // Limitar a 14 caracteres
       tipo: tipo,
       valor: charge.value / 100, // Converter de centavos para reais
       status: charge.status === 'COMPLETED' ? 'pago' : 'pendente',
