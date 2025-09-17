@@ -9,6 +9,11 @@
   force = true
 
 [[redirects]]
+  from = "/adm_seguro"
+  to = "/admin/seguro"
+  status = 301
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
