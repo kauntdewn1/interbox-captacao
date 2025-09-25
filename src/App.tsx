@@ -9,6 +9,7 @@ import AudiovisualSuccessPage from './pages/audiovisual/success';
 import JudgeCadastro from './pages/judge/cadastro';
 import StaffCadastro from './pages/staff/cadastro';
 import SeguroPage from './pages/seguro';
+import ProdutosPage from './pages/produtos';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/captacao/judge-staff" element={<JudgeStaff />} />
         <Route path="/judge/cadastro" element={<JudgeCadastro />} />
         <Route path="/staff/cadastro" element={<StaffCadastro />} />
+        <Route path="/produtos" element={<ProdutosPage />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/seguro" element={<AdminSeguro />} />
         <Route path="/seguro" element={<SeguroPage />} />

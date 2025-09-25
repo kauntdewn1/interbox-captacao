@@ -1,0 +1,43 @@
+[
+    {
+      "id": "cropped-oversized-interbox-feminina",
+      "nome": "Cropped Oversized CERRADO INTERBØX Feminina",
+      "preco": 139.90,
+      "cores": [
+        { "nome": "Preto", "hex": "#000000", "badge": "/products/cropped-interbox-feminina/colors/preto-40x40.png" },
+        { "nome": "Mocha Mousse", "hex": "#D4C4A8", "badge": "/products/cropped-interbox-feminina/colors/mocha-mousse-40x40.png" },
+        { "nome": "Amora", "hex": "#8B4B8C", "badge": "/products/cropped-interbox-feminina/colors/amora-40x40.png" }
+      ],
+      "tamanhos": ["P", "M", "G", "GG", "XG"],
+      "imagem": "/products/cropped-interbox-feminina/hero-800x800.webp",
+      "imagemFallback": "/products/cropped-interbox-feminina/hero-800x800.jpg",
+      "slug": "cropped-interbox",
+      "categoria": "vestuario",
+      "destaque": true,
+      "novo": true,
+      "xp_bonus": 500,
+      "box_bonus": 0,
+      "status": "ativo"
+    },
+    {
+      "id": "camiseta-oversized-interbox-masculina",
+      "nome": "Camiseta Oversized CERRADO INTERBØX Masculina",
+      "preco": 139.90,
+      "cores": [
+        { "nome": "Preto", "hex": "#000000", "badge": "/products/camiseta-interbox-masculina/colors/preto-40x40.png" },
+        { "nome": "Mocha Mousse", "hex": "#D4C4A8", "badge": "/products/camiseta-interbox-masculina/colors/mocha-mousse-40x40.png" },
+        { "nome": "Amora", "hex": "#8B4B8C", "badge": "/products/camiseta-interbox-masculina/colors/amora-40x40.png" }
+      ],
+      "tamanhos": ["P", "M", "G", "GG", "XG"],
+      "imagem": "/products/camiseta-interbox-masculina/hero-800x800.webp",
+      "imagemFallback": "/products/camiseta-interbox-masculina/hero-800x800.jpg",
+      "slug": "camiseta-interbox",
+      "categoria": "vestuario",
+      "destaque": true,
+      "novo": true,
+      "xp_bonus": 500,
+      "box_bonus": 0,
+      "status": "ativo"
+    }
+  ]
+  
