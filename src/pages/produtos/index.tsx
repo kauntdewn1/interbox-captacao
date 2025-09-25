@@ -67,7 +67,7 @@ export default function ProdutosPage() {
               "/products/cropped-interbox-feminina/detail-1-800x800.webp",
               "/products/cropped-interbox-feminina/detail-2-800x800.webp"
             ],
-            imagemFallback: "/products/cropped-interbox-feminina/hero-800x800.jpg",
+            imagemFallback: "/products/cropped-interbox-feminina/hero-800x800.png",
             slug: "cropped-interbox",
             marca: "INTERBØX",
             material: "100% Algodão Premium",
@@ -103,7 +103,7 @@ export default function ProdutosPage() {
               "/products/camiseta-interbox-masculina/detail-1-800x800.webp",
               "/products/camiseta-interbox-masculina/detail-2-800x800.webp"
             ],
-            imagemFallback: "/products/camiseta-interbox-masculina/hero-800x800.jpg",
+            imagemFallback: "/products/camiseta-interbox-masculina/hero-800x800.png",
             slug: "camiseta-interbox",
             marca: "INTERBØX",
             material: "100% Algodão Premium",
