@@ -46,17 +46,33 @@ export default function ProdutosPage() {
           {
             id: "cropped-oversized-interbox-feminina",
             nome: "Cropped Oversized CERRADO INTERBØX Feminina",
+            descricao: "Cropped oversized com design exclusivo do INTERBØX 2025. Modelo confortável e estiloso, perfeito para treinos e momentos de lazer.",
             preco: 139.90,
+            precoOriginal: 179.90,
+            desconto: 22,
             cores: [
-              { nome: "Preto", hex: "#000000", badge: "/products/cropped-interbox-feminina/colors/preto-40x40.png" },
-              { nome: "Mocha Mousse", hex: "#D4C4A8", badge: "/products/cropped-interbox-feminina/colors/mocha-mousse-40x40.png" },
-              { nome: "Amora", hex: "#8B4B8C", badge: "/products/cropped-interbox-feminina/colors/amora-40x40.png" }
+              { nome: "Preto", hex: "#000000", badge: "/products/cropped-interbox-feminina/colors/preto-40x40.png", disponivel: true },
+              { nome: "Mocha Mousse", hex: "#D4C4A8", badge: "/products/cropped-interbox-feminina/colors/mocha-mousse-40x40.png", disponivel: true },
+              { nome: "Amora", hex: "#8B4B8C", badge: "/products/cropped-interbox-feminina/colors/amora-40x40.png", disponivel: true }
             ],
-            tamanhos: ["P", "M", "G", "GG", "XG"],
-            imagem: "/products/cropped-interbox-feminina/hero-800x800.webp",
+            tamanhos: [
+              { nome: "P", medidas: "Busto: 88cm", disponivel: true },
+              { nome: "M", medidas: "Busto: 92cm", disponivel: true },
+              { nome: "G", medidas: "Busto: 96cm", disponivel: true },
+              { nome: "GG", medidas: "Busto: 100cm", disponivel: true },
+              { nome: "XG", medidas: "Busto: 104cm", disponivel: true }
+            ],
+            imagens: [
+              "/products/cropped-interbox-feminina/hero-800x800.webp",
+              "/products/cropped-interbox-feminina/detail-1-800x800.webp",
+              "/products/cropped-interbox-feminina/detail-2-800x800.webp"
+            ],
             imagemFallback: "/products/cropped-interbox-feminina/hero-800x800.jpg",
             slug: "cropped-interbox",
-            categoria: "vestuario",
+            marca: "INTERBØX",
+            material: "100% Algodão Premium",
+            avaliacoes: { media: 4.8, total: 127 },
+            estoque: 50,
             destaque: true,
             novo: true,
             xp_bonus: 500,
@@ -66,17 +82,33 @@ export default function ProdutosPage() {
           {
             id: "camiseta-oversized-interbox-masculina",
             nome: "Camiseta Oversized CERRADO INTERBØX Masculina",
+            descricao: "Camiseta oversized masculina com design exclusivo do INTERBØX 2025. Conforto e estilo para o homem moderno.",
             preco: 139.90,
+            precoOriginal: 179.90,
+            desconto: 22,
             cores: [
-              { nome: "Preto", hex: "#000000", badge: "/products/camiseta-interbox-masculina/colors/preto-40x40.png" },
-              { nome: "Mocha Mousse", hex: "#D4C4A8", badge: "/products/camiseta-interbox-masculina/colors/mocha-mousse-40x40.png" },
-              { nome: "Amora", hex: "#8B4B8C", badge: "/products/camiseta-interbox-masculina/colors/amora-40x40.png" }
+              { nome: "Preto", hex: "#000000", badge: "/products/camiseta-interbox-masculina/colors/preto-40x40.png", disponivel: true },
+              { nome: "Mocha Mousse", hex: "#D4C4A8", badge: "/products/camiseta-interbox-masculina/colors/mocha-mousse-40x40.png", disponivel: true },
+              { nome: "Amora", hex: "#8B4B8C", badge: "/products/camiseta-interbox-masculina/colors/amora-40x40.png", disponivel: true }
             ],
-            tamanhos: ["P", "M", "G", "GG", "XG"],
-            imagem: "/products/camiseta-interbox-masculina/hero-800x800.webp",
+            tamanhos: [
+              { nome: "P", medidas: "Peito: 100cm", disponivel: true },
+              { nome: "M", medidas: "Peito: 104cm", disponivel: true },
+              { nome: "G", medidas: "Peito: 108cm", disponivel: true },
+              { nome: "GG", medidas: "Peito: 112cm", disponivel: true },
+              { nome: "XG", medidas: "Peito: 116cm", disponivel: true }
+            ],
+            imagens: [
+              "/products/camiseta-interbox-masculina/hero-800x800.webp",
+              "/products/camiseta-interbox-masculina/detail-1-800x800.webp",
+              "/products/camiseta-interbox-masculina/detail-2-800x800.webp"
+            ],
             imagemFallback: "/products/camiseta-interbox-masculina/hero-800x800.jpg",
             slug: "camiseta-interbox",
-            categoria: "vestuario",
+            marca: "INTERBØX",
+            material: "100% Algodão Premium",
+            avaliacoes: { media: 4.9, total: 203 },
+            estoque: 75,
             destaque: true,
             novo: true,
             xp_bonus: 500,
@@ -165,8 +197,30 @@ export default function ProdutosPage() {
             </Link>
           </div>
 
+          {/* Filtros e Ordenação */}
+          <div className="max-w-6xl mx-auto mb-8">
+            <div className="flex flex-wrap gap-4 justify-between items-center bg-white/5 backdrop-blur-lg rounded-xl p-4 border border-white/10">
+              <div className="flex gap-4">
+                <select className="bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white">
+                  <option value="">Todas as categorias</option>
+                  <option value="vestuario">Vestuário</option>
+                </select>
+                <select className="bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white">
+                  <option value="">Ordenar por</option>
+                  <option value="preco-asc">Menor preço</option>
+                  <option value="preco-desc">Maior preço</option>
+                  <option value="nome">Nome</option>
+                  <option value="avaliacoes">Avaliações</option>
+                </select>
+              </div>
+              <div className="text-white/80 text-sm">
+                {produtos.length} produto{produtos.length !== 1 ? 's' : ''} encontrado{produtos.length !== 1 ? 's' : ''}
+              </div>
+            </div>
+          </div>
+
           {/* Grid de Produtos */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-7xl mx-auto">
             {produtos.map((produto) => (
               <ProdutoCard key={produto.id} produto={produto} />
             ))}
