@@ -10,6 +10,109 @@ const extractTypeFromCorrelationID = (correlationID) => {
   return 'audiovisual'; // Default
 };
 
+// 🔧 Função para processar compra de produto
+const processProductPurchase = async (transaction) => {
+  try {
+    console.log('🛍️ Processando compra de produto...');
+    
+    // Extrair informações do produto do correlationID
+    const correlationID = transaction.correlationID;
+    const productSlug = correlationID.split('_')[2]; // interbox_prod_SLUG_timestamp
+    
+    // Salvar pedido pago na tabela orders
+    const orderData = {
+      produto_id: correlationID, // Usar correlationID como ID único
+      cliente_email: transaction.customer?.email || 'Email não informado',
+      cor: transaction.customer?.cor || '',
+      tamanho: transaction.customer?.tamanho || '',
+      valor: transaction.value / 100, // Converter de centavos para reais
+      charge_id: correlationID,
+      status: 'pago',
+      data_pagamento: new Date().toISOString()
+    };
+    
+    // Salvar pedido via API
+    const orderResponse = await fetch(`${process.env.URL || 'https://interbox-captacao.netlify.app'}/.netlify/functions/save-order`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(orderData)
+    });
+    
+    if (orderResponse.ok) {
+      console.log('✅ Pedido de produto salvo com sucesso');
+      
+      // Enviar email de avaliação para o comprador
+      await sendReviewEmail(transaction.customer?.email, productSlug);
+    } else {
+      console.error('❌ Erro ao salvar pedido de produto');
+    }
+    
+  } catch (error) {
+    console.error('❌ Erro ao processar compra de produto:', error);
+  }
+};
+
+// 🔧 Função para processar inscrição (código existente)
+const processInscription = async (transaction) => {
+  try {
+    const updateData = {
+      email: transaction.customer?.email || 'Email não informado',
+      tipo: extractTypeFromCorrelationID(transaction.correlationID),
+      status: 'pago',
+      data_confirmacao: new Date().toISOString(),
+      correlationID: transaction.correlationID,
+      charge_id: transaction.correlationID
+    };
+    
+    // Chamar API para atualizar
+    const response = await fetch(`${process.env.URL || 'https://interbox-captacao.netlify.app'}/.netlify/functions/update-inscricao`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer interbox2025'
+      },
+      body: JSON.stringify(updateData)
+    });
+    
+    if (response.ok) {
+      const result = await response.json();
+      console.log('✅ Inscrição atualizada para pago:', result.inscricao?.id);
+    } else {
+      console.error('❌ Erro ao atualizar inscrição para pago');
+    }
+  } catch (error) {
+    console.error('Erro ao atualizar inscrição para pago:', error);
+  }
+};
+
+// 🔧 Função para enviar email de avaliação (MOCK)
+const sendReviewEmail = async (email, productSlug) => {
+  try {
+    console.log(`📧 Enviando email de avaliação para: ${email}`);
+    console.log(`📦 Produto: ${productSlug}`);
+    
+    // MOCK: Simular envio de email
+    // Em produção, integrar com SendGrid, AWS SES, ou similar
+    const emailData = {
+      to: email,
+      subject: 'Avalie sua compra INTERBØX',
+      template: 'review-request',
+      data: {
+        product_slug: productSlug,
+        review_url: `https://interbox-captacao.netlify.app/avaliar/${productSlug}`
+      }
+    };
+    
+    console.log('📧 Dados do email (MOCK):', emailData);
+    
+    // TODO: Integrar com serviço de email real
+    // await emailService.send(emailData);
+    
+  } catch (error) {
+    console.error('❌ Erro ao enviar email de avaliação:', error);
+  }
+};
+
 export const handler = async (event, context) => {
   // Habilitar CORS
   const headers = {
@@ -51,35 +154,16 @@ export const handler = async (event, context) => {
       console.log(`Valor: R$ ${(transaction.value / 100).toFixed(2)}`);
       console.log(`End-to-End ID: ${transaction.transactionEndToEndId}`);
       
-      // Atualizar inscrição existente no Supabase
-      try {
-        const updateData = {
-          email: transaction.customer?.email || 'Email não informado',
-          tipo: extractTypeFromCorrelationID(transaction.correlationID),
-          status: 'pago',
-          data_confirmacao: new Date().toISOString(),
-          correlationID: transaction.correlationID,
-          charge_id: transaction.correlationID
-        };
-        
-        // Chamar API para atualizar
-        const response = await fetch(`${process.env.URL || 'https://interbox-captacao.netlify.app'}/.netlify/functions/update-inscricao`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer interbox2025'
-          },
-          body: JSON.stringify(updateData)
-        });
-        
-        if (response.ok) {
-          const result = await response.json();
-          console.log('✅ Inscrição atualizada para pago:', result.inscricao?.id);
-        } else {
-          console.error('❌ Erro ao atualizar inscrição para pago');
-        }
-      } catch (error) {
-        console.error('Erro ao atualizar inscrição para pago:', error);
+      // Determinar se é compra de produto ou inscrição
+      const isProductPurchase = transaction.correlationID?.includes('prod_') || 
+                               transaction.correlationID?.includes('interbox_prod_');
+      
+      if (isProductPurchase) {
+        // PROCESSAR COMPRA DE PRODUTO
+        await processProductPurchase(transaction);
+      } else {
+        // PROCESSAR INSCRIÇÃO (código existente)
+        await processInscription(transaction);
       }
     }
 

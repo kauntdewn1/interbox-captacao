@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FaStar, FaHeart, FaShoppingCart, FaEye } from 'react-icons/fa';
+import ProductSocialProof from './ProductSocialProof';
 
 type Cor = {
   nome: string;
@@ -113,14 +114,9 @@ export default function ProdutoCard({ produto, onViewDetails }: Props) {
             NOVO
           </span>
         )}
-        {produto.desconto && (
-          <span className="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
-            -{produto.desconto}%
-          </span>
-        )}
         {produto.destaque && (
-          <span className="bg-pink-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
-            DESTAQUE
+          <span className="bg-blue-800 text-white px-2 py-1 rounded-full text-xs font-semibold">
+            EXCLUSIVO
           </span>
         )}
       </div>
@@ -179,15 +175,8 @@ export default function ProdutoCard({ produto, onViewDetails }: Props) {
         {/* Description */}
         <p className="text-gray-300 text-sm mb-3 line-clamp-2">{produto.descricao}</p>
         
-        {/* Rating */}
-        <div className="flex items-center gap-2 mb-3">
-          <div className="flex items-center gap-1">
-            {renderStars(produto.avaliacoes.media)}
-          </div>
-          <span className="text-gray-400 text-sm">
-            ({produto.avaliacoes.total})
-          </span>
-        </div>
+        {/* Social Proof */}
+        <ProductSocialProof produtoId={produto.id} className="mb-3" />
 
         {/* Colors */}
         <div className="mb-3">
@@ -239,11 +228,6 @@ export default function ProdutoCard({ produto, onViewDetails }: Props) {
           <span className="text-2xl font-bold text-white">
             R$ {produto.preco.toFixed(2).replace('.', ',')}
           </span>
-          {produto.precoOriginal && (
-            <span className="text-gray-400 line-through">
-              R$ {produto.precoOriginal.toFixed(2).replace('.', ',')}
-            </span>
-          )}
         </div>
 
         {/* Stock */}
