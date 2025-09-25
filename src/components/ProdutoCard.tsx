@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { FaStar, FaHeart, FaShoppingCart, FaEye } from 'react-icons/fa';
-import ProductSocialProof from './ProductSocialProof';
 
 type Cor = {
   nome: string;
@@ -175,8 +174,15 @@ export default function ProdutoCard({ produto, onViewDetails }: Props) {
         {/* Description */}
         <p className="text-gray-300 text-sm mb-3 line-clamp-2">{produto.descricao}</p>
         
-        {/* Social Proof */}
-        <ProductSocialProof produtoId={produto.id} className="mb-3" />
+        {/* Rating */}
+        <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-1">
+            {renderStars(produto.avaliacoes.media)}
+          </div>
+          <span className="text-gray-400 text-sm">
+            ({produto.avaliacoes.total})
+          </span>
+        </div>
 
         {/* Colors */}
         <div className="mb-3">

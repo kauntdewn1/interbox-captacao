@@ -5,8 +5,6 @@
       "descricao": "Cropped oversized com design exclusivo do INTERBØX 2025. Modelo confortável e estiloso, perfeito para treinos e momentos de lazer.",
       "descricaoCompleta": "O Cropped Oversized CERRADO INTERBØX Feminina é a peça ideal para quem busca conforto e estilo. Com modelagem oversized que valoriza o corpo feminino, este cropped é confeccionado em algodão premium com acabamento de primeira qualidade. O design exclusivo do INTERBØX 2025 garante que você represente o maior evento fitness de times da América Latina com elegância e sofisticação.",
       "preco": 139.90,
-      "precoOriginal": 179.90,
-      "desconto": 22,
       "cores": [
         { "nome": "Preto", "hex": "#000000", "badge": "/products/cropped-interbox-feminina/colors/preto-40x40.png", "disponivel": true },
         { "nome": "Mocha Mousse", "hex": "#D4C4A8", "badge": "/products/cropped-interbox-feminina/colors/mocha-mousse-40x40.png", "disponivel": true },
@@ -52,8 +50,6 @@
       "descricao": "Camiseta oversized masculina com design exclusivo do INTERBØX 2025. Conforto e estilo para o homem moderno.",
       "descricaoCompleta": "A Camiseta Oversized CERRADO INTERBØX Masculina é a escolha perfeita para homens que valorizam conforto e estilo. Com modelagem oversized que oferece liberdade de movimento, esta camiseta é confeccionada em algodão premium com acabamento impecável. O design exclusivo do INTERBØX 2025 garante que você represente o maior evento fitness de times da América Latina com autenticidade e personalidade.",
       "preco": 139.90,
-      "precoOriginal": 179.90,
-      "desconto": 22,
       "cores": [
         { "nome": "Preto", "hex": "#000000", "badge": "/products/camiseta-interbox-masculina/colors/preto-40x40.png", "disponivel": true },
         { "nome": "Mocha Mousse", "hex": "#D4C4A8", "badge": "/products/camiseta-interbox-masculina/colors/mocha-mousse-40x40.png", "disponivel": true },
