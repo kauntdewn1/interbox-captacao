@@ -8,7 +8,7 @@
 let createStorage, validateReview, generateId, sanitizeEmail, sanitizeString;
 const loadStorage = async () => {
 	if (!createStorage) {
-		const mod = await import('../../src/utils/storage.ts');
+		const mod = await import('../../src/utils/storage.js');
 		createStorage = mod.createStorage;
 		validateReview = mod.validateReview;
 		generateId = mod.generateId;

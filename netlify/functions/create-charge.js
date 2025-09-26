@@ -214,7 +214,7 @@ export const handler = async (event, context) => {
       
       // Salva 'pending' para possibilitar polling
       try {
-        const { createStorage } = await import('../../src/utils/storage.ts');
+        const { createStorage } = await import('../../src/utils/storage.js');
         const storage = await createStorage();
         const orders = (await storage.read('orders.json')) || [];
         const info = (charge?.charge?.additionalInfo || []);

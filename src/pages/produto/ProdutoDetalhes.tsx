@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { FaStar, FaShoppingCart, FaArrowLeft } from 'react-icons/fa';
 import SEOHead from '../../components/SEOHead';
 import { saveOrderToHistory } from '../../utils/orderHistory';
+import Footer from '../../components/Footer';
 
 type Cor = {
   nome: string;
@@ -548,6 +549,8 @@ export default function ProdutoDetalhes() {
           </div>
         </div>
       </div>
+
+      <Footer />
     </>
   );
 }

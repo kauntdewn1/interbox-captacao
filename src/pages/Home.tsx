@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { FaArrowTurnDown } from "react-icons/fa6";
+import Footer from '../components/Footer';
 
 const Home = () => {
   const products = [
@@ -118,19 +119,9 @@ const Home = () => {
             </Link>
           ))}
         </div>
-
-        {/* Footer Info */}
-        <div className="text-center mt-16">
-          <p className="text-gray-400 mb-4">
-            Todos os direitos reservados © INTERBØX 2025
-          </p>
-          <div className="flex justify-center space-x-6">
-            <Link to="/admin" className="text-blue-400 hover:text-blue-300 transition-colors">
-              Admin
-            </Link>
-          </div>
-        </div>
       </div>
+
+      <Footer />
     </div>
   );
 };

@@ -8,7 +8,7 @@ export const handler = async (event) => {
       return { statusCode: 400, headers, body: JSON.stringify({ error: 'Informe correlationID ou identifier' }) };
     }
 
-    const { createStorage } = await import('../../src/utils/storage.ts');
+    const { createStorage } = await import('../../src/utils/storage.js');
     const storage = await createStorage();
     const orders = (await storage.read('orders.json')) || [];
     const order = orders

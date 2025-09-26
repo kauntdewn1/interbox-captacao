@@ -8,7 +8,7 @@
 let createStorage;
 const loadStorage = async () => {
 	if (!createStorage) {
-		const mod = await import('../../src/utils/storage.ts');
+		const mod = await import('../../src/utils/storage.js');
 		createStorage = mod.createStorage;
 	}
 };

@@ -100,7 +100,7 @@ export default function ProdutoCard({ produto, onViewDetails }: Props) {
       }
 
     }
-  }, [produto.id, produto.cores, produto.tamanhos]);
+  }, [produto.id, produto.cores, produto.tamanhos, loadSession]);
 
   // Salvar sessão quando estados mudarem
   useEffect(() => {
@@ -115,7 +115,7 @@ export default function ProdutoCard({ produto, onViewDetails }: Props) {
       setShowSavedIndicator(true);
       setTimeout(() => setShowSavedIndicator(false), 2000);
     }
-  }, [corSelecionada, tamanhoSelecionado, sessionKey]);
+  }, [corSelecionada, tamanhoSelecionado, sessionKey, saveSession]);
 
   const renderStars = (media: number) => {
     return Array.from({ length: 5 }, (_, i) => (
@@ -141,7 +141,7 @@ export default function ProdutoCard({ produto, onViewDetails }: Props) {
 
 
   return (
-    <div className="group relative bg-white/5 backdrop-blur-lg rounded-2xl border border-white/10 overflow-hidden hover:bg-white/10 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl">
+    <div className="group relative bg-white/5 backdrop-blur-lg rounded-2xl border border-white/10 overflow-hidden hover:bg-white/10 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl max-w-sm w-full mx-auto">
       {/* Badges */}
       <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
         {produto.novo && (

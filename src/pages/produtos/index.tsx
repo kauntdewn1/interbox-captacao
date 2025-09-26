@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import ProdutoCard from '../../components/ProdutoCard';
 import SEOHead from '../../components/SEOHead';
+import Footer from '../../components/Footer';
 
 type Cor = {
   nome: string;
@@ -236,7 +237,7 @@ export default function ProdutosPage() {
       <div 
         className="min-h-screen text-white relative"
         style={{ 
-          backgroundImage: 'url(/images/bg_grunge.png)',
+          backgroundImage: 'url(/images/bg_1.png)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat'
@@ -247,18 +248,18 @@ export default function ProdutosPage() {
         
         {/* Header */}
         <div className="container mx-auto px-4 py-8 relative z-10">
-          <div className="text-center mb-12">
+          <div className="text-center mb-10">
             {/* Logo no topo */}
             <img 
               src="/logos/nome_hrz.png" 
               alt="INTERBØX Logo" 
-              className="mx-auto mb-8 max-w-md lg:max-w-lg drop-shadow-2xl"
+              className="mx-auto mb-6 max-w-sm lg:max-w-md drop-shadow-2xl"
             />
             
-            <h1 className="text-4xl font-bold text-white mb-4 drop-shadow-lg">
+            <h1 className="text-3xl font-bold text-white mb-3 drop-shadow-lg">
               Loja INTERBØX
             </h1>
-            <p className="text-xl text-white/90 mb-8 drop-shadow-lg">
+            <p className="text-lg text-white/90 mb-6 drop-shadow-lg">
               Produtos oficiais do INTERBØX 2025
             </p>
             
@@ -266,7 +267,7 @@ export default function ProdutosPage() {
             <Link 
               to="/" 
               onClick={() => console.log('🏠 [PRODUTOS PAGE] Usuário clicou em "Voltar para Home"')}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 backdrop-blur-lg rounded-xl border border-white/20 transition-all duration-300"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/10 hover:bg-white/20 backdrop-blur-lg rounded-lg border border-white/10 transition-all duration-300"
             >
               ← Voltar para Home
             </Link>
@@ -301,7 +302,7 @@ export default function ProdutosPage() {
           </div>
 
           {/* Grid de Produtos */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-7xl mx-auto justify-items-center">
             {produtos.map((produto, index) => {
               console.log(`🛍️ [PRODUTOS PAGE] Renderizando ProdutoCard ${index + 1}/${produtos.length}:`, {
                 id: produto.id,
@@ -328,21 +329,11 @@ export default function ProdutosPage() {
 
           {/* Footer Info */}
           <div className="text-center mt-16">
-            <p className="text-gray-400 mb-4">
-              Todos os direitos reservados © INTERBØX 2025
-            </p>
-            <div className="flex justify-center space-x-6">
-              <Link 
-                to="/admin" 
-                onClick={() => console.log('🔧 [PRODUTOS PAGE] Usuário clicou em "Admin"')}
-                className="text-blue-400 hover:text-blue-300 transition-colors"
-              >
-                Admin
-              </Link>
-            </div>
           </div>
         </div>
       </div>
+
+      <Footer />
     </>
   );
 }

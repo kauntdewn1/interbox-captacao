@@ -19,8 +19,8 @@
       ],
       "imagens": [
         "/products/cropped-interbox-feminina/hero-800x800.webp",
-        "/products/cropped-interbox-feminina/detail-1-800x800.webp",
-        "/products/cropped-interbox-feminina/detail-2-800x800.webp"
+        "/products/cropped-interbox-feminina/detail-1-800x800.png",
+        "/products/cropped-interbox-feminina/detail-2-800x800.png"
       ],
       "imagemFallback": "/products/cropped-interbox-feminina/hero-800x800.webp",
       "slug": "cropped-interbox",
@@ -32,7 +32,7 @@
       "origem": "Brasil",
       "garantia": "30 dias",
       "destaque": true,
-      "novo": true,
+      "novo": false,
       "xp_bonus": 500,
       "box_bonus": 0,
       "status": "ativo",
@@ -64,8 +64,8 @@
       ],
       "imagens": [
         "/products/camiseta-interbox-masculina/hero-800x800.webp",
-        "/products/camiseta-interbox-masculina/detail-1-800x800.webp",
-        "/products/camiseta-interbox-masculina/detail-2-800x800.webp"
+        "/products/camiseta-interbox-masculina/detail-1-800x800.png",
+        "/products/camiseta-interbox-masculina/detail-2-800x800.png"
       ],
       "imagemFallback": "/products/camiseta-interbox-masculina/hero-800x800.webp",
       "slug": "camiseta-interbox",
@@ -77,7 +77,7 @@
       "origem": "Brasil",
       "garantia": "30 dias",
       "destaque": true,
-      "novo": true,
+      "novo": false,
       "xp_bonus": 500,
       "box_bonus": 0,
       "status": "ativo",
