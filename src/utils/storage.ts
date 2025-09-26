@@ -4,21 +4,20 @@
  * Zero lock-in, controle total, arquitetura descentralizada
  */
 
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import * as fs from 'fs';
+import * as path from 'path';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// Usar process.cwd() para evitar problemas com import.meta.url
+const __dirname = process.cwd();
 
 export interface StorageItem {
   id: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface StorageAdapter {
-  read: (file: string) => Promise<any[]>;
-  write: (file: string, data: any[]) => Promise<void>;
+  read: (file: string) => Promise<unknown[]>;
+  write: (file: string, data: unknown[]) => Promise<void>;
   append: (file: string, item: StorageItem) => Promise<void>;
   exists: (file: string) => Promise<boolean>;
 }
@@ -30,7 +29,7 @@ class FileSystemStorage implements StorageAdapter {
     this.dataPath = path.resolve(__dirname, '../../data');
   }
 
-  async read(file: string): Promise<any[]> {
+  async read(file: string): Promise<unknown[]> {
     try {
       const filePath = path.join(this.dataPath, file);
       if (!fs.existsSync(filePath)) {
@@ -44,7 +43,7 @@ class FileSystemStorage implements StorageAdapter {
     }
   }
 
-  async write(file: string, data: any[]): Promise<void> {
+  async write(file: string, data: unknown[]): Promise<void> {
     try {
       const filePath = path.join(this.dataPath, file);
       fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
@@ -78,7 +77,7 @@ class NetlifyBlobsStorage implements StorageAdapter {
     this.baseUrl = process.env.NETLIFY_BLOBS_URL || '/.netlify/blobs';
   }
 
-  async read(file: string): Promise<any[]> {
+  async read(file: string): Promise<unknown[]> {
     try {
       const response = await fetch(`${this.baseUrl}/${file}`);
       if (!response.ok) {
@@ -95,7 +94,7 @@ class NetlifyBlobsStorage implements StorageAdapter {
     }
   }
 
-  async write(file: string, data: any[]): Promise<void> {
+  async write(file: string, data: unknown[]): Promise<void> {
     try {
       const response = await fetch(`${this.baseUrl}/${file}`, {
         method: 'PUT',
@@ -151,26 +150,32 @@ export const createStorage = (): StorageAdapter => {
 /**
  * Utilitários para validação e sanitização
  */
-export const validateOrder = (order: any): boolean => {
+export const validateOrder = (order: unknown): boolean => {
+  if (typeof order !== 'object' || order === null) return false;
+  
+  const orderObj = order as Record<string, unknown>;
   return !!(
-    order.produto_id &&
-    order.cliente_email &&
-    order.cor &&
-    order.tamanho &&
-    order.valor &&
-    typeof order.valor === 'number' &&
-    order.valor > 0
+    orderObj.produto_id &&
+    orderObj.cliente_email &&
+    orderObj.cor &&
+    orderObj.tamanho &&
+    orderObj.valor &&
+    typeof orderObj.valor === 'number' &&
+    orderObj.valor > 0
   );
 };
 
-export const validateReview = (review: any): boolean => {
+export const validateReview = (review: unknown): boolean => {
+  if (typeof review !== 'object' || review === null) return false;
+  
+  const reviewObj = review as Record<string, unknown>;
   return !!(
-    review.produto_id &&
-    review.nota &&
-    review.cliente_email &&
-    typeof review.nota === 'number' &&
-    review.nota >= 1 &&
-    review.nota <= 5
+    reviewObj.produto_id &&
+    reviewObj.nota &&
+    reviewObj.cliente_email &&
+    typeof reviewObj.nota === 'number' &&
+    reviewObj.nota >= 1 &&
+    reviewObj.nota <= 5
   );
 };
 

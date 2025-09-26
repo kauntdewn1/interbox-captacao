@@ -1,47 +1,94 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import ProdutoCard from '../../components/ProdutoCard';
 import SEOHead from '../../components/SEOHead';
 
+type Cor = {
+  nome: string;
+  hex: string;
+  badge: string;
+  disponivel: boolean;
+};
+
+type Tamanho = {
+  nome: string;
+  medidas: string;
+  disponivel: boolean;
+};
+
 type Produto = {
   id: string;
   nome: string;
+  descricao: string;
   preco: number;
-  imagem: string;
+  precoOriginal?: number;
+  desconto?: number;
+  cores: Cor[];
+  tamanhos: Tamanho[];
+  imagens: string[];
   imagemFallback?: string;
   slug: string;
-  cores: Array<{
-    nome: string;
-    hex: string;
-    badge: string;
-  }>;
-  tamanhos: string[];
-  categoria: string;
-  destaque: boolean;
+  marca: string;
+  material: string;
+  avaliacoes: {
+    media: number;
+    total: number;
+  };
+  estoque: number;
   novo: boolean;
-  xp_bonus: number;
-  box_bonus: number;
-  status: string;
+  destaque: boolean;
+  categoria?: string;
+  xp_bonus?: number;
+  box_bonus?: number;
+  status?: string;
 };
 
 export default function ProdutosPage() {
+  console.log('🚀 [PRODUTOS PAGE] Componente ProdutosPage inicializado');
+  
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  console.log('📊 [PRODUTOS PAGE] Estados iniciais:', {
+    produtos: produtos.length,
+    loading,
+    error
+  });
+
   useEffect(() => {
+    console.log('🔄 [PRODUTOS PAGE] useEffect executado - iniciando fetchProdutos');
+    
     const fetchProdutos = async () => {
+      console.log('🌐 [PRODUTOS PAGE] Iniciando requisição para API Netlify');
+      
       try {
         // Tentar primeiro a função Netlify
         const response = await fetch('/.netlify/functions/get-products');
+        console.log('📡 [PRODUTOS PAGE] Resposta da API recebida:', {
+          status: response.status,
+          ok: response.ok,
+          statusText: response.statusText
+        });
+        
         if (!response.ok) {
-          throw new Error('Erro ao carregar produtos');
+          throw new Error(`Erro ao carregar produtos: ${response.status} ${response.statusText}`);
         }
+        
         const data = await response.json();
+        console.log('✅ [PRODUTOS PAGE] Dados da API carregados com sucesso:', {
+          quantidade: Array.isArray(data) ? data.length : 'não é array',
+          tipo: typeof data,
+          dados: data
+        });
+        
         setProdutos(data);
-      } catch (err: any) {
+        console.log('💾 [PRODUTOS PAGE] Estado produtos atualizado com dados da API');
+        
+      } catch (err: unknown) {
         // Fallback: usar dados estáticos se a função não estiver disponível
-        console.log('Usando dados estáticos como fallback');
+        console.log('⚠️ [PRODUTOS PAGE] Erro na API, usando dados estáticos como fallback:', err);
+        setError(err instanceof Error ? err.message : 'Erro ao carregar produtos');
         const produtosEstaticos: Produto[] = [
           {
             id: "cropped-oversized-interbox-feminina",
@@ -67,7 +114,7 @@ export default function ProdutosPage() {
               "/products/cropped-interbox-feminina/detail-1-800x800.webp",
               "/products/cropped-interbox-feminina/detail-2-800x800.webp"
             ],
-            imagemFallback: "/products/cropped-interbox-feminina/hero-800x800.png",
+            imagemFallback: "/products/cropped-interbox-feminina/hero-800x800.webp",
             slug: "cropped-interbox",
             marca: "INTERBØX",
             material: "100% Algodão Premium",
@@ -103,7 +150,7 @@ export default function ProdutosPage() {
               "/products/camiseta-interbox-masculina/detail-1-800x800.webp",
               "/products/camiseta-interbox-masculina/detail-2-800x800.webp"
             ],
-            imagemFallback: "/products/camiseta-interbox-masculina/hero-800x800.png",
+            imagemFallback: "/products/camiseta-interbox-masculina/hero-800x800.webp",
             slug: "camiseta-interbox",
             marca: "INTERBØX",
             material: "100% Algodão Premium",
@@ -116,16 +163,26 @@ export default function ProdutosPage() {
             status: "ativo"
           }
         ];
+        console.log('📦 [PRODUTOS PAGE] Dados estáticos carregados:', {
+          quantidade: produtosEstaticos.length,
+          produtos: produtosEstaticos.map(p => ({ id: p.id, nome: p.nome }))
+        });
+        
         setProdutos(produtosEstaticos);
+        console.log('💾 [PRODUTOS PAGE] Estado produtos atualizado com dados estáticos');
+        
       } finally {
+        console.log('🏁 [PRODUTOS PAGE] Finalizando carregamento - setLoading(false)');
         setLoading(false);
       }
     };
 
+    console.log('▶️ [PRODUTOS PAGE] Executando fetchProdutos()');
     fetchProdutos();
   }, []);
 
   if (loading) {
+    console.log('⏳ [PRODUTOS PAGE] Renderizando tela de loading');
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
         <div className="text-center">
@@ -137,12 +194,16 @@ export default function ProdutosPage() {
   }
 
   if (error) {
+    console.log('❌ [PRODUTOS PAGE] Renderizando tela de erro:', error);
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-400 mb-4">Erro: {error}</p>
           <button 
-            onClick={() => window.location.reload()} 
+            onClick={() => {
+              console.log('🔄 [PRODUTOS PAGE] Usuário clicou em "Tentar novamente"');
+              window.location.reload();
+            }} 
             className="px-4 py-2 bg-pink-600 hover:bg-pink-500 rounded"
           >
             Tentar novamente
@@ -151,6 +212,11 @@ export default function ProdutosPage() {
       </div>
     );
   }
+
+  console.log('🎨 [PRODUTOS PAGE] Renderizando página principal com produtos:', {
+    quantidade: produtos.length,
+    produtos: produtos.map(p => ({ id: p.id, nome: p.nome, preco: p.preco }))
+  });
 
   return (
     <>
@@ -191,6 +257,7 @@ export default function ProdutosPage() {
             {/* Botão voltar */}
             <Link 
               to="/" 
+              onClick={() => console.log('🏠 [PRODUTOS PAGE] Usuário clicou em "Voltar para Home"')}
               className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 backdrop-blur-lg rounded-xl border border-white/20 transition-all duration-300"
             >
               ← Voltar para Home
@@ -201,11 +268,17 @@ export default function ProdutosPage() {
           <div className="max-w-6xl mx-auto mb-8">
             <div className="flex flex-wrap gap-4 justify-between items-center bg-white/5 backdrop-blur-lg rounded-xl p-4 border border-white/10">
               <div className="flex gap-4">
-                <select className="bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white">
+                <select 
+                  className="bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white"
+                  onChange={(e) => console.log('🔍 [PRODUTOS PAGE] Filtro de categoria alterado:', e.target.value)}
+                >
                   <option value="">Todas as categorias</option>
                   <option value="vestuario">Vestuário</option>
                 </select>
-                <select className="bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white">
+                <select 
+                  className="bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white"
+                  onChange={(e) => console.log('📊 [PRODUTOS PAGE] Ordenação alterada:', e.target.value)}
+                >
                   <option value="">Ordenar por</option>
                   <option value="preco-asc">Menor preço</option>
                   <option value="preco-desc">Maior preço</option>
@@ -221,9 +294,28 @@ export default function ProdutosPage() {
 
           {/* Grid de Produtos */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-7xl mx-auto">
-            {produtos.map((produto) => (
-              <ProdutoCard key={produto.id} produto={produto} />
-            ))}
+            {produtos.map((produto, index) => {
+              console.log(`🛍️ [PRODUTOS PAGE] Renderizando ProdutoCard ${index + 1}/${produtos.length}:`, {
+                id: produto.id,
+                nome: produto.nome,
+                preco: produto.preco,
+                cores: produto.cores.length,
+                tamanhos: produto.tamanhos.length
+              });
+              
+              return (
+                <ProdutoCard 
+                  key={produto.id} 
+                  produto={produto}
+                  onViewDetails={(produto) => {
+                    console.log('👁️ [PRODUTOS PAGE] ProdutoCard solicitou visualizar detalhes:', {
+                      id: produto.id,
+                      nome: produto.nome
+                    });
+                  }}
+                />
+              );
+            })}
           </div>
 
           {/* Footer Info */}
@@ -232,7 +324,11 @@ export default function ProdutosPage() {
               Todos os direitos reservados © INTERBØX 2025
             </p>
             <div className="flex justify-center space-x-6">
-              <Link to="/admin" className="text-blue-400 hover:text-blue-300 transition-colors">
+              <Link 
+                to="/admin" 
+                onClick={() => console.log('🔧 [PRODUTOS PAGE] Usuário clicou em "Admin"')}
+                className="text-blue-400 hover:text-blue-300 transition-colors"
+              >
                 Admin
               </Link>
             </div>
@@ -242,3 +338,5 @@ export default function ProdutosPage() {
     </>
   );
 }
+
+console.log('✅ [PRODUTOS PAGE] Componente ProdutosPage renderizado com sucesso');

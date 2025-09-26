@@ -19,7 +19,7 @@ def ask_codestral(prompt)
 
   if res.is_a?(Net::HTTPSuccess)
     response = JSON.parse(res.body)
-    puts "\n🧠 Resposta da IA:\n\n#{response["response"]}"
+    puts "\n🧠 Resposta da IA:\n\n#{response['response']}"
   else
     puts "❌ Erro ao chamar o modelo Codestral:"
     puts res.body

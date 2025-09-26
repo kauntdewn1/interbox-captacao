@@ -3,6 +3,8 @@
  * Implementa lógica de pagamento para INTERBØX 2025
  */
 
+import productsData from "../../data/products.json";
+
 // 🔑 Configurações de pagamento
 const PAYMENT_CONFIGS = {
   audiovisual: {
@@ -104,7 +106,7 @@ export const handler = async (event, context) => {
 
     // Parsear dados da requisição
     const body = JSON.parse(event.body);
-    const { type, customerData, productId, productSlug } = body;
+    const { type, customerData, productId, productSlug, tag, origin } = body;
 
     // Determinar se é compra de produto (catálogo) ou inscrição
     const isProductFlow = Boolean(productId || productSlug);
@@ -138,20 +140,7 @@ export const handler = async (event, context) => {
 
     if (isProductFlow) {
       // Carregar produto do catálogo JSON
-      const fs = await import('node:fs');
-      const path = await import('node:path');
-      const filePath = path.resolve(__dirname, '../../data/products.json');
-      let products = [];
-      try {
-        const data = fs.readFileSync(filePath, 'utf-8');
-        products = JSON.parse(data);
-      } catch (e) {
-        return {
-          statusCode: 500,
-          headers,
-          body: JSON.stringify({ error: 'Erro ao ler catálogo de produtos' })
-        };
-      }
+      const products = productsData;
 
       const product = products.find(
         (p) => p.id === productId || p.slug === productSlug || p.slug === productId
@@ -186,7 +175,9 @@ export const handler = async (event, context) => {
           { key: 'event', value: 'INTERBØX 2025' },
           { key: 'flow', value: 'product' },
           { key: 'product_id', value: product.id },
-          { key: 'product_slug', value: product.slug }
+          { key: 'product_slug', value: product.slug },
+          { key: 'origin', value: String(origin || 'site-interbox') },
+          { key: 'tag', value: String(tag || 'default') }
         ]
       };
     } else {
@@ -210,8 +201,53 @@ export const handler = async (event, context) => {
     }
 
     try {
+      console.log('🚀 Iniciando criação de charge:', {
+        isProductFlow,
+        productId,
+        productSlug,
+        type,
+        correlationID: chargeData.correlationID
+      });
+
       // Tentar criar charge via OpenPix/Woovi
       const charge = await createOpenPixCharge(chargeData);
+      
+      // Salva 'pending' para possibilitar polling
+      try {
+        const { createStorage } = await import('../../src/utils/storage.ts');
+        const storage = await createStorage();
+        const orders = (await storage.read('orders.json')) || [];
+        const info = (charge?.charge?.additionalInfo || []);
+        const findInfo = (k) => info.find(i => i.key === k)?.value;
+        const pendingOrder = {
+          id: `ord_${Date.now()}`,
+          status: 'pending',
+          amount_cents: charge?.charge?.value,
+          correlationID: chargeData.correlationID,
+          identifier: charge?.charge?.identifier,
+          product_id: findInfo('product_id'),
+          product_slug: findInfo('product_slug'),
+          origin: findInfo('origin') || 'site-interbox',
+          tag: findInfo('tag') || 'default',
+          customer: { email: customerData.email, name: customerData.name },
+          created_at: new Date().toISOString()
+        };
+        // Evitar duplicatas por identifier
+        const exists = orders.some(o => o.identifier === pendingOrder.identifier);
+        if (!exists) {
+          orders.push(pendingOrder);
+          await storage.write('orders.json', orders);
+        }
+      } catch (e) {
+        console.warn('Não consegui salvar pending order (ok continuar):', e?.message);
+      }
+      
+      console.log('✅ Charge criado com sucesso:', {
+        correlationID: charge.correlationID,
+        status: charge.status,
+        hasQRCode: !!charge.qrCode,
+        hasPixCode: !!charge.pixCopyPaste
+      });
       
       // Registro local para observabilidade (webhook fará persistência quando aprovado)
       try {
@@ -231,17 +267,21 @@ export const handler = async (event, context) => {
         console.log('✅ Metadados de criação de charge:', meta);
       } catch {}
       
+      const responseBody = {
+        success: true,
+        charge: charge,
+        qrCode: charge?.charge?.qrCodeImage || charge?.qrCode,
+        pixCopyPaste: charge?.brCode || charge?.pixCopyPaste,
+        fallback: false,
+        message: 'Pagamento processado com sucesso'
+      };
+      
+      console.log('📤 Enviando resposta de sucesso:', responseBody);
+      
       return {
         statusCode: 200,
         headers,
-        body: JSON.stringify({
-          success: true,
-          charge: charge,
-          qrCode: charge.qrCode,
-          pixCopyPaste: charge.pixCopyPaste,
-          fallback: false,
-          message: 'Pagamento processado com sucesso'
-        })
+        body: JSON.stringify(responseBody)
       };
     } catch (apiError) {
       console.error('❌ Erro na API OpenPix:', apiError.message);
@@ -258,14 +298,16 @@ export const handler = async (event, context) => {
     }
 
   } catch (error) {
-    console.error('Erro ao processar criação de charge:', error);
-    
+    console.error('❌ Erro ao processar criação de charge:', error);
+
     return {
       statusCode: 500,
       headers,
       body: JSON.stringify({
+        success: false,
         error: 'Erro interno do servidor',
-        details: error.message
+        message: error.message || 'Erro desconhecido',
+        stack: error.stack || null
       })
     };
   }

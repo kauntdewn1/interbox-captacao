@@ -1,9 +1,4 @@
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import productsData from "../../data/products.json";
 
 export const handler = async (event) => {
   const { id } = event.queryStringParameters || {};
@@ -15,11 +10,8 @@ export const handler = async (event) => {
     };
   }
 
-  const filePath = path.resolve(__dirname, "../../data/products.json");
-
   try {
-    const data = fs.readFileSync(filePath, "utf-8");
-    const products = JSON.parse(data);
+    const products = productsData;
     const product = products.find((p) => p.id === id || p.slug === id);
 
     if (!product) {

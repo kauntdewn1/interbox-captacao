@@ -72,15 +72,17 @@ export const handler = async (event, context) => {
     }
 
     // Sanitizar dados para resposta (remover emails por privacidade)
-    const sanitizedReviews = paginatedReviews.map(review => ({
-      id: review.id,
-      produto_id: review.produto_id,
-      nota: review.nota,
-      comentario: review.comentario,
-      data: review.data,
-      // Não expor email por privacidade
-      cliente_inicial: review.cliente_email.split('@')[0].substring(0, 2) + '***'
-    }));
+    const sanitizedReviews = paginatedReviews.map(review => {
+      const [prefixo = ''] = (review.cliente_email ?? '').split('@');
+      return {
+        id: review.id,
+        produto_id: review.produto_id,
+        nota: review.nota,
+        comentario: review.comentario,
+        data: review.data,
+        cliente_inicial: `${prefixo.slice(0, 2)}***`
+      };
+    });
 
     return {
       statusCode: 200,

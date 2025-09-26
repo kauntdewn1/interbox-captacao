@@ -10,6 +10,7 @@ import JudgeCadastro from './pages/judge/cadastro';
 import StaffCadastro from './pages/staff/cadastro';
 import SeguroPage from './pages/seguro';
 import ProdutosPage from './pages/produtos';
+import ProdutoDetalhes from './pages/produto/ProdutoDetalhes';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/judge/cadastro" element={<JudgeCadastro />} />
         <Route path="/staff/cadastro" element={<StaffCadastro />} />
         <Route path="/produtos" element={<ProdutosPage />} />
+        <Route path="/produto/:slug" element={<ProdutoDetalhes />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/seguro" element={<AdminSeguro />} />
         <Route path="/seguro" element={<SeguroPage />} />

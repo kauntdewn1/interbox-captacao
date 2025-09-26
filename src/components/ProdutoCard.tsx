@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { FaStar, FaHeart, FaShoppingCart, FaEye } from 'react-icons/fa';
+import { useState, useEffect } from 'react';
+import { FaStar, FaEye, FaSpinner } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 type Cor = {
   nome: string;
@@ -42,58 +43,79 @@ type Props = {
   onViewDetails?: (produto: Produto) => void;
 };
 
+type ProdutoSession = {
+  corSelecionada: string | null;
+  tamanhoSelecionado: string | null;
+};
+
 export default function ProdutoCard({ produto, onViewDetails }: Props) {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [pix, setPix] = useState<{ qrCode?: string; pixCopyPaste?: string } | null>(null);
+  const navigate = useNavigate();
   const [corSelecionada, setCorSelecionada] = useState<Cor | null>(produto.cores[0] || null);
   const [tamanhoSelecionado, setTamanhoSelecionado] = useState<Tamanho | null>(produto.tamanhos[0] || null);
-  const [favorito, setFavorito] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showSavedIndicator, setShowSavedIndicator] = useState(false);
 
-  const handleComprar = async () => {
-    if (!corSelecionada || !tamanhoSelecionado) {
-      setError('Selecione cor e tamanho');
-      return;
-    }
+  // Chave única para localStorage baseada no ID do produto
+  const sessionKey = `produto_session_${produto.id}`;
 
-    setLoading(true);
-    setError(null);
-    setPix(null);
-    
+  // Função para salvar sessão no localStorage
+  const saveSession = (session: ProdutoSession) => {
     try {
-      const response = await fetch('https://interbox-captacao.netlify.app/.netlify/functions/create-charge', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          productSlug: produto.slug,
-          customerData: {
-            name: 'Cliente INTERBØX',
-            email: 'cliente@example.com',
-            phone: '',
-            cpf: ''
-          },
-          variantes: {
-            cor: corSelecionada.nome,
-            tamanho: tamanhoSelecionado.nome
-          }
-        })
-      });
-      
-      const data = await response.json();
-      if (!response.ok || !data.success) {
-        throw new Error(data?.message || 'Falha ao criar charge');
-      }
-      
-      setPix({ 
-        qrCode: data.qrCode || data.charge?.qrCodeImage, 
-        pixCopyPaste: data.pixCopyPaste || data.charge?.brCode 
-      });
-    } catch (e: any) {
-      setError(e.message || 'Erro ao processar compra');
-    } finally {
-      setLoading(false);
+      localStorage.setItem(sessionKey, JSON.stringify(session));
+    } catch (error) {
+      console.error('Erro ao salvar sessão:', error);
     }
   };
+
+  // Função para carregar sessão do localStorage
+  const loadSession = (): ProdutoSession | null => {
+    try {
+      const saved = localStorage.getItem(sessionKey);
+      return saved ? JSON.parse(saved) : null;
+    } catch (error) {
+      console.error('Erro ao carregar sessão:', error);
+      return null;
+    }
+  };
+
+
+  // Carregar sessão salva ao montar o componente
+  useEffect(() => {
+    const savedSession = loadSession();
+    if (savedSession) {
+      // Restaurar cor selecionada
+      if (savedSession.corSelecionada) {
+        const cor = produto.cores.find(c => c.nome === savedSession.corSelecionada);
+        if (cor) {
+          setCorSelecionada(cor);
+        }
+      }
+
+      // Restaurar tamanho selecionado
+      if (savedSession.tamanhoSelecionado) {
+        const tamanho = produto.tamanhos.find(t => t.nome === savedSession.tamanhoSelecionado);
+        if (tamanho) {
+          setTamanhoSelecionado(tamanho);
+        }
+      }
+
+    }
+  }, [produto.id, produto.cores, produto.tamanhos]);
+
+  // Salvar sessão quando estados mudarem
+  useEffect(() => {
+    const session: ProdutoSession = {
+      corSelecionada: corSelecionada?.nome || null,
+      tamanhoSelecionado: tamanhoSelecionado?.nome || null
+    };
+    saveSession(session);
+    
+    // Mostrar indicador de salvamento (exceto no carregamento inicial)
+    if (corSelecionada || tamanhoSelecionado) {
+      setShowSavedIndicator(true);
+      setTimeout(() => setShowSavedIndicator(false), 2000);
+    }
+  }, [corSelecionada, tamanhoSelecionado, sessionKey]);
 
   const renderStars = (media: number) => {
     return Array.from({ length: 5 }, (_, i) => (
@@ -103,6 +125,20 @@ export default function ProdutoCard({ produto, onViewDetails }: Props) {
       />
     ));
   };
+
+  const handleBuyClick = async () => {
+    setIsLoading(true);
+    try {
+      // Simular delay de navegação/compra
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      navigate(`/produto/${produto.slug}`);
+    } catch (error) {
+      console.error('Erro ao navegar:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
 
   return (
     <div className="group relative bg-white/5 backdrop-blur-lg rounded-2xl border border-white/10 overflow-hidden hover:bg-white/10 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl">
@@ -118,15 +154,13 @@ export default function ProdutoCard({ produto, onViewDetails }: Props) {
             EXCLUSIVO
           </span>
         )}
+        {showSavedIndicator && (
+          <span className="bg-green-600 text-white px-2 py-1 rounded-full text-xs font-semibold animate-pulse">
+            SALVO
+          </span>
+        )}
       </div>
 
-      {/* Wishlist Button */}
-      <button
-        onClick={() => setFavorito(!favorito)}
-        className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
-      >
-        <FaHeart className={`text-sm ${favorito ? 'text-red-500' : 'text-white'}`} />
-      </button>
 
       {/* Product Image */}
       <div className="relative aspect-square overflow-hidden">
@@ -152,12 +186,6 @@ export default function ProdutoCard({ produto, onViewDetails }: Props) {
               className="p-3 bg-white/20 backdrop-blur rounded-full hover:bg-white/30 transition-colors"
             >
               <FaEye className="text-white text-lg" />
-            </button>
-            <button
-              onClick={handleComprar}
-              className="p-3 bg-pink-600 hover:bg-pink-500 rounded-full transition-colors"
-            >
-              <FaShoppingCart className="text-white text-lg" />
             </button>
           </div>
         </div>
@@ -247,42 +275,27 @@ export default function ProdutoCard({ produto, onViewDetails }: Props) {
 
         {/* Buy Button */}
         <button
-          onClick={handleComprar}
-          disabled={loading || produto.estoque === 0 || !corSelecionada || !tamanhoSelecionado}
-          className="w-full py-3 px-4 bg-pink-600 hover:bg-pink-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-2"
+          onClick={handleBuyClick}
+          disabled={isLoading || produto.estoque === 0}
+          className={`w-full py-3 px-4 text-white font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 ${
+            isLoading || produto.estoque === 0
+              ? 'bg-gray-600 cursor-not-allowed opacity-50'
+              : 'bg-pink-600 hover:bg-pink-500'
+          }`}
         >
-          {loading ? (
+          {isLoading ? (
             <>
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-              Gerando PIX...
+              <FaSpinner className="animate-spin" />
+              Carregando...
             </>
           ) : (
             <>
-              <FaShoppingCart />
-              Comprar Agora
+              <FaEye />
+              Ver Produto
             </>
           )}
         </button>
 
-        {/* Error */}
-        {error && (
-          <div className="mt-3 text-red-400 text-sm text-center">{error}</div>
-        )}
-
-        {/* PIX Info */}
-        {pix && (
-          <div className="mt-4 p-4 bg-green-900/20 border border-green-500/30 rounded-xl">
-            <div className="text-green-400 text-sm font-semibold mb-2">PIX Gerado!</div>
-            {pix.qrCode && (
-              <img src={pix.qrCode} alt="QR Code PIX" className="w-32 h-32 mx-auto mb-2" />
-            )}
-            {pix.pixCopyPaste && (
-              <div className="text-xs text-gray-300 break-all bg-black/20 p-2 rounded">
-                {pix.pixCopyPaste}
-              </div>
-            )}
-          </div>
-        )}
       </div>
     </div>
   );

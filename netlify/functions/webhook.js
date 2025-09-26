@@ -103,6 +103,35 @@ export const handler = async (event, context) => {
         } catch (error) {
           console.error('Erro ao salvar venda de produto:', error);
         }
+
+        // 🔄 ATUALIZAR PEDIDO PENDING PARA PAID
+        try {
+          const { createStorage } = await import('../../src/utils/storage.ts');
+          const storage = await createStorage();
+          const orders = (await storage.read('orders.json')) || [];
+          
+          const { product_slug, customer = {}, txid, identifier, correlationID, additionalInfo = [] } = transaction;
+          const findInfo = (k) => (additionalInfo || []).find(i => i.key === k)?.value;
+          
+          const idx = orders.findIndex(o =>
+            (identifier && o.identifier === identifier) ||
+            (correlationID && o.correlationID === correlationID) ||
+            (txid && o.txid === txid) ||
+            (product_slug && o.product_slug === product_slug && o.customer?.email === (customer.email||'').toLowerCase())
+          );
+
+          if (idx >= 0) {
+            orders[idx].status = 'paid';
+            orders[idx].txid = txid || orders[idx].txid || `tx_${Date.now()}`;
+            orders[idx].paid_at = new Date().toISOString();
+            orders[idx].origin = orders[idx].origin || findInfo('origin') || 'site-interbox';
+            orders[idx].tag = orders[idx].tag || findInfo('tag') || 'default';
+            await storage.write('orders.json', orders);
+            console.log('✅ Pedido pending atualizado para paid:', orders[idx].id);
+          }
+        } catch (e) {
+          console.warn('⚠️ Erro ao atualizar pedido pending:', e?.message);
+        }
       } else {
         // 📝 INSCRIÇÃO - Atualizar via update-inscricao.js
         try {
