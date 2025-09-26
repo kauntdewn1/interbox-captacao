@@ -26,7 +26,7 @@ class FileSystemStorage implements StorageAdapter {
 	private _dataPath: string;
 
 	constructor() {
-		this._dataPath = path.resolve(projectRootDirectory, '../../data');
+		this._dataPath = path.resolve(projectRootDirectory, 'data');
 	}
 
 	get dataPath(): string {

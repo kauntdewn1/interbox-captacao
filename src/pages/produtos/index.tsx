@@ -64,15 +64,23 @@ export default function ProdutosPage() {
       
       try {
         // Tentar primeiro a função Netlify
-        const response = await fetch('/.netlify/functions/get-products');
+        const url = new URL('/.netlify/functions/get-products', window.location.origin).href;
+        const response = await fetch(url);
         console.log('📡 [PRODUTOS PAGE] Resposta da API recebida:', {
           status: response.status,
           ok: response.ok,
-          statusText: response.statusText
+          statusText: response.statusText,
+          contentType: response.headers.get('content-type'),
+          url
         });
         
         if (!response.ok) {
           throw new Error(`Erro ao carregar produtos: ${response.status} ${response.statusText}`);
+        }
+        
+        const contentType = response.headers.get('content-type') || '';
+        if (!contentType.includes('application/json')) {
+          throw new Error(`Resposta não é JSON (content-type: ${contentType})`);
         }
         
         const data = await response.json();

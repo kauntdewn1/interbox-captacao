@@ -4,7 +4,18 @@
  * Zero lock-in, controle total
  */
 
-import { createStorage, validateOrder, generateId, sanitizeEmail } from '../../src/utils/storage.js';
+// Usa o mesmo adapter/exports utilizados nas outras functions (import dinâmico do TS)
+// Evita divergência de paths/extensões e mantém um único gateway de storage
+let createStorage, validateOrder, generateId, sanitizeEmail;
+const loadStorage = async () => {
+  if (!createStorage) {
+    const mod = await import('../../src/utils/storage.ts');
+    createStorage = mod.createStorage;
+    validateOrder = mod.validateOrder;
+    generateId = mod.generateId;
+    sanitizeEmail = mod.sanitizeEmail;
+  }
+};
 
 export const handler = async (event, context) => {
   // CORS Headers
@@ -29,6 +40,7 @@ export const handler = async (event, context) => {
   }
 
   try {
+    await loadStorage();
     // Parse e validação
     const orderData = JSON.parse(event.body);
     
