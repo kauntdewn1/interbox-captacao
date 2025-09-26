@@ -22,12 +22,13 @@ const Home = () => {
       icon: '⧉'
     },
     {
-      id: 'audiovisual',
-      title: 'Inscrição Audiovisual',
-      description: 'Capture os melhores momentos do evento',
-      link: '/audiovisual',
-      color: 'from-orange-500 to-red-600',
-      icon: '⍟'
+      id: 'loja',
+      title: 'Loja INTERBØX',
+      description: 'Produtos oficiais do INTERBØX 2025',
+      price: 'A partir de R$ 139,90',
+      link: '/produtos',
+      color: 'from-pink-500 to-purple-600',
+      icon: '🛍️'
     },
     {
       id: 'seguro',
