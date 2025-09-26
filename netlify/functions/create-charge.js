@@ -306,8 +306,7 @@ export const handler = async (event, context) => {
       body: JSON.stringify({
         success: false,
         error: 'Erro interno do servidor',
-        message: error.message || 'Erro desconhecido',
-        stack: error.stack || null
+        message: error.message || 'Erro desconhecido'
       })
     };
   }

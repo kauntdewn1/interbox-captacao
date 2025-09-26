@@ -11,6 +11,7 @@ import StaffCadastro from './pages/staff/cadastro';
 import SeguroPage from './pages/seguro';
 import ProdutosPage from './pages/produtos';
 import ProdutoDetalhes from './pages/produto/ProdutoDetalhes';
+import AdminProdutos from './pages/admin/dashboard';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/seguro" element={<AdminSeguro />} />
         <Route path="/seguro" element={<SeguroPage />} />
+        <Route path="/admin/dashboard" element={<AdminProdutos />} />
         <Route path="/" element={<Home />} />
       </Routes>
     </BrowserRouter>

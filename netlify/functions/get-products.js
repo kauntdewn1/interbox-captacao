@@ -1,15 +1,19 @@
-import productsData from "../../data/products.json";
+import fs from "fs/promises";
+import path from "path";
 
 export const handler = async () => {
   try {
-    const products = productsData;
+    const filePath = path.resolve(__dirname, "../../data/products.json");
+    const products = require('../../data/products.json');
+
 
     return {
       statusCode: 200,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(products),
+      headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+      body: JSON.stringify(products)
     };
-  } catch (err) {
+  } catch (error) {
+    console.error("❌ Erro real ao carregar produtos:", error);
     return {
       statusCode: 500,
       body: JSON.stringify({ error: "Erro ao listar produtos" }),

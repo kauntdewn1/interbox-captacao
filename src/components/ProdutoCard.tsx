@@ -100,7 +100,7 @@ export default function ProdutoCard({ produto, onViewDetails }: Props) {
       }
 
     }
-  }, [produto.id, produto.cores, produto.tamanhos]);
+  }, [produto.id, produto.cores, produto.tamanhos, loadSession]);
 
   // Salvar sessão quando estados mudarem
   useEffect(() => {
@@ -115,7 +115,7 @@ export default function ProdutoCard({ produto, onViewDetails }: Props) {
       setShowSavedIndicator(true);
       setTimeout(() => setShowSavedIndicator(false), 2000);
     }
-  }, [corSelecionada, tamanhoSelecionado, sessionKey]);
+  }, [corSelecionada, tamanhoSelecionado, sessionKey, saveSession]);
 
   const renderStars = (media: number) => {
     return Array.from({ length: 5 }, (_, i) => (

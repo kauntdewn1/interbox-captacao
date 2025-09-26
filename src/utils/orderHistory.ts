@@ -83,21 +83,20 @@ export const getOrderHistory = (): OrderHistoryItem[] => {
       localStorage.removeItem(STORAGE_KEY);
       return [];
     }
-    
-    // Validar cada item
-    const validOrders = parsed.filter((order: any) => {
+    const validOrders = parsed.filter((order): order is OrderHistoryItem => {
+      if (typeof order !== 'object' || order === null) return false;
+      const o = order as Record<string, unknown>;
       return (
-        order &&
-        typeof order.produtoId === 'string' &&
-        typeof order.slug === 'string' &&
-        typeof order.nome === 'string' &&
-        typeof order.cor === 'string' &&
-        typeof order.tamanho === 'string' &&
-        typeof order.valor === 'number' &&
-        typeof order.data === 'string'
+        !!order &&
+        typeof o.produtoId === 'string' &&
+        typeof o.slug === 'string' &&
+        typeof o.nome === 'string' &&
+        typeof o.cor === 'string' &&
+        typeof o.tamanho === 'string' &&
+        typeof o.valor === 'number' &&
+        typeof o.data === 'string'
       );
-    });
-    
+      });
     return validOrders;
     
   } catch (error) {
@@ -213,10 +212,9 @@ export const importOrderHistory = (jsonData: string): boolean => {
     
     if (!Array.isArray(imported)) {
       throw new Error('Dados inválidos: deve ser um array');
-    }
-    
+    } else {
     // Validar estrutura
-    const isValid = imported.every((order: any) => 
+    const isValid = imported.every((order: Record<string, unknown>) => 
       order &&
       typeof order.produtoId === 'string' &&
       typeof order.slug === 'string' &&
@@ -232,12 +230,13 @@ export const importOrderHistory = (jsonData: string): boolean => {
     }
     
     // Salvar histórico importado
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(imported));
+    const normalizedHistory = imported.slice(0, MAX_ORDERS);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(normalizedHistory));
     console.log('📥 [ORDER HISTORY] Histórico importado com sucesso');
-    
+    }
     return true;
     
-  } catch (error) {
+  } catch (error) { 
     console.error('❌ [ORDER HISTORY] Erro ao importar histórico:', error);
     return false;
   }

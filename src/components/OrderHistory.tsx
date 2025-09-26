@@ -16,7 +16,7 @@ interface OrderHistoryProps {
 
 export default function OrderHistory({ isOpen, onClose }: OrderHistoryProps) {
   const [history, setHistory] = useState<OrderHistoryItem[]>([]);
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<Record<string, number> | null>(null);
   const [showImport, setShowImport] = useState(false);
 
   useEffect(() => {
@@ -29,7 +29,7 @@ export default function OrderHistory({ isOpen, onClose }: OrderHistoryProps) {
     const orderHistory = getOrderHistory();
     const orderStats = getOrderHistoryStats();
     setHistory(orderHistory);
-    setStats(orderStats);
+    setStats(orderStats as unknown as Record<string, number>);
   };
 
   const handleClearHistory = () => {

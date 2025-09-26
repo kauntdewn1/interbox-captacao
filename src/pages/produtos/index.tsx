@@ -111,8 +111,8 @@ export default function ProdutosPage() {
             ],
             imagens: [
               "/products/cropped-interbox-feminina/hero-800x800.webp",
-              "/products/cropped-interbox-feminina/detail-1-800x800.webp",
-              "/products/cropped-interbox-feminina/detail-2-800x800.webp"
+              "/products/cropped-interbox-feminina/detail/detail-1-800x800.webp",
+              "/products/cropped-interbox-feminina/detail/detail-2-800x800.webp"
             ],
             imagemFallback: "/products/cropped-interbox-feminina/hero-800x800.webp",
             slug: "cropped-interbox",
@@ -146,9 +146,9 @@ export default function ProdutosPage() {
               { nome: "XG", medidas: "Peito: 116cm", disponivel: true }
             ],
             imagens: [
-              "/products/camiseta-interbox-masculina/hero-800x800.webp",
-              "/products/camiseta-interbox-masculina/detail-1-800x800.webp",
-              "/products/camiseta-interbox-masculina/detail-2-800x800.webp"
+              "/products/camiseta-interbox-masculina/colors/preto-40x40.png",
+              "/products/camiseta-interbox-masculina/detail/detail-1-800x800.webp",
+              "/products/camiseta-interbox-masculina/detail/detail-2-800x800.webp"
             ],
             imagemFallback: "/products/camiseta-interbox-masculina/hero-800x800.webp",
             slug: "camiseta-interbox",

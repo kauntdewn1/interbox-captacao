@@ -52,6 +52,67 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(false);
   const [salesStats, setSalesStats] = useState<SalesStats | null>(null);
   const [reviews, setReviews] = useState<ReviewsResponse | null>(null);
+
+  // Função para exportar vendas como CSV (requere autenticação via token)
+  const exportOrdersCSV = async () => {
+    try {
+      const token = sessionStorage.getItem('admin_session_token');
+      if (!token) {
+        alert('Sessão expirada. Faça login novamente.');
+        setIsAuthenticated(false);
+        return;
+      }
+
+      const response = await fetch('/.netlify/functions/get-payment-status?export=orders', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (response.status === 401) {
+        alert('Sessão expirada ou inválida. Faça login novamente.');
+        setIsAuthenticated(false);
+        sessionStorage.removeItem('admin_session_token');
+        return;
+      }
+      const orders = await response.json();
+
+      if (!orders || !Array.isArray(orders)) {
+        alert('Nenhuma venda encontrada para exportar');
+        return;
+      }
+
+      // Cabeçalho CSV
+      const headers = ['created_at', 'product_slug', 'amount_cents', 'status', 'origin', 'tag', 'email'];
+      const csvContent = [
+        headers.join(','),
+        ...orders.map(order => [
+          order.created_at || '',
+          order.product_slug || '',
+          order.amount_cents || '',
+          order.status || '',
+          order.origin || '',
+          order.tag || '',
+          order.customer?.email || ''
+        ].join(','))
+      ].join('\n');
+
+      // Download do arquivo
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `vendas-interbox-${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      alert('✅ CSV exportado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao exportar CSV:', error);
+      alert('❌ Erro ao exportar CSV');
+    }
+  };
   const [selectedProduct, setSelectedProduct] = useState<string>('');
 
   // Verificar autenticação ao carregar
@@ -270,6 +331,25 @@ export default function AdminDashboard() {
           }}
         >
           SAIR
+        </button>
+        
+        <button
+          onClick={exportOrdersCSV}
+          style={{
+            padding: '8px 16px',
+            border: '2px solid #0f0',
+            background: '#000',
+            color: '#0f0',
+            fontSize: '12px',
+            fontWeight: 'bold',
+            fontFamily: 'monospace',
+            textTransform: 'uppercase',
+            cursor: 'pointer',
+            alignSelf: 'center',
+            marginTop: '10px'
+          }}
+        >
+          📊 EXPORTAR VENDAS CSV
         </button>
       </div>
 

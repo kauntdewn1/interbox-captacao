@@ -111,13 +111,18 @@ export const handler = async (event, context) => {
           const orders = (await storage.read('orders.json')) || [];
           
           const { product_slug, customer = {}, txid, identifier, correlationID, additionalInfo = [] } = transaction;
+          const normalizedTargetEmail = (customer.email || '').toLowerCase();
           const findInfo = (k) => (additionalInfo || []).find(i => i.key === k)?.value;
           
           const idx = orders.findIndex(o =>
             (identifier && o.identifier === identifier) ||
             (correlationID && o.correlationID === correlationID) ||
             (txid && o.txid === txid) ||
-            (product_slug && o.product_slug === product_slug && o.customer?.email === (customer.email||'').toLowerCase())
+            (
+              product_slug &&
+              o.product_slug === product_slug &&
+              (o.customer?.email || '').toLowerCase() === normalizedTargetEmail
+            )
           );
 
           if (idx >= 0) {

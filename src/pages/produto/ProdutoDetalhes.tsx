@@ -59,6 +59,7 @@ export default function ProdutoDetalhes() {
   const [errorCompra, setErrorCompra] = useState<string | null>(null);
   const [pix, setPix] = useState<{ qrCode?: string; pixCopyPaste?: string } | null>(null);
   const [statusPix, setStatusPix] = useState<'pending' | 'paid' | 'expired' | null>(null);
+  const [copiedPix, setCopiedPix] = useState(false);
   const [corSelecionada, setCorSelecionada] = useState<Cor | null>(null);
   const [tamanhoSelecionado, setTamanhoSelecionado] = useState<Tamanho | null>(null);
   const [imagemAtual, setImagemAtual] = useState(0);
@@ -186,7 +187,10 @@ export default function ProdutoDetalhes() {
             cor: corSelecionada.nome,
             tamanho: tamanhoSelecionado.nome
           },
-          tag: `produto-${produto.slug}`,
+          tag: (() => {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('utm_source') || params.get('tag') || `produto-${produto.slug}`;
+          })(),
           origin: window.location.pathname || 'site-interbox'
         })
       });
@@ -232,6 +236,10 @@ export default function ProdutoDetalhes() {
             if (st?.status === 'paid') {
               clearInterval(interval);
               setStatusPix('paid');
+              // Toast de confirmação
+              setTimeout(() => {
+                alert('🎉 Pagamento confirmado! Obrigado pela compra!');
+              }, 500);
             }
           } catch (e) {
             console.warn('Erro ao verificar status:', e);
@@ -263,6 +271,26 @@ export default function ProdutoDetalhes() {
         className={`text-lg ${i < Math.floor(media) ? 'text-yellow-400' : 'text-gray-400'}`} 
       />
     ));
+  };
+
+  const copyPixCode = async () => {
+    if (pix?.pixCopyPaste) {
+      try {
+        await navigator.clipboard.writeText(pix.pixCopyPaste);
+        setCopiedPix(true);
+        setTimeout(() => setCopiedPix(false), 2000);
+      } catch {
+        // Fallback para navegadores mais antigos
+        const textArea = document.createElement('textarea');
+        textArea.value = pix.pixCopyPaste;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        setCopiedPix(true);
+        setTimeout(() => setCopiedPix(false), 2000);
+      }
+    }
   };
 
   if (loading) {
@@ -500,7 +528,17 @@ export default function ProdutoDetalhes() {
                   {pix.pixCopyPaste && (
                     <div className="text-sm text-gray-300 break-all bg-black/20 p-3 rounded">
                       <div className="text-green-400 mb-2 font-semibold">Código PIX:</div>
-                      {pix.pixCopyPaste}
+                      <div className="mb-2">{pix.pixCopyPaste}</div>
+                      <button
+                        onClick={copyPixCode}
+                        className={`px-3 py-1 rounded text-xs font-semibold transition-all ${
+                          copiedPix 
+                            ? 'bg-green-600 text-white' 
+                            : 'bg-blue-600 hover:bg-blue-500 text-white'
+                        }`}
+                      >
+                        {copiedPix ? '✅ Copiado!' : '📋 Copiar código PIX'}
+                      </button>
                     </div>
                   )}
                   
