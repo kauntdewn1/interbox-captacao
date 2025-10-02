@@ -19,7 +19,7 @@ export const handler = async (event, context) => {
   }
 
   try {
-    const apiKey = process.env.OPENPIX_API_KEY;
+    const apiKey = process.env.OPENPIX_API_KEY?.trim();
     const apiUrl = process.env.API_BASE_URL || 'https://api.woovi.com';
     
     if (!apiKey) {

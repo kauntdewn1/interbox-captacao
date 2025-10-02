@@ -5,7 +5,7 @@
 
 // 🔧 Função para verificar charge via OpenPix/Woovi
 const checkOpenPixCharge = async (chargeId) => {
-  const apiKey = process.env.OPENPIX_API_KEY;
+  const apiKey = process.env.OPENPIX_API_KEY?.trim();
   const apiUrl = process.env.API_BASE_URL || 'https://api.woovi.com';
   
   if (!apiKey) {

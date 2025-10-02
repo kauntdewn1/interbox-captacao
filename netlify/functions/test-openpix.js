@@ -6,7 +6,7 @@
 export const handler = async (event, context) => {
   console.log('=== TESTE DE CONEXÃO OPENPIX/WOOVI ===');
   
-  const openpixApiKey = process.env.OPENPIX_API_KEY;
+  const openpixApiKey = process.env.OPENPIX_API_KEY?.trim();
   const openpixCorpId = process.env.OPENPIX_CORP_ID;
   const apiBaseUrl = process.env.API_BASE_URL || 'https://api.woovi.com';
   

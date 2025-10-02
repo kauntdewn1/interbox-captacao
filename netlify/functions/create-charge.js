@@ -55,7 +55,7 @@ const generateProductTags = (product) => {
 
 // 🔧 Função para criar charge via OpenPix/Woovi
 const createOpenPixCharge = async (paymentData) => {
-  const apiKey = process.env.OPENPIX_API_KEY;
+  const apiKey = process.env.OPENPIX_API_KEY?.trim();
   const apiUrl = process.env.API_BASE_URL || 'https://api.woovi.com';
 
   if (!apiKey) {
