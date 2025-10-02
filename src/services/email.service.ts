@@ -336,91 +336,70 @@ export class EmailService {
   }
 
   /**
-   * Envia email de novo pedido para fornecedor
-   */
-  async sendOrderEmail(
-    orderData: OrderEmailData,
-    supplierEmail: string = 'contatoplayk@gmail.com'
-  ): Promise<{ success: boolean; id?: string; error?: string }> {
-    const template = orderEmailTemplate(orderData);
+ * Envia email de novo pedido para fornecedor
+ */
+async sendOrderEmail(
+  orderData: OrderEmailData,
+  supplierEmail: string = 'contatoplayk@gmail.com'
+): Promise<{ success: boolean; id?: string; error?: string }> {
+  const valorFormatado = (orderData.valor / 100).toFixed(2);
 
-    return this.send({
-      to: { email: supplierEmail, name: 'PlayK' },
-      subject: template.subject,
-      html: template.html,
-      text: template.text,
-      tags: [
-        { name: 'type', value: 'order' },
-        { name: 'supplier', value: 'playk' },
-        { name: 'product', value: orderData.produto_id },
-        { name: 'category', value: orderData.genero.toLowerCase() },
-      ],
-    });
-  }
-
-  /**
-   * Envia email de confirmação para cliente
-   */
-  async sendCustomerConfirmationEmail(orderData: OrderEmailData): Promise<{ success: boolean; id?: string; error?: string }> {
-    const valorFormatado = (orderData.valor / 100).toFixed(2);
-
-    const html = `
+  const html = `
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pedido Confirmado - INTERBØX 2025</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Novo Pedido - INTERBØX 2025</title>
 </head>
-<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
 
-  <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
-    <h1 style="color: white; margin: 0; font-size: 28px;">✅ Pedido Confirmado!</h1>
+  <div style="background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
+    <h1 style="color: white; margin: 0; font-size: 26px;">📥 Novo Pedido Recebido</h1>
     <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0;">INTERBØX 2025</p>
   </div>
 
   <div style="background: white; padding: 30px; border: 1px solid #e9ecef; border-top: none; border-radius: 0 0 12px 12px;">
+    <p style="font-size: 16px;">Você recebeu um novo pedido de <strong>${orderData.cliente.nome}</strong>.</p>
 
-    <p style="font-size: 16px; color: #495057;">Olá <strong>${orderData.cliente.nome}</strong>,</p>
-
-    <p style="font-size: 16px; color: #495057;">Recebemos seu pagamento e seu pedido está confirmado! 🎉</p>
-
-    <div style="background: #e7f3ff; padding: 20px; border-radius: 8px; margin: 25px 0;">
-      <h2 style="color: #0066cc; margin-top: 0;">📦 Seu Pedido</h2>
-      <p style="margin: 5px 0;"><strong>${orderData.produto}</strong></p>
-      ${orderData.tamanho ? `<p style="margin: 5px 0;">Tamanho: ${orderData.tamanho}</p>` : ''}
-      ${orderData.cor ? `<p style="margin: 5px 0;">Cor: ${orderData.cor}</p>` : ''}
-      <p style="margin: 15px 0 5px 0; font-size: 20px; color: #28a745; font-weight: 600;">R$ ${valorFormatado}</p>
+    <div style="background: #f0f4ff; padding: 20px; border-radius: 8px; margin: 20px 0;">
+      <h2 style="color: #333; margin-top: 0;">🛒 Detalhes do Pedido</h2>
+      <p><strong>Produto:</strong> ${orderData.produto}</p>
+      ${orderData.tamanho ? `<p><strong>Tamanho:</strong> ${orderData.tamanho}</p>` : ''}
+      ${orderData.cor ? `<p><strong>Cor:</strong> ${orderData.cor}</p>` : ''}
+      <p><strong>Valor:</strong> R$ ${valorFormatado}</p>
     </div>
 
-    <p style="font-size: 14px; color: #6c757d;">
-      Em breve você receberá as informações de rastreamento no seu e-mail.
-    </p>
+    <h3 style="margin-top: 30px;">📍 Endereço</h3>
+    <p>${orderData.endereco}</p>
 
-    <div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 8px;">
-      <p style="margin: 0; font-size: 12px; color: #6c757d;"><strong>Número do Pedido:</strong> ${orderData.correlationID}</p>
+    ${orderData.observacoes ? `<p><strong>Observações:</strong> ${orderData.observacoes}</p>` : ''}
+
+    <div style="margin-top: 30px;">
+      <a href="https://interbox-captacao.netlify.app/fornecedor" target="_blank" style="display: inline-block; padding: 12px 20px; background: #6a11cb; color: white; border-radius: 6px; text-decoration: none; font-weight: bold;">📊 Acessar Dashboard</a>
     </div>
   </div>
 
   <div style="text-align: center; padding: 20px; color: #6c757d; font-size: 12px;">
-    <p style="margin: 0;">INTERBØX 2025 - Maior evento fitness de times da América Latina</p>
-    <p style="margin: 5px 0 0 0;">Dúvidas? Entre em contato: <a href="mailto:contato@interbox.com.br" style="color: #667eea;">contato@interbox.com.br</a></p>
+    <p style="margin: 0;">INTERBØX 2025 - Pedido via Pix</p>
   </div>
 
 </body>
 </html>
-    `;
+`;
 
-    return this.send({
-      to: { email: orderData.cliente.email, name: orderData.cliente.nome },
-      subject: `✅ Pedido Confirmado - ${orderData.produto}`,
-      html,
-      tags: [
-        { name: 'type', value: 'confirmation' },
-        { name: 'customer', value: 'true' },
-      ],
-    });
-  }
+  return this.send({
+    to: { email: supplierEmail, name: 'PlayK' },
+    subject: `📥 Novo Pedido Recebido - ${orderData.produto}`,
+    html,
+    tags: [
+      { name: 'type', value: 'order' },
+      { name: 'supplier', value: 'playk' },
+      { name: 'product', value: orderData.produto_id },
+      { name: 'category', value: orderData.genero.toLowerCase() },
+    ],
+  });
+}
 }
 
 // ============================================================================
