@@ -374,6 +374,7 @@ async sendOrderEmail(
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
 
   <div style="background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
+    <img src="https://interbox-captacao.netlify.app/logos/login_hrz.png" alt="INTERBØX" style="max-width: 200px; height: auto; margin-bottom: 20px;" />
     <h1 style="color: white; margin: 0; font-size: 26px;">📥 Novo Pedido Recebido</h1>
     <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0;">INTERBØX 2025</p>
   </div>
