@@ -1,0 +1,93 @@
+[
+    {
+      "id": "cropped-oversized-interbox-feminina",
+      "nome": "Cropped Oversized CERRADO INTERBØX Feminina",
+      "descricao": "Cropped oversized com design do INTERBØX 2025. Modelo confortável e estiloso, perfeito para treinos e momentos de lazer.",
+      "descricaoCompleta": "O Cropped Oversized CERRADO INTERBØX Feminina é a peça ideal para quem busca conforto e estilo. Com modelagem oversized que valoriza o corpo feminino, este cropped é confeccionado em algodão premium com acabamento de primeira qualidade. O design exclusivo do INTERBØX 2025 garante que você represente o maior evento fitness de times da América Latina com elegância e sofisticação.",
+      "preco": 139.90,
+      "cores": [
+        { "nome": "Preto", "hex": "#000000", "badge": "/products/cropped-interbox-feminina/colors/preto-40x40.png", "disponivel": true },
+        { "nome": "Mocha Mousse", "hex": "#D4C4A8", "badge": "/products/cropped-interbox-feminina/colors/mocha-mousse-40x40.png", "disponivel": true },
+        { "nome": "Amora", "hex": "#8B4B8C", "badge": "/products/cropped-interbox-feminina/colors/amora-40x40.png", "disponivel": true }
+      ],
+      "tamanhos": [
+        { "nome": "P", "medidas": "Busto: 88cm", "disponivel": true },
+        { "nome": "M", "medidas": "Busto: 92cm", "disponivel": true },
+        { "nome": "G", "medidas": "Busto: 96cm", "disponivel": true },
+        { "nome": "GG", "medidas": "Busto: 100cm", "disponivel": true },
+        { "nome": "XG", "medidas": "Busto: 104cm", "disponivel": true }
+      ],
+      "imagens": [
+        "/products/cropped-interbox-feminina/hero-800x800.webp",
+        "/products/cropped-interbox-feminina/detail-1-800x800.png",
+        "/products/cropped-interbox-feminina/detail-2-800x800.png"
+      ],
+      "imagemFallback": "/products/cropped-interbox-feminina/hero-800x800.webp",
+      "slug": "cropped-interbox",
+      "categoria": "vestuario",
+      "subcategoria": "cropped",
+      "marca": "INTERBØX",
+      "material": "100% Algodão Premium",
+      "cuidados": "Lavar à mão ou máquina (modo delicado). Não usar alvejante. Passar a ferro em temperatura baixa.",
+      "origem": "Brasil",
+      "garantia": "30 dias",
+      "destaque": true,
+      "novo": false,
+      "xp_bonus": 500,
+      "box_bonus": 0,
+      "status": "ativo",
+      "estoque": 50,
+      "avaliacoes": {
+        "media": 4.8,
+        "total": 127,
+        "distribuicao": { "5": 98, "4": 23, "3": 4, "2": 1, "1": 1 }
+      },
+      "tags": ["oversized", "cropped", "fitness", "treino", "conforto", "estilo"]
+    },
+    {
+      "id": "camiseta-oversized-interbox-masculina",
+      "nome": "Camiseta Oversized CERRADO INTERBØX Masculina",
+      "descricao": "Camiseta oversized masculina com design exclusivo do INTERBØX 2025. Conforto e estilo para o homem moderno.",
+      "descricaoCompleta": "A Camiseta Oversized CERRADO INTERBØX Masculina é a escolha perfeita para homens que valorizam conforto e estilo. Com modelagem oversized que oferece liberdade de movimento, esta camiseta é confeccionada em algodão premium com acabamento impecável. O design exclusivo do INTERBØX 2025 garante que você represente o maior evento fitness de times da América Latina com autenticidade e personalidade.",
+      "preco": 139.90,
+      "cores": [
+        { "nome": "Preto", "hex": "#000000", "badge": "/products/camiseta-interbox-masculina/colors/preto-40x40.png", "disponivel": true },
+        { "nome": "Mocha Mousse", "hex": "#D4C4A8", "badge": "/products/camiseta-interbox-masculina/colors/mocha-mousse-40x40.png", "disponivel": true },
+        { "nome": "Amora", "hex": "#8B4B8C", "badge": "/products/camiseta-interbox-masculina/colors/amora-40x40.png", "disponivel": true }
+      ],
+      "tamanhos": [
+        { "nome": "P", "medidas": "Peito: 100cm", "disponivel": true },
+        { "nome": "M", "medidas": "Peito: 104cm", "disponivel": true },
+        { "nome": "G", "medidas": "Peito: 108cm", "disponivel": true },
+        { "nome": "GG", "medidas": "Peito: 112cm", "disponivel": true },
+        { "nome": "XG", "medidas": "Peito: 116cm", "disponivel": true }
+      ],
+      "imagens": [
+        "/products/camiseta-interbox-masculina/hero-800x800.webp",
+        "/products/camiseta-interbox-masculina/detail-1-800x800.png",
+        "/products/camiseta-interbox-masculina/detail-2-800x800.png"
+      ],
+      "imagemFallback": "/products/camiseta-interbox-masculina/hero-800x800.webp",
+      "slug": "camiseta-interbox",
+      "categoria": "vestuario",
+      "subcategoria": "camiseta",
+      "marca": "INTERBØX",
+      "material": "100% Algodão Premium",
+      "cuidados": "Lavar à mão ou máquina (modo delicado). Não usar alvejante. Passar a ferro em temperatura baixa.",
+      "origem": "Brasil",
+      "garantia": "30 dias",
+      "destaque": true,
+      "novo": false,
+      "xp_bonus": 500,
+      "box_bonus": 0,
+      "status": "ativo",
+      "estoque": 75,
+      "avaliacoes": {
+        "media": 4.9,
+        "total": 203,
+        "distribuicao": { "5": 178, "4": 20, "3": 3, "2": 1, "1": 1 }
+      },
+      "tags": ["oversized", "camiseta", "fitness", "treino", "conforto", "masculino"]
+    }
+  ]
+  

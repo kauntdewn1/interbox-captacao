@@ -7,8 +7,11 @@
 import * as path from 'path';
 import * as fs from 'node:fs';
 
-// Usar process.cwd() para evitar problemas com import.meta.url
 const projectRootDirectory = process.cwd();
+
+// ============================================================================
+// Types & Interfaces
+// ============================================================================
 
 export interface StorageItem {
 	id: string;
@@ -22,11 +25,15 @@ export interface StorageAdapter {
 	exists: (file: string) => Promise<boolean>;
 }
 
+// ============================================================================
+// Storage Implementations
+// ============================================================================
+
 class FileSystemStorage implements StorageAdapter {
 	private _dataPath: string;
 
 	constructor() {
-		this._dataPath = path.resolve(projectRootDirectory, '../../data');
+		this._dataPath = path.resolve(projectRootDirectory, 'data');
 	}
 
 	get dataPath(): string {
@@ -143,6 +150,10 @@ class NetlifyBlobsStorage implements StorageAdapter {
 	}
 }
 
+// ============================================================================
+// Factory
+// ============================================================================
+
 /**
  * Factory function - Retorna o adapter correto baseado no ambiente
  */
@@ -159,9 +170,10 @@ export const createStorage = (): StorageAdapter => {
 	}
 };
 
-/**
- * Utilitários para validação e sanitização
- */
+// ============================================================================
+// Validation Utilities
+// ============================================================================
+
 export const validateOrder = (order: unknown): boolean => {
 	if (typeof order !== 'object' || order === null) return false;
 
@@ -191,8 +203,12 @@ export const validateReview = (review: unknown): boolean => {
 	);
 };
 
+// ============================================================================
+// ID & Data Sanitization Utilities
+// ============================================================================
+
 /**
- * Gerador de IDs únicos
+ * Gerador de IDs únicos com prefix + timestamp + token aleatório
  */
 export const generateId = (prefix: string): string => {
 	const randomToken = Math.random().toString(36).slice(2, 9);
@@ -200,12 +216,17 @@ export const generateId = (prefix: string): string => {
 };
 
 /**
- * Sanitização de dados
+ * Sanitiza email para lowercase e remove espaços
+ * Aceita valores null/undefined e retorna string vazia
  */
-export const sanitizeEmail = (email: string): string => {
-	return email.toLowerCase().trim();
+export const sanitizeEmail = (email?: string | null): string => {
+	return String(email ?? '').toLowerCase().trim();
 };
 
-export const sanitizeString = (str: string): string => {
-	return str.trim().substring(0, 1000); // Limite de 1000 caracteres
+/**
+ * Sanitiza string genérica com limite de 1000 caracteres
+ * Aceita valores null/undefined e retorna string vazia
+ */
+export const sanitizeString = (str?: string | null): string => {
+	return String(str ?? '').trim().substring(0, 1000);
 };

@@ -274,9 +274,12 @@ export default function AdminSeguro() {
           <div className="flex items-center space-x-4">
             <input
               type="password"
+              id="saga-api-key"
+              name="apiKey"
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
               placeholder="Digite a API Key do parceiro Saga"
+              autoComplete="off"
               className="flex-1 px-4 py-2 bg-[#0f0f23] border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
             />
             <button
@@ -320,6 +323,8 @@ export default function AdminSeguro() {
           <h2 className="text-xl font-semibold mb-4 text-blue-400">🔍 Filtros</h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <select
+              id="seguro-status-filter"
+              name="status"
               value={filtros.status}
               onChange={(e) => setFiltros(prev => ({ ...prev, status: e.target.value }))}
               className="px-4 py-2 bg-[#0f0f23] border border-gray-600 rounded-xl text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
@@ -332,6 +337,8 @@ export default function AdminSeguro() {
             
             <input
               type="date"
+              id="seguro-data-inicio"
+              name="data_inicio"
               value={filtros.data_inicio}
               onChange={(e) => setFiltros(prev => ({ ...prev, data_inicio: e.target.value }))}
               className="px-4 py-2 bg-[#0f0f23] border border-gray-600 rounded-xl text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
@@ -340,6 +347,8 @@ export default function AdminSeguro() {
             
             <input
               type="date"
+              id="seguro-data-fim"
+              name="data_fim"
               value={filtros.data_fim}
               onChange={(e) => setFiltros(prev => ({ ...prev, data_fim: e.target.value }))}
               className="px-4 py-2 bg-[#0f0f23] border border-gray-600 rounded-xl text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
@@ -348,10 +357,13 @@ export default function AdminSeguro() {
             
             <input
               type="text"
+              id="seguro-cpf-filter"
+              name="cpf"
               value={filtros.cpf}
               onChange={(e) => setFiltros(prev => ({ ...prev, cpf: e.target.value }))}
               className="px-4 py-2 bg-[#0f0f23] border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
               placeholder="Buscar por CPF"
+              autoComplete="off"
             />
           </div>
         </div>

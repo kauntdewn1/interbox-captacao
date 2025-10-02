@@ -6,15 +6,17 @@
 
 // 🔑 CREDENCIAIS PRINCIPAIS (OpenPix/Woovi)
 // ⚠️ NUNCA coloque credenciais reais aqui - use apenas variáveis de ambiente
-const OPENPIX_API_KEY = process.env.OPENPIX_API_KEY;
-const OPENPIX_APP_ID = process.env.OPENPIX_APP_ID;
-const OPENPIX_CLIENT_ID = process.env.OPENPIX_CLIENT_ID;
-const OPENPIX_CORP_ID = process.env.OPENPIX_CORP_ID;
-const OPENPIX_WEBHOOK_TOKEN = process.env.OPENPIX_WEBHOOK_TOKEN;
+// ⚠️ IMPORTANTE: No Vite (frontend), use import.meta.env ao invés de process.env
+// ⚠️ Variáveis frontend DEVEM ter prefixo VITE_ para serem acessíveis
+const OPENPIX_API_KEY = import.meta.env.VITE_OPENPIX_API_KEY;
+const OPENPIX_APP_ID = import.meta.env.VITE_OPENPIX_APP_ID;
+const OPENPIX_CLIENT_ID = import.meta.env.VITE_OPENPIX_CLIENT_ID;
+const OPENPIX_CORP_ID = import.meta.env.VITE_OPENPIX_CORP_ID;
+const OPENPIX_WEBHOOK_TOKEN = import.meta.env.VITE_OPENPIX_WEBHOOK_TOKEN;
 
 // 🌐 URLs da API WOOVI (OPENPIX)
-const API_BASE_URL = process.env.API_BASE_URL || 'https://api.woovi.com';
-const WEBHOOK_URL = process.env.WEBHOOK_URL || 'https://interbox-captacao.netlify.app/.netlify/functions/webhook';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://api.woovi.com';
+const WEBHOOK_URL = import.meta.env.VITE_WEBHOOK_URL || 'https://interbox-captacao.netlify.app/.netlify/functions/webhook';
 
 // 📊 Configurações de pagamento por tipo
 const PAYMENT_CONFIGS = {
