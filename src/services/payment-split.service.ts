@@ -329,7 +329,7 @@ export class PaymentSplitService {
   /**
    * Registra split em storage para auditoria
    */
-  async logSplitTransaction(splitResult: SplitResult, orderData?: any): Promise<void> {
+  async logSplitTransaction(splitResult: SplitResult, orderData?: Record<string, unknown>): Promise<void> {
     try {
       const { createStorage } = await import('../utils/storage.ts');
       const storage = await createStorage();

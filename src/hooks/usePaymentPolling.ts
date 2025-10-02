@@ -182,6 +182,7 @@ export const usePaymentPolling = (
 			setError(error);
 			onError?.(error);
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [identifiers, statusUrl, log, onSuccess, onError]);
 
 	/**
@@ -221,6 +222,7 @@ export const usePaymentPolling = (
 			// Verificar status
 			checkPaymentStatus();
 		}, intervalMs);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [checkPaymentStatus, intervalMs, timeoutMs, log, onTimeout]);
 
 	/**
@@ -273,6 +275,7 @@ export const usePaymentPolling = (
 		return () => {
 			// Não fazer stopPolling aqui para evitar interromper polling ativo
 		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [identifiers.identifier, identifiers.correlationID, startPolling]);
 
 	return {

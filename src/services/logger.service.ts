@@ -38,7 +38,7 @@ export class LoggerService {
 	 * Formata log entry para output estruturado
 	 */
 	private formatLog(entry: LogEntry): string {
-		const { timestamp, level, message, context, error } = entry;
+		const { level, message, context, error } = entry;
 
 		const prefix = this.getLogPrefix(level);
 		const service = `[${this.serviceName}]`;

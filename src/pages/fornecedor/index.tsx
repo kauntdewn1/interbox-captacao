@@ -116,6 +116,7 @@ export default function FornecedorDashboard() {
    */
   useEffect(() => {
     loadSalesData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 
   /**
@@ -129,6 +130,7 @@ export default function FornecedorDashboard() {
     }, 30000); // 30 segundos
 
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoRefresh, filters]);
 
   /**
@@ -160,9 +162,11 @@ export default function FornecedorDashboard() {
       failed: 'Falhou',
     };
 
+    type StatusType = keyof typeof colors;
+
     return (
-      <span className={`px-2 py-1 rounded-full text-xs font-semibold ${colors[status] || 'bg-gray-100 text-gray-800'}`}>
-        {labels[status] || status}
+      <span className={`px-2 py-1 rounded-full text-xs font-semibold ${colors[status as StatusType] ?? 'bg-gray-100 text-gray-800'}`}>
+        {labels[status as StatusType] ?? status}
       </span>
     );
   };

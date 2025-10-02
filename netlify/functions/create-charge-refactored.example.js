@@ -15,7 +15,6 @@ import {
 	createInscricaoCharge,
 	createProductCharge,
 	PAYMENT_CONFIGS,
-	type PaymentCustomer,
 } from '../../src/services/payment.service.ts';
 import { getStorageService } from '../../src/services/storage.service.ts';
 import { getPaymentLogger } from '../../src/services/logger.service.ts';
@@ -46,7 +45,7 @@ export const handler = withCors(async (event) => {
 			});
 		}
 
-		const customer: PaymentCustomer = {
+		const customer = {
 			name: customerData.name,
 			email: customerData.email,
 			phone: customerData.phone || '',

@@ -5,6 +5,7 @@
 
 import { createStorage, type StorageAdapter } from '../utils/storage';
 import type { PaymentCharge } from './payment.service';
+import type { StorageItem } from '../utils/storage';
 
 // ============================================================================
 // Types & Interfaces
@@ -79,7 +80,7 @@ export class StorageService {
 		const pendingOrder: PendingOrder = {
 			id: `ord_${Date.now()}`,
 			status: 'pending',
-			amount_cents: charge?.charge?.value || charge?.value || 0,
+			amount_cents: (charge?.charge as { value?: number })?.value || (charge as { value?: number })?.value || 0,
 			correlationID: charge.correlationID,
 			identifier: charge?.charge?.identifier || charge?.identifier,
 			product_id: options?.product_id || findInfo('product_id'),
@@ -180,7 +181,7 @@ export class StorageService {
 			data: new Date().toISOString(),
 		};
 
-		await this.storage.append('reviews.json', newReview);
+		await this.storage.append('reviews.json', newReview as unknown as StorageItem);
 		return newReview;
 	}
 

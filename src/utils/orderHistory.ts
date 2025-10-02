@@ -85,16 +85,17 @@ export const getOrderHistory = (): OrderHistoryItem[] => {
     }
     
     // Validar cada item
-    const validOrders = parsed.filter((order: any) => {
+    const validOrders = parsed.filter((order: unknown) => {
+      const o = order as Record<string, unknown>;
       return (
-        order &&
-        typeof order.produtoId === 'string' &&
-        typeof order.slug === 'string' &&
-        typeof order.nome === 'string' &&
-        typeof order.cor === 'string' &&
-        typeof order.tamanho === 'string' &&
-        typeof order.valor === 'number' &&
-        typeof order.data === 'string'
+        o &&
+        typeof o.produtoId === 'string' &&
+        typeof o.slug === 'string' &&
+        typeof o.nome === 'string' &&
+        typeof o.cor === 'string' &&
+        typeof o.tamanho === 'string' &&
+        typeof o.valor === 'number' &&
+        typeof o.data === 'string'
       );
     });
     
@@ -216,16 +217,19 @@ export const importOrderHistory = (jsonData: string): boolean => {
     }
     
     // Validar estrutura
-    const isValid = imported.every((order: any) => 
-      order &&
-      typeof order.produtoId === 'string' &&
-      typeof order.slug === 'string' &&
-      typeof order.nome === 'string' &&
-      typeof order.cor === 'string' &&
-      typeof order.tamanho === 'string' &&
-      typeof order.valor === 'number' &&
-      typeof order.data === 'string'
-    );
+    const isValid = imported.every((order: unknown) => {
+      const o = order as Record<string, unknown>;
+      return (
+        o &&
+        typeof o.produtoId === 'string' &&
+        typeof o.slug === 'string' &&
+        typeof o.nome === 'string' &&
+        typeof o.cor === 'string' &&
+        typeof o.tamanho === 'string' &&
+        typeof o.valor === 'number' &&
+        typeof o.data === 'string'
+      );
+    });
     
     if (!isValid) {
       throw new Error('Estrutura de dados inválida');

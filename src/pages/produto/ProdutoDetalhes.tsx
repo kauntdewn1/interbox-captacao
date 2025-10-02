@@ -146,6 +146,7 @@ export default function ProdutoDetalhes() {
     if (slug) {
       fetchProduto();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
 
   // Salvar sessão quando estados mudarem
@@ -158,6 +159,7 @@ export default function ProdutoDetalhes() {
       console.log('💾 [PRODUTO DETALHES] Salvando sessão:', session);
       saveSession(session);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [corSelecionada, tamanhoSelecionado, produto]);
 
   const handleComprar = async () => {

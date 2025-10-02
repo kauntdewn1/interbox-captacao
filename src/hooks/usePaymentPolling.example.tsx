@@ -3,6 +3,7 @@
  * Demonstra como usar o hook em diferentes cenários
  */
 
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
 	usePaymentPolling,
