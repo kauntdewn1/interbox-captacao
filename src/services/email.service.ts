@@ -70,6 +70,21 @@ export interface EmailServiceConfig {
 }
 
 // ============================================================================
+// Helper Functions
+// ============================================================================
+
+/**
+ * Normaliza string para usar em tags (apenas ASCII, números, underscore, dash)
+ */
+const normalizeTagValue = (value: string): string => {
+  return value
+    .normalize('NFD') // Decompor caracteres acentuados
+    .replace(/[\u0300-\u036f]/g, '') // Remover diacríticos
+    .replace(/[^a-zA-Z0-9_-]/g, '_') // Substituir caracteres inválidos por underscore
+    .toLowerCase();
+};
+
+// ============================================================================
 // Email Templates
 // ============================================================================
 
@@ -260,7 +275,7 @@ export class EmailService {
     this.config = {
       apiKey: config?.apiKey || process.env.RESEND_API_KEY || '',
       defaultFrom: config?.defaultFrom || {
-        email: 'pedidos@interbox.com.br',
+        email: process.env.NODE_ENV === 'production' ? 'pedidos@interbox.com.br' : 'onboarding@resend.dev',
         name: 'INTERBØX 2025',
       },
       providers: config?.providers || {
@@ -279,33 +294,37 @@ export class EmailService {
    */
   async sendWithResend(options: SendEmailOptions): Promise<{ success: boolean; id?: string; error?: string }> {
     try {
+      const payload = {
+        from: options.from
+          ? `${options.from.name} <${options.from.email}>`
+          : `${this.config.defaultFrom.name} <${this.config.defaultFrom.email}>`,
+        to: Array.isArray(options.to)
+          ? options.to.map((addr) => (addr.name ? `${addr.name} <${addr.email}>` : addr.email))
+          : options.to.name
+          ? `${options.to.name} <${options.to.email}>`
+          : options.to.email,
+        subject: options.subject,
+        html: options.html,
+        text: options.text,
+        cc: options.cc?.map((addr) => (addr.name ? `${addr.name} <${addr.email}>` : addr.email)),
+        bcc: options.bcc?.map((addr) => (addr.name ? `${addr.name} <${addr.email}>` : addr.email)),
+        reply_to: options.replyTo
+          ? options.replyTo.name
+            ? `${options.replyTo.name} <${options.replyTo.email}>`
+            : options.replyTo.email
+          : undefined,
+        tags: options.tags,
+      };
+
+      console.log('📧 Enviando email via Resend:', { from: payload.from, to: payload.to, subject: payload.subject });
+
       const response = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${this.config.apiKey}`,
         },
-        body: JSON.stringify({
-          from: options.from
-            ? `${options.from.name} <${options.from.email}>`
-            : `${this.config.defaultFrom.name} <${this.config.defaultFrom.email}>`,
-          to: Array.isArray(options.to)
-            ? options.to.map((addr) => (addr.name ? `${addr.name} <${addr.email}>` : addr.email))
-            : options.to.name
-            ? `${options.to.name} <${options.to.email}>`
-            : options.to.email,
-          subject: options.subject,
-          html: options.html,
-          text: options.text,
-          cc: options.cc?.map((addr) => (addr.name ? `${addr.name} <${addr.email}>` : addr.email)),
-          bcc: options.bcc?.map((addr) => (addr.name ? `${addr.name} <${addr.email}>` : addr.email)),
-          reply_to: options.replyTo
-            ? options.replyTo.name
-              ? `${options.replyTo.name} <${options.replyTo.email}>`
-              : options.replyTo.email
-            : undefined,
-          tags: options.tags,
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
@@ -389,14 +408,14 @@ async sendOrderEmail(
 `;
 
   return this.send({
-    to: { email: supplierEmail, name: 'PlayK' },
+    to: { email: supplierEmail }, // Sem nome em modo teste
     subject: `📥 Novo Pedido Recebido - ${orderData.produto}`,
     html,
     tags: [
       { name: 'type', value: 'order' },
       { name: 'supplier', value: 'playk' },
-      { name: 'product', value: orderData.produto_id },
-      { name: 'category', value: orderData.genero.toLowerCase() },
+      { name: 'product', value: normalizeTagValue(orderData.produto_id) },
+      { name: 'category', value: normalizeTagValue(orderData.genero) },
     ],
   });
 }
