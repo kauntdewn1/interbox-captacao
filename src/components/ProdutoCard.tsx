@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, type ReactElement } from 'react';
 import { FaStar, FaEye, FaSpinner } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 
@@ -48,27 +48,24 @@ type ProdutoSession = {
   tamanhoSelecionado: string | null;
 };
 
-export default function ProdutoCard({ produto, onViewDetails }: Props) {
+export default function ProdutoCard({ produto, onViewDetails }: Props): ReactElement {
   const navigate = useNavigate();
-  const [corSelecionada, setCorSelecionada] = useState<Cor | null>(produto.cores[0] || null);
-  const [tamanhoSelecionado, setTamanhoSelecionado] = useState<Tamanho | null>(produto.tamanhos[0] || null);
+  const [corSelecionada, setCorSelecionada] = useState<Cor | null>(produto.cores[0] ?? null);
+  const [tamanhoSelecionado, setTamanhoSelecionado] = useState<Tamanho | null>(produto.tamanhos[0] ?? null);
   const [isLoading, setIsLoading] = useState(false);
   const [showSavedIndicator, setShowSavedIndicator] = useState(false);
 
-  // Chave única para localStorage baseada no ID do produto
   const sessionKey = `produto_session_${produto.id}`;
 
-  // Função para salvar sessão no localStorage
-  const saveSession = (session: ProdutoSession) => {
+  const saveSession = useCallback((session: ProdutoSession) => {
     try {
       localStorage.setItem(sessionKey, JSON.stringify(session));
     } catch (error) {
       console.error('Erro ao salvar sessão:', error);
     }
-  };
+  }, [sessionKey]);
 
-  // Função para carregar sessão do localStorage
-  const loadSession = (): ProdutoSession | null => {
+  const loadSession = useCallback((): ProdutoSession | null => {
     try {
       const saved = localStorage.getItem(sessionKey);
       return saved ? JSON.parse(saved) : null;
@@ -76,60 +73,51 @@ export default function ProdutoCard({ produto, onViewDetails }: Props) {
       console.error('Erro ao carregar sessão:', error);
       return null;
     }
-  };
+  }, [sessionKey]);
 
-
-  // Carregar sessão salva ao montar o componente
   useEffect(() => {
     const savedSession = loadSession();
     if (savedSession) {
-      // Restaurar cor selecionada
       if (savedSession.corSelecionada) {
         const cor = produto.cores.find(c => c.nome === savedSession.corSelecionada);
-        if (cor) {
-          setCorSelecionada(cor);
-        }
+        if (cor) setCorSelecionada(cor);
       }
-
-      // Restaurar tamanho selecionado
       if (savedSession.tamanhoSelecionado) {
         const tamanho = produto.tamanhos.find(t => t.nome === savedSession.tamanhoSelecionado);
-        if (tamanho) {
-          setTamanhoSelecionado(tamanho);
-        }
+        if (tamanho) setTamanhoSelecionado(tamanho);
       }
-
     }
   }, [produto.id, produto.cores, produto.tamanhos, loadSession]);
 
-  // Salvar sessão quando estados mudarem
   useEffect(() => {
     const session: ProdutoSession = {
       corSelecionada: corSelecionada?.nome || null,
-      tamanhoSelecionado: tamanhoSelecionado?.nome || null
+      tamanhoSelecionado: tamanhoSelecionado?.nome || null,
     };
     saveSession(session);
-    
-    // Mostrar indicador de salvamento (exceto no carregamento inicial)
-    if (corSelecionada || tamanhoSelecionado) {
-      setShowSavedIndicator(true);
-      setTimeout(() => setShowSavedIndicator(false), 2000);
-    }
-  }, [corSelecionada, tamanhoSelecionado, sessionKey, saveSession]);
 
-  const renderStars = (media: number) => {
-    return Array.from({ length: 5 }, (_, i) => (
-      <FaStar 
-        key={i} 
-        className={`text-sm ${i < Math.floor(media) ? 'text-yellow-400' : 'text-gray-400'}`} 
+    if (!corSelecionada && !tamanhoSelecionado) {
+      return;
+    }
+
+    setShowSavedIndicator(true);
+    const timeoutId = window.setTimeout(() => setShowSavedIndicator(false), 2000);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [corSelecionada, tamanhoSelecionado, saveSession]);
+
+  const renderStars = (media: number) => (
+    Array.from({ length: 5 }, (_, i) => (
+      <FaStar
+        key={i}
+        className={`text-sm ${i < Math.floor(media) ? 'text-yellow-400' : 'text-gray-400'}`}
       />
-    ));
-  };
+    ))
+  );
 
   const handleBuyClick = async () => {
     setIsLoading(true);
     try {
-      // Simular delay de navegação/compra
       await new Promise(resolve => setTimeout(resolve, 1000));
       navigate(`/produto/${produto.slug}`);
     } catch (error) {
@@ -138,7 +126,6 @@ export default function ProdutoCard({ produto, onViewDetails }: Props) {
       setIsLoading(false);
     }
   };
-
 
   return (
     <div className="group relative bg-white/5 backdrop-blur-lg rounded-2xl border border-white/10 overflow-hidden hover:bg-white/10 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl max-w-sm w-full mx-auto">
@@ -161,11 +148,10 @@ export default function ProdutoCard({ produto, onViewDetails }: Props) {
         )}
       </div>
 
-
       {/* Product Image */}
       <div className="relative aspect-square overflow-hidden">
-        <img 
-          src={produto.imagens[0] || produto.imagemFallback} 
+        <img
+          src={produto.imagens[0] || produto.imagemFallback}
           alt={produto.nome}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
           loading="lazy"
@@ -177,7 +163,7 @@ export default function ProdutoCard({ produto, onViewDetails }: Props) {
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        
+
         {/* Quick Actions */}
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <div className="flex gap-2">
@@ -193,23 +179,15 @@ export default function ProdutoCard({ produto, onViewDetails }: Props) {
 
       {/* Product Info */}
       <div className="p-6">
-        {/* Brand */}
         <div className="text-pink-400 text-sm font-medium mb-1">{produto.marca}</div>
-        
-        {/* Name */}
         <h3 className="text-white font-bold text-lg mb-2 line-clamp-2">{produto.nome}</h3>
-        
-        {/* Description */}
         <p className="text-gray-300 text-sm mb-3 line-clamp-2">{produto.descricao}</p>
-        
-        {/* Rating */}
+
         <div className="flex items-center gap-2 mb-3">
           <div className="flex items-center gap-1">
             {renderStars(produto.avaliacoes.media)}
           </div>
-          <span className="text-gray-400 text-sm">
-            ({produto.avaliacoes.total})
-          </span>
+          <span className="text-gray-400 text-sm">({produto.avaliacoes.total})</span>
         </div>
 
         {/* Colors */}
@@ -221,8 +199,8 @@ export default function ProdutoCard({ produto, onViewDetails }: Props) {
                 key={cor.nome}
                 onClick={() => setCorSelecionada(cor)}
                 className={`w-8 h-8 rounded-full border-2 transition-all ${
-                  corSelecionada?.nome === cor.nome 
-                    ? 'border-white scale-110' 
+                  corSelecionada?.nome === cor.nome
+                    ? 'border-white scale-110'
                     : 'border-gray-400 hover:border-white'
                 }`}
                 style={{ backgroundColor: cor.hex }}
@@ -295,10 +273,7 @@ export default function ProdutoCard({ produto, onViewDetails }: Props) {
             </>
           )}
         </button>
-
       </div>
     </div>
   );
 }
-
-

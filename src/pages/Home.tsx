@@ -22,15 +22,16 @@ const Home = () => {
       color: 'from-green-500 to-teal-600',
       icon: '⧉'
     },
-    {
-      id: 'loja',
-      title: 'Loja INTERBØX',
-      description: 'Produtos oficiais do INTERBØX 2025',
-      price: 'A partir de R$ 139,90',
-      link: '/produtos',
-      color: 'from-pink-500 to-purple-600',
-      icon: '🛍️'
-    },
+    // Loja temporariamente desativada
+    // {
+    //   id: 'loja',
+    //   title: 'Loja INTERBØX',
+    //   description: 'Produtos oficiais do INTERBØX 2025',
+    //   price: 'A partir de R$ 139,90',
+    //   link: '/produtos',
+    //   color: 'from-pink-500 to-purple-600',
+    //   icon: '🛍️'
+    // },
     {
       id: 'seguro',
       title: 'Sistema de Seguros',
@@ -67,6 +68,19 @@ const Home = () => {
           <p className="text-xl text-white/90 mb-8 drop-shadow-lg">
             Escolha um dos links para continuar <FaArrowTurnDown className="inline-block ml-2" />
           </p>
+        </div>
+
+        {/* Aviso de manutenção da loja */}
+        <div className="max-w-4xl mx-auto mb-10 relative z-10">
+          <div className="rounded-2xl border border-yellow-300/30 bg-yellow-500/10 text-yellow-200 px-6 py-4 backdrop-blur">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">🛠️</span>
+              <div>
+                <p className="font-semibold">Loja em manutenção</p>
+                <p className="text-yellow-100/90">Em breve voltaremos com os produtos oficiais do INTERBØX.</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Products Grid */}
@@ -121,7 +135,9 @@ const Home = () => {
         </div>
       </div>
 
-      <Footer />
+      <div className="relative z-10">
+        <Footer />
+      </div>
     </div>
   );
 };

@@ -3,6 +3,8 @@
  * Implementa lógica de pagamento para INTERBØX 2025
  */
 
+import './_shared/fix-util-extend.js';
+import { withCors, jsonResponse } from './_shared/cors.ts';
 import productsData from "../../data/products.json";
 
 // 🔑 Configurações de pagamento
@@ -22,22 +24,45 @@ const PAYMENT_CONFIGS = {
     description: 'Inscrição Staff INTERBØX 2025',
     comment: 'Taxa de inscrição para candidatura staff'
   },
+};
 
+// 🏷️ Função para gerar tags de categorização
+const generateProductTags = (product) => {
+  const tags = ['INTERBOX', 'ECOMMERCE'];
+
+  // Detectar categoria do produto
+  if (product.nome.toLowerCase().includes('camiseta') || product.slug.includes('camiseta')) {
+    tags.push('CAMISETA');
+  } else if (product.nome.toLowerCase().includes('cropped') || product.slug.includes('cropped')) {
+    tags.push('CROPPED');
+  } else if (product.nome.toLowerCase().includes('top')) {
+    tags.push('TOP');
+  } else if (product.categoria) {
+    tags.push(product.categoria.toUpperCase());
+  }
+
+  // Detectar gênero
+  if (product.nome.toLowerCase().includes('feminina') || product.slug.includes('feminina')) {
+    tags.push('FEMININO');
+  } else if (product.nome.toLowerCase().includes('masculina') || product.slug.includes('masculina')) {
+    tags.push('MASCULINO');
+  } else if (product.nome.toLowerCase().includes('unissex')) {
+    tags.push('UNISSEX');
+  }
+
+  return tags.join(', ');
 };
 
 // 🔧 Função para criar charge via OpenPix/Woovi
 const createOpenPixCharge = async (paymentData) => {
   const apiKey = process.env.OPENPIX_API_KEY;
   const apiUrl = process.env.API_BASE_URL || 'https://api.woovi.com';
-  
-  
-  
+
   if (!apiKey) {
     throw new Error('OPENPIX_API_KEY não configurada');
   }
 
   try {
-    // Estrutura correta conforme documentação Woovi
     const chargeData = {
       correlationID: paymentData.correlationID,
       value: paymentData.value,
@@ -74,36 +99,14 @@ const createOpenPixCharge = async (paymentData) => {
   }
 };
 
-
-
 // 🚀 Handler principal da Netlify Function
-export const handler = async (event, context) => {
-  // Habilitar CORS
-  const headers = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS'
-  };
-
-  // Responder a requisições OPTIONS (preflight)
-  if (event.httpMethod === 'OPTIONS') {
-    return {
-      statusCode: 200,
-      headers,
-      body: ''
-    };
+export const handler = withCors(async (event) => {
+  // Verificar se é uma requisição POST
+  if (event.httpMethod !== 'POST') {
+    return jsonResponse(405, { error: 'Método não permitido' });
   }
 
   try {
-    // Verificar se é uma requisição POST
-    if (event.httpMethod !== 'POST') {
-      return {
-        statusCode: 405,
-        headers,
-        body: JSON.stringify({ error: 'Método não permitido' })
-      };
-    }
-
     // Parsear dados da requisição
     const body = JSON.parse(event.body);
     const { type, customerData, productId, productSlug, tag, origin } = body;
@@ -113,25 +116,17 @@ export const handler = async (event, context) => {
 
     // Validar fluxo de inscrição quando não for produto
     if (!isProductFlow && !PAYMENT_CONFIGS[type]) {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({ 
-          error: 'Tipo de pagamento inválido',
-          validTypes: Object.keys(PAYMENT_CONFIGS)
-        })
-      };
+      return jsonResponse(400, {
+        error: 'Tipo de pagamento inválido',
+        validTypes: Object.keys(PAYMENT_CONFIGS)
+      });
     }
 
     // Validar dados do cliente
     if (!customerData || !customerData.name || !customerData.email) {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({ 
-          error: 'Dados do cliente obrigatórios: name e email'
-        })
-      };
+      return jsonResponse(400, {
+        error: 'Dados do cliente obrigatórios: name e email'
+      });
     }
 
     // Configuração do pagamento
@@ -147,11 +142,7 @@ export const handler = async (event, context) => {
       );
 
       if (!product) {
-        return {
-          statusCode: 404,
-          headers,
-          body: JSON.stringify({ error: 'Produto não encontrado' })
-        };
+        return jsonResponse(404, { error: 'Produto não encontrado' });
       }
 
       const amountInCents = Math.round(Number(product.preco) * 100);
@@ -160,6 +151,9 @@ export const handler = async (event, context) => {
         description: `${product.nome} - INTERBØX`,
         comment: `Compra produto: ${product.nome}`
       };
+
+      // Gerar tags automáticas do produto
+      const productTags = generateProductTags(product);
 
       chargeData = {
         correlationID: `interbox_prod_${product.slug || product.id}_${Date.now()}`,
@@ -176,8 +170,12 @@ export const handler = async (event, context) => {
           { key: 'flow', value: 'product' },
           { key: 'product_id', value: product.id },
           { key: 'product_slug', value: product.slug },
+          { key: 'product_name', value: product.nome },
+          { key: 'tags', value: productTags }, // ← TAGS: INTERBOX, ECOMMERCE, CAMISETA, MASCULINO/FEMININO
+          { key: 'category', value: product.categoria || 'vestuario' },
+          { key: 'subcategory', value: product.subcategoria || '' },
           { key: 'origin', value: String(origin || 'site-interbox') },
-          { key: 'tag', value: String(tag || 'default') }
+          { key: 'campaign_tag', value: String(tag || 'organic') }
         ]
       };
     } else {
@@ -211,10 +209,10 @@ export const handler = async (event, context) => {
 
       // Tentar criar charge via OpenPix/Woovi
       const charge = await createOpenPixCharge(chargeData);
-      
+
       // Salva 'pending' para possibilitar polling
       try {
-        const { createStorage } = await import('../../src/utils/storage.js');
+        const { createStorage } = await import('../../src/utils/storage.ts');
         const storage = await createStorage();
         const orders = (await storage.read('orders.json')) || [];
         const info = (charge?.charge?.additionalInfo || []);
@@ -241,15 +239,15 @@ export const handler = async (event, context) => {
       } catch (e) {
         console.warn('Não consegui salvar pending order (ok continuar):', e?.message);
       }
-      
+
       console.log('✅ Charge criado com sucesso:', {
         correlationID: charge.correlationID,
         status: charge.status,
         hasQRCode: !!charge.qrCode,
         hasPixCode: !!charge.pixCopyPaste
       });
-      
-      // Registro local para observabilidade (webhook fará persistência quando aprovado)
+
+      // Registro local para observabilidade
       try {
         const meta = {
           nome: customerData.name,
@@ -266,49 +264,33 @@ export const handler = async (event, context) => {
         };
         console.log('✅ Metadados de criação de charge:', meta);
       } catch {}
-      
-      const responseBody = {
+
+      return jsonResponse(200, {
         success: true,
         charge: charge,
         qrCode: charge?.charge?.qrCodeImage || charge?.qrCode,
         pixCopyPaste: charge?.brCode || charge?.pixCopyPaste,
         fallback: false,
         message: 'Pagamento processado com sucesso'
-      };
-      
-      console.log('📤 Enviando resposta de sucesso:', responseBody);
-      
-      return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify(responseBody)
-      };
+      });
     } catch (apiError) {
       console.error('❌ Erro na API OpenPix:', apiError.message);
-      
-      return {
-        statusCode: 500,
-        headers,
-        body: JSON.stringify({
-          success: false,
-          error: 'Erro na API OpenPix',
-          message: apiError.message
-        })
-      };
+
+      return jsonResponse(500, {
+        success: false,
+        error: 'Erro na API OpenPix',
+        message: apiError.message
+      });
     }
 
   } catch (error) {
     console.error('❌ Erro ao processar criação de charge:', error);
 
-    return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({
-        success: false,
-        error: 'Erro interno do servidor',
-        message: error.message || 'Erro desconhecido',
-        stack: error.stack || null
-      })
-    };
+    return jsonResponse(500, {
+      success: false,
+      error: 'Erro interno do servidor',
+      message: error.message || 'Erro desconhecido',
+      stack: error.stack || null
+    });
   }
-};
+});

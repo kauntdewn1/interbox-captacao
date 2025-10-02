@@ -215,14 +215,17 @@ export default function AudiovisualInscricaoPage() {
                   
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                      <label htmlFor="audiovisual-contact-email" className="block text-sm font-medium text-gray-300 mb-2">
                         Email Profissional *
                       </label>
                       <input
                         type="email"
+                        id="audiovisual-contact-email"
+                        name="email"
                         value={contactInfo.email}
                         onChange={(e) => setContactInfo(prev => ({ ...prev, email: e.target.value }))}
                         placeholder="seu@email.com"
+                        autoComplete="email"
                         className={`w-full px-4 py-3 bg-gray-800 border rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500/50 transition-all ${
                           contactErrors.email ? 'border-red-400' : 'border-gray-600'
                         }`}
@@ -233,14 +236,17 @@ export default function AudiovisualInscricaoPage() {
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                      <label htmlFor="audiovisual-contact-whatsapp" className="block text-sm font-medium text-gray-300 mb-2">
                         WhatsApp *
                       </label>
                       <input
                         type="tel"
+                        id="audiovisual-contact-whatsapp"
+                        name="whatsapp"
                         value={contactInfo.whatsapp}
                         onChange={(e) => setContactInfo(prev => ({ ...prev, whatsapp: e.target.value }))}
                         placeholder="11 99999-9999"
+                        autoComplete="tel"
                         className={`w-full px-4 py-3 bg-gray-800 border rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500/50 transition-all ${
                           contactErrors.whatsapp ? 'border-red-400' : 'border-gray-600'
                         }`}

@@ -4,35 +4,21 @@
  * Zero lock-in, controle total
  */
 
+import { withCors, jsonResponse, CORS_PRESETS } from './_shared/cors.ts';
+
 // Usa o adapter via import dinâmico do TS para manter consistência
 let createStorage;
 const loadStorage = async () => {
 	if (!createStorage) {
-		const mod = await import('../../src/utils/storage.js');
+		const mod = await import('../../src/utils/storage.ts');
 		createStorage = mod.createStorage;
 	}
 };
 
-export const handler = async (event, context) => {
-	// CORS Headers
-	const headers = {
-		'Access-Control-Allow-Origin': '*',
-		'Access-Control-Allow-Headers': 'Content-Type',
-		'Access-Control-Allow-Methods': 'GET, OPTIONS'
-	};
-
-	// Preflight
-	if (event.httpMethod === 'OPTIONS') {
-		return { statusCode: 200, headers, body: '' };
-	}
-
+export const handler = withCors(async (event) => {
 	// Apenas GET
 	if (event.httpMethod !== 'GET') {
-		return {
-			statusCode: 405,
-			headers,
-			body: JSON.stringify({ error: 'Método não permitido' })
-		};
+		return jsonResponse(405, { error: 'Método não permitido' });
 	}
 
 	try {
@@ -42,7 +28,7 @@ export const handler = async (event, context) => {
 
 		// Buscar todas as avaliações
 		let reviews = await storage.read('reviews.json');
-		
+
 		// Filtrar apenas aprovadas
 		reviews = reviews.filter(review => review.aprovado);
 
@@ -62,11 +48,11 @@ export const handler = async (event, context) => {
 		let stats = null;
 		if (produto_id) {
 			const produtoReviews = reviews.filter(review => review.produto_id === produto_id);
-			
+
 			if (produtoReviews.length > 0) {
 				const media = produtoReviews.reduce((sum, review) => sum + review.nota, 0) / produtoReviews.length;
 				const distribuicao = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-				
+
 				produtoReviews.forEach(review => {
 					distribuicao[review.nota] = (distribuicao[review.nota] || 0) + 1;
 				});
@@ -92,32 +78,23 @@ export const handler = async (event, context) => {
 			};
 		});
 
-		return {
-			statusCode: 200,
-			headers: { ...headers, 'Content-Type': 'application/json' },
-			body: JSON.stringify({
-				success: true,
-				reviews: sanitizedReviews,
-				pagination: {
-					total,
-					limit: parseInt(limit),
-					offset: parseInt(offset),
-					has_more: parseInt(offset) + parseInt(limit) < total
-				},
-				stats
-			})
-		};
+		return jsonResponse(200, {
+			success: true,
+			reviews: sanitizedReviews,
+			pagination: {
+				total,
+				limit: parseInt(limit),
+				offset: parseInt(offset),
+				has_more: parseInt(offset) + parseInt(limit) < total
+			},
+			stats
+		});
 
 	} catch (error) {
 		console.error('❌ Erro ao buscar avaliações:', error);
-		
-		return {
-			statusCode: 500,
-			headers,
-			body: JSON.stringify({
-				error: 'Erro interno do servidor',
-				details: error.message
-			})
-		};
+		return jsonResponse(500, {
+			error: 'Erro interno do servidor',
+			details: error.message
+		});
 	}
-};
+}, CORS_PRESETS.READ_ONLY);

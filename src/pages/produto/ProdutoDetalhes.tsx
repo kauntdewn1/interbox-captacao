@@ -303,7 +303,7 @@ export default function ProdutoDetalhes() {
       <div 
         className="min-h-screen text-white relative"
         style={{ 
-          backgroundImage: 'url(/images/bg_grunge.png)',
+          backgroundImage: 'url(/images/bg_1.png)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat'

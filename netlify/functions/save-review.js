@@ -4,11 +4,13 @@
  * Zero lock-in, controle total
  */
 
+import { withCors, jsonResponse } from './_shared/cors.ts';
+
 // Usa o adapter via import dinâmico do TS para manter consistência
 let createStorage, validateReview, generateId, sanitizeEmail, sanitizeString;
 const loadStorage = async () => {
 	if (!createStorage) {
-		const mod = await import('../../src/utils/storage.js');
+		const mod = await import('../../src/utils/storage.ts');
 		createStorage = mod.createStorage;
 		validateReview = mod.validateReview;
 		generateId = mod.generateId;
@@ -17,43 +19,23 @@ const loadStorage = async () => {
 	}
 };
 
-export const handler = async (event, context) => {
-	// CORS Headers
-	const headers = {
-		'Access-Control-Allow-Origin': '*',
-		'Access-Control-Allow-Headers': 'Content-Type',
-		'Access-Control-Allow-Methods': 'POST, OPTIONS'
-	};
-
-	// Preflight
-	if (event.httpMethod === 'OPTIONS') {
-		return { statusCode: 200, headers, body: '' };
-	}
-
+export const handler = withCors(async (event) => {
 	// Apenas POST
 	if (event.httpMethod !== 'POST') {
-		return {
-			statusCode: 405,
-			headers,
-			body: JSON.stringify({ error: 'Método não permitido' })
-		};
+		return jsonResponse(405, { error: 'Método não permitido' });
 	}
 
 	try {
 		await loadStorage();
 		// Parse e validação
 		const reviewData = JSON.parse(event.body);
-		
+
 		if (!validateReview(reviewData)) {
-			return {
-				statusCode: 400,
-				headers,
-				body: JSON.stringify({ 
-					error: 'Dados da avaliação inválidos',
-					required: ['produto_id', 'nota', 'cliente_email'],
-					valid_nota: '1-5'
-				})
-			};
+			return jsonResponse(400, {
+				error: 'Dados da avaliação inválidos',
+				required: ['produto_id', 'nota', 'cliente_email'],
+				valid_nota: '1-5'
+			});
 		}
 
 		// Sanitização
@@ -71,21 +53,17 @@ export const handler = async (event, context) => {
 		// Verificar se já existe avaliação deste cliente para este produto
 		const storage = createStorage();
 		const existingReviews = await storage.read('reviews.json');
-		
-		const duplicateReview = existingReviews.find(review => 
-			review.produto_id === sanitizedReview.produto_id && 
+
+		const duplicateReview = existingReviews.find(review =>
+			review.produto_id === sanitizedReview.produto_id &&
 			review.cliente_email === sanitizedReview.cliente_email
 		);
 
 		if (duplicateReview) {
-			return {
-				statusCode: 409,
-				headers,
-				body: JSON.stringify({
-					error: 'Você já avaliou este produto',
-					existing_review_id: duplicateReview.id
-				})
-			};
+			return jsonResponse(409, {
+				error: 'Você já avaliou este produto',
+				existing_review_id: duplicateReview.id
+			});
 		}
 
 		// Salvar avaliação
@@ -96,29 +74,20 @@ export const handler = async (event, context) => {
 
 		console.log('✅ Avaliação salva:', sanitizedReview.id);
 
-		return {
-			statusCode: 200,
-			headers,
-			body: JSON.stringify({
-				success: true,
-				review_id: sanitizedReview.id,
-				message: 'Avaliação registrada com sucesso'
-			})
-		};
+		return jsonResponse(200, {
+			success: true,
+			review_id: sanitizedReview.id,
+			message: 'Avaliação registrada com sucesso'
+		});
 
 	} catch (error) {
 		console.error('❌ Erro ao salvar avaliação:', error);
-		
-		return {
-			statusCode: 500,
-			headers,
-			body: JSON.stringify({
-				error: 'Erro interno do servidor',
-				details: error.message
-			})
-		};
+		return jsonResponse(500, {
+			error: 'Erro interno do servidor',
+			details: error.message
+		});
 	}
-};
+});
 
 /**
  * Recalcula a média de avaliações de um produto
@@ -126,7 +95,7 @@ export const handler = async (event, context) => {
 async function updateProductRating(produtoId, storage) {
 	try {
 		const reviews = await storage.read('reviews.json');
-		const produtoReviews = reviews.filter(review => 
+		const produtoReviews = reviews.filter(review =>
 			review.produto_id === produtoId && review.aprovado
 		);
 

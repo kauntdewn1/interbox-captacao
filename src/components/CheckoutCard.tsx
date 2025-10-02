@@ -431,14 +431,17 @@ export default function CheckoutCard({
                 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-white/80 mb-2">
+                    <label htmlFor="checkout-contact-email" className="block text-sm font-medium text-white/80 mb-2">
                       Email Profissional *
                     </label>
                     <input
                       type="email"
+                      id="checkout-contact-email"
+                      name="email"
                       value={contactInfo.email}
                       onChange={(e) => setContactInfo(prev => ({ ...prev, email: e.target.value }))}
                       placeholder="seu@email.com"
+                      autoComplete="email"
                       className={`w-full px-4 py-3 bg-white/10 border rounded-2xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500/50 transition-all ${
                         contactErrors.email ? 'border-red-400' : 'border-white/20'
                       }`}
@@ -449,14 +452,17 @@ export default function CheckoutCard({
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-white/80 mb-2">
+                    <label htmlFor="checkout-contact-whatsapp" className="block text-sm font-medium text-white/80 mb-2">
                       WhatsApp *
                     </label>
                     <input
                       type="tel"
+                      id="checkout-contact-whatsapp"
+                      name="whatsapp"
                       value={contactInfo.whatsapp}
                       onChange={(e) => setContactInfo(prev => ({ ...prev, whatsapp: e.target.value }))}
                       placeholder="11 99999-9999"
+                      autoComplete="tel"
                       className={`w-full px-4 py-3 bg-white/10 border rounded-2xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500/50 transition-all ${
                         contactErrors.whatsapp ? 'border-red-400' : 'border-white/20'
                       }`}
@@ -467,14 +473,17 @@ export default function CheckoutCard({
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-white/80 mb-2">
+                    <label htmlFor="checkout-contact-cpf" className="block text-sm font-medium text-white/80 mb-2">
                       CPF *
                     </label>
                     <input
                       type="text"
+                      id="checkout-contact-cpf"
+                      name="cpf"
                       value={contactInfo.cpf}
                       onChange={(e) => setContactInfo(prev => ({ ...prev, cpf: e.target.value }))}
                       placeholder="123.456.789-00"
+                      autoComplete="off"
                       className={`w-full px-4 py-3 bg-white/10 border rounded-2xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500/50 transition-all ${
                         contactErrors.cpf ? 'border-red-400' : 'border-white/20'
                       }`}

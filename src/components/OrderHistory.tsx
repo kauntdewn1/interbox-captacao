@@ -146,6 +146,8 @@ export default function OrderHistory({ isOpen, onClose }: OrderHistoryProps) {
             <div className="mt-4">
               <input
                 type="file"
+                id="order-history-import"
+                name="orderHistoryImport"
                 accept=".json"
                 onChange={handleImport}
                 className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white"

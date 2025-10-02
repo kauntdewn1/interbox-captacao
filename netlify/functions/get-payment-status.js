@@ -1,14 +1,23 @@
-export const handler = async (event) => {
-  const headers = { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' };
-  if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers, body: '' };
+import './_shared/fix-util-extend.js';
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Content-Type': 'application/json'
+  };
 
-  try {
-    const { correlationID, identifier } = event.queryStringParameters || {};
-    if (!correlationID && !identifier) {
+  export default async function handler(event) {
+    if (event.httpMethod === 'OPTIONS') {
+      return { statusCode: 200, headers, body: '' };
+    }
+
+    try {
+      const { correlationID, identifier } = event.queryStringParameters || {};
+      if (!correlationID && !identifier) {
       return { statusCode: 400, headers, body: JSON.stringify({ error: 'Informe correlationID ou identifier' }) };
     }
 
-    const { createStorage } = await import('../../src/utils/storage.js');
+    const { createStorage } = await import('../../src/utils/storage.ts');
     const storage = await createStorage();
     const orders = (await storage.read('orders.json')) || [];
     const order = orders

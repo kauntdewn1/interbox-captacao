@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import ProdutoCard from '../../components/ProdutoCard';
 import SEOHead from '../../components/SEOHead';
 import Footer from '../../components/Footer';
@@ -98,7 +97,7 @@ export default function ProdutosPage() {
         // Fallback: usar dados estáticos se a função não estiver disponível
         console.log('⚠️ [PRODUTOS PAGE] Erro na API, usando dados estáticos como fallback:', err);
         setError(err instanceof Error ? err.message : 'Erro ao carregar produtos');
-        const produtosEstaticos: Produto[] = [
+        const produtosEstaticos: Array<Produto> = [
           {
             id: "cropped-oversized-interbox-feminina",
             nome: "Cropped Oversized CERRADO INTERBØX Feminina",
@@ -127,7 +126,7 @@ export default function ProdutosPage() {
             slug: "cropped-interbox",
             marca: "INTERBØX",
             material: "100% Algodão Premium",
-            avaliacoes: { media: 4.8, total: 127 },
+            avaliacoes: { media: 0.3, total: 6 },
             estoque: 50,
             destaque: true,
             novo: true,
@@ -163,7 +162,7 @@ export default function ProdutosPage() {
             slug: "camiseta-interbox",
             marca: "INTERBØX",
             material: "100% Algodão Premium",
-            avaliacoes: { media: 4.9, total: 203 },
+            avaliacoes: { media: 0.3, total: 6 },
             estoque: 75,
             destaque: true,
             novo: true,
@@ -174,7 +173,7 @@ export default function ProdutosPage() {
         ];
         console.log('📦 [PRODUTOS PAGE] Dados estáticos carregados:', {
           quantidade: produtosEstaticos.length,
-          produtos: produtosEstaticos.map(p => ({ id: p.id, nome: p.nome }))
+          produtos: produtosEstaticos.map((p: Produto) => ({ id: p.id, nome: p.nome }))
         });
         
         setProdutos(produtosEstaticos);
@@ -227,12 +226,26 @@ export default function ProdutosPage() {
     produtos: produtos.map(p => ({ id: p.id, nome: p.nome, preco: p.preco }))
   });
 
+  console.log('✅ [PRODUTOS PAGE] Componente ProdutosPage pronto para renderização');
+
   return (
     <>
       <SEOHead
-        title="Loja INTERBØX - Produtos Oficiais 2025"
+        title="Produtos | INTERBØX 2025"
         description="Produtos oficiais do INTERBØX 2025. Camisetas, croppeds e muito mais para você representar o maior evento fitness de times da América Latina."
       />
+
+      <header className="fixed top-0 left-0 right-0 z-40">
+        <div className="mx-auto max-w-4xl px-6 py-3">
+          <div className="flex h-16 items-center justify-center rounded-full border border-white/20 bg-white/10 backdrop-blur-md shadow-lg shadow-pink-500/10">
+            <img
+              src="/logos/nome_hrz.png"
+              alt="INTERBØX Logo"
+              className="h-10 w-auto max-w-xs drop-shadow-2xl"
+            />
+          </div>
+        </div>
+      </header>
       
       <div 
         className="min-h-screen text-white relative"
@@ -246,31 +259,12 @@ export default function ProdutosPage() {
         {/* Overlay escuro para melhorar legibilidade */}
         <div className="absolute inset-0 bg-black/40"></div>
         
-        {/* Header */}
-        <div className="container mx-auto px-4 py-8 relative z-10">
+        {/* Conteúdo principal */}
+        <div className="container mx-auto px-4 py-8 pt-36 relative z-10">
           <div className="text-center mb-10">
-            {/* Logo no topo */}
-            <img 
-              src="/logos/nome_hrz.png" 
-              alt="INTERBØX Logo" 
-              className="mx-auto mb-6 max-w-sm lg:max-w-md drop-shadow-2xl"
-            />
-            
-            <h1 className="text-3xl font-bold text-white mb-3 drop-shadow-lg">
-              Loja INTERBØX
-            </h1>
             <p className="text-lg text-white/90 mb-6 drop-shadow-lg">
               Produtos oficiais do INTERBØX 2025
             </p>
-            
-            {/* Botão voltar */}
-            <Link 
-              to="/" 
-              onClick={() => console.log('🏠 [PRODUTOS PAGE] Usuário clicou em "Voltar para Home"')}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/10 hover:bg-white/20 backdrop-blur-lg rounded-lg border border-white/10 transition-all duration-300"
-            >
-              ← Voltar para Home
-            </Link>
           </div>
 
           {/* Filtros e Ordenação */}
@@ -302,8 +296,9 @@ export default function ProdutosPage() {
           </div>
 
           {/* Grid de Produtos */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-7xl mx-auto justify-items-center">
-            {produtos.map((produto, index) => {
+          <div className="flex justify-center w-full">
+            <div className="grid w-full max-w-7xl grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 justify-items-center">
+              {produtos.map((produto: Produto, index: number) => {
               console.log(`🛍️ [PRODUTOS PAGE] Renderizando ProdutoCard ${index + 1}/${produtos.length}:`, {
                 id: produto.id,
                 nome: produto.nome,
@@ -316,7 +311,7 @@ export default function ProdutosPage() {
                 <ProdutoCard 
                   key={produto.id} 
                   produto={produto}
-                  onViewDetails={(produto) => {
+                  onViewDetails={(produto: Produto) => {
                     console.log('👁️ [PRODUTOS PAGE] ProdutoCard solicitou visualizar detalhes:', {
                       id: produto.id,
                       nome: produto.nome
@@ -324,18 +319,18 @@ export default function ProdutosPage() {
                   }}
                 />
               );
-            })}
+              })}
+            </div>
           </div>
 
           {/* Footer Info */}
-          <div className="text-center mt-16">
-          </div>
+          <div className="text-center mt-16" />
         </div>
       </div>
 
-      <Footer />
+      <div className="relative z-10">
+        <Footer />
+      </div>
     </>
   );
 }
-
-console.log('✅ [PRODUTOS PAGE] Componente ProdutosPage renderizado com sucesso');

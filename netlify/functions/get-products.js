@@ -1,4 +1,7 @@
-export const handler = async () => {
+import './_shared/fix-util-extend.js';
+import { withCors, jsonResponse, CORS_PRESETS } from './_shared/cors.ts';
+
+export const handler = withCors(async () => {
   try {
     let products = null;
 
@@ -27,23 +30,14 @@ export const handler = async () => {
     }
 
     if (!products) {
-      return {
-        statusCode: 500,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ error: "Produtos indisponíveis" }),
-      };
+      return jsonResponse(500, { error: "Produtos indisponíveis" });
     }
 
-    return {
-      statusCode: 200,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(products),
-    };
+    return jsonResponse(200, products);
   } catch (err) {
-    return {
-      statusCode: 500,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ error: "Erro ao listar produtos", details: err?.message }),
-    };
+    return jsonResponse(500, {
+      error: "Erro ao listar produtos",
+      details: err?.message
+    });
   }
-};
+}, CORS_PRESETS.READ_ONLY);
