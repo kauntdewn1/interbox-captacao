@@ -37,7 +37,7 @@ export const handler = async (event, context) => {
     const response = await fetch(`${apiUrl}/api/v1/charge`, {
       method: 'GET',
       headers: {
-        'Authorization': apiKey,
+        'Authorization': `Bearer ${apiKey}`,
         'Accept': 'application/json'
       }
     });

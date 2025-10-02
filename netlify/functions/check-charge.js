@@ -18,7 +18,7 @@ const checkOpenPixCharge = async (chargeId) => {
     const response = await fetch(`${apiUrl}/api/v1/charge/${chargeId}`, {
       method: 'GET',
       headers: {
-        'Authorization': apiKey,
+        'Authorization': `Bearer ${apiKey}`,
         'Accept': 'application/json'
       }
     });

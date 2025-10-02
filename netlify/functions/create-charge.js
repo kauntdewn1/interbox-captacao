@@ -81,7 +81,7 @@ const createOpenPixCharge = async (paymentData) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': apiKey,
+        'Authorization': `Bearer ${apiKey}`,
         'Accept': 'application/json'
       },
       body: JSON.stringify(chargeData)
