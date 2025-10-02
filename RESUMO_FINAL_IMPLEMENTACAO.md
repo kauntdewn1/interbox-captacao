@@ -103,7 +103,7 @@ OPENPIX_WOOVI_APP_ID=Q2xpZW50X0lkX2VhNGNh...
 OPENPIX_HMAC_SECRET=openpix_xxxxxxxxxx/Qfc=  # ← NOVA (obter do Woovi)
 
 # Resend (Email)
-RESEND_API_KEY=re_Ki2qghrH_NbFbaYHynNbcwSiFk6sFrWX8
+RESEND_API_KEY=xxxxx
 
 # FlowPay (Split 10%)
 FLOWPAY_PIX_KEY=your_flowpay_pix_key_here  # ← PENDENTE

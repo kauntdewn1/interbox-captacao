@@ -7,7 +7,7 @@ export default function Footer() {
           <img
             src="/logos/FLOWPAY_trans.png"
             alt="FlowPay"
-            className="h-8 mx-auto mb-4"
+            className="h-12 mx-auto mb-4"
           />
 
           <p className="text-gray-300 text-sm">
@@ -25,7 +25,7 @@ export default function Footer() {
             <img
               src="/logos/nome_hrz.png"
               alt="@nome"
-              className="h-4 mx-auto opacity-50"
+              className="h-8 mx-auto opacity-50"
             />
           </div>
         </div>

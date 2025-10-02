@@ -22,16 +22,15 @@ const Home = () => {
       color: 'from-green-500 to-teal-600',
       icon: '⧉'
     },
-    // Loja temporariamente desativada
-    // {
-    //   id: 'loja',
-    //   title: 'Loja INTERBØX',
-    //   description: 'Produtos oficiais do INTERBØX 2025',
-    //   price: 'A partir de R$ 139,90',
-    //   link: '/produtos',
-    //   color: 'from-pink-500 to-purple-600',
-    //   icon: '🛍️'
-    // },
+    {
+      id: 'loja',
+      title: 'Loja INTERBØX',
+      description: 'Produtos oficiais do INTERBØX 2025',
+      price: 'A partir de R$ 139,90',
+      link: '/produtos',
+      color: 'from-pink-500 to-purple-600',
+      icon: '🛍️'
+    },
     {
       id: 'seguro',
       title: 'Sistema de Seguros',
