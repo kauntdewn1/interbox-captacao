@@ -47,11 +47,16 @@ const extractTypeFromComment = (comment) => {
 const fetchChargesFromOpenPix = async () => {
   try {
     const apiKey = process.env.OPENPIX_API_KEY?.trim();
+    const clientId = process.env.OPENPIX_CLIENT_ID?.trim();
     const apiUrl = process.env.API_BASE_URL || 'https://api.woovi.com';
     
-    if (!apiKey) {
-      throw new Error('OPENPIX_API_KEY não configurada');
+    if (!apiKey || !clientId) {
+      throw new Error('OPENPIX_API_KEY ou OPENPIX_CLIENT_ID não configuradas');
     }
+
+    // Basic Auth: clientId:apiKey em base64
+    const credentials = `${clientId}:${apiKey}`;
+    const encoded = Buffer.from(credentials).toString('base64');
 
     console.log(`🔍 Buscando todas as charges da OpenPix...`);
 
@@ -59,7 +64,7 @@ const fetchChargesFromOpenPix = async () => {
     const response = await fetch(`${apiUrl}/api/v1/charge`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
+        'Authorization': `Basic ${encoded}`,
         'Accept': 'application/json'
       }
     });
