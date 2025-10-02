@@ -56,11 +56,10 @@ const generateProductTags = (product) => {
 // 🔧 Função para criar charge via OpenPix/Woovi
 const createOpenPixCharge = async (paymentData) => {
   const apiKey = process.env.OPENPIX_API_KEY?.trim();
-  const clientId = process.env.OPENPIX_CLIENT_ID?.trim();
   const apiUrl = process.env.API_BASE_URL || 'https://api.woovi.com';
 
-  if (!apiKey || !clientId) {
-    throw new Error('OPENPIX_API_KEY ou OPENPIX_CLIENT_ID não configuradas');
+  if (!apiKey) {
+    throw new Error('OPENPIX_API_KEY não configurada');
   }
 
   try {
@@ -72,15 +71,9 @@ const createOpenPixCharge = async (paymentData) => {
       additionalInfo: paymentData.additionalInfo
     };
 
-    // Basic Auth: clientId:apiKey em base64
-    const credentials = `${clientId}:${apiKey}`;
-    const encoded = Buffer.from(credentials).toString('base64');
-
     console.log('🔑 Tentando criar charge via Woovi API:', {
       url: `${apiUrl}/api/v1/charge`,
       apiKey: apiKey ? 'Configurada' : 'NÃO CONFIGURADA',
-      clientId: clientId ? 'Configurado' : 'NÃO CONFIGURADO',
-      encodedAuth: encoded.substring(0, 20) + '...',
       data: chargeData
     });
 
@@ -88,7 +81,7 @@ const createOpenPixCharge = async (paymentData) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Basic ${encoded}`,
+        'Authorization': apiKey,
         'Accept': 'application/json'
       },
       body: JSON.stringify(chargeData)

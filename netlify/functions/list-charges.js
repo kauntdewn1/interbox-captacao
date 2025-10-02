@@ -20,29 +20,24 @@ export const handler = async (event, context) => {
 
   try {
     const apiKey = process.env.OPENPIX_API_KEY?.trim();
-    const clientId = process.env.OPENPIX_CLIENT_ID?.trim();
     const apiUrl = process.env.API_BASE_URL || 'https://api.woovi.com';
     
-    if (!apiKey || !clientId) {
+    if (!apiKey) {
       return {
         statusCode: 400,
         headers,
         body: JSON.stringify({
           success: false,
-          error: 'OPENPIX_API_KEY ou OPENPIX_CLIENT_ID não configuradas'
+          error: 'OPENPIX_API_KEY não configurada'
         })
       };
     }
-
-    // Basic Auth: clientId:apiKey em base64
-    const credentials = `${clientId}:${apiKey}`;
-    const encoded = Buffer.from(credentials).toString('base64');
 
     // Listar charges do OpenPix
     const response = await fetch(`${apiUrl}/api/v1/charge`, {
       method: 'GET',
       headers: {
-        'Authorization': `Basic ${encoded}`,
+        'Authorization': apiKey,
         'Accept': 'application/json'
       }
     });

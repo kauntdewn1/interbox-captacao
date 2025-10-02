@@ -4,6 +4,13 @@ import { FaStar, FaShoppingCart, FaArrowLeft } from 'react-icons/fa';
 import SEOHead from '../../components/SEOHead';
 import { saveOrderToHistory } from '../../utils/orderHistory';
 import Footer from '../../components/Footer';
+import { 
+  getQuantidadeDisponivel, 
+  isCombinacaoDisponivel, 
+  getEstoquePorCor,
+  getEstoquePorTamanho,
+  type TamanhoComQuantidade
+} from '../../utils/estoque';
 
 type Cor = {
   nome: string;
@@ -12,11 +19,7 @@ type Cor = {
   disponivel: boolean;
 };
 
-type Tamanho = {
-  nome: string;
-  medidas: string;
-  disponivel: boolean;
-};
+type Tamanho = TamanhoComQuantidade;
 
 type Produto = {
   id: string;
@@ -422,19 +425,33 @@ export default function ProdutoDetalhes() {
               <div>
                 <div className="text-gray-300 text-lg mb-3">Cores:</div>
                 <div className="flex gap-3">
-                  {produto.cores.map((cor) => (
-                    <button
-                      key={cor.nome}
-                      onClick={() => setCorSelecionada(cor)}
-                      className={`w-12 h-12 rounded-full border-2 transition-all ${
-                        corSelecionada?.nome === cor.nome 
-                          ? 'border-white scale-110' 
-                          : 'border-gray-400 hover:border-white'
-                      }`}
-                      style={{ backgroundColor: cor.hex }}
-                      title={cor.nome}
-                    />
-                  ))}
+                  {produto.cores.map((cor) => {
+                    const estoqueCor = getEstoquePorCor(produto, cor.nome);
+                    const disponivel = estoqueCor > 0;
+                    
+                    return (
+                      <button
+                        key={cor.nome}
+                        onClick={() => disponivel && setCorSelecionada(cor)}
+                        disabled={!disponivel}
+                        className={`w-12 h-12 rounded-full border-2 transition-all relative ${
+                          corSelecionada?.nome === cor.nome 
+                            ? 'border-white scale-110' 
+                            : disponivel 
+                              ? 'border-gray-400 hover:border-white' 
+                              : 'border-gray-600 opacity-50 cursor-not-allowed'
+                        }`}
+                        style={{ backgroundColor: cor.hex }}
+                        title={`${cor.nome}${disponivel ? ` (${estoqueCor} unidades)` : ' (Fora de estoque)'}`}
+                      >
+                        {!disponivel && (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <span className="text-xs text-gray-600 font-bold">✗</span>
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -442,35 +459,70 @@ export default function ProdutoDetalhes() {
               <div>
                 <div className="text-gray-300 text-lg mb-3">Tamanhos:</div>
                 <div className="flex gap-3 flex-wrap">
-                  {produto.tamanhos.map((tamanho) => (
-                    <button
-                      key={tamanho.nome}
-                      onClick={() => setTamanhoSelecionado(tamanho)}
-                      className={`px-4 py-2 rounded text-lg transition-all ${
-                        tamanhoSelecionado?.nome === tamanho.nome
-                          ? 'bg-pink-600 text-white'
-                          : 'bg-white/10 text-gray-300 hover:bg-white/20'
-                      }`}
-                    >
-                      {tamanho.nome}
-                    </button>
-                  ))}
+                  {produto.tamanhos.map((tamanho) => {
+                    const disponivel = corSelecionada 
+                      ? isCombinacaoDisponivel(produto, corSelecionada.nome, tamanho.nome)
+                      : getEstoquePorTamanho(produto, tamanho.nome) > 0;
+                    const estoqueTamanho = corSelecionada 
+                      ? getQuantidadeDisponivel(produto, corSelecionada.nome, tamanho.nome)
+                      : getEstoquePorTamanho(produto, tamanho.nome);
+                    
+                    return (
+                      <button
+                        key={tamanho.nome}
+                        onClick={() => disponivel && setTamanhoSelecionado(tamanho)}
+                        disabled={!disponivel}
+                        className={`px-4 py-2 rounded text-lg transition-all relative ${
+                          tamanhoSelecionado?.nome === tamanho.nome
+                            ? 'bg-pink-600 text-white'
+                            : disponivel
+                              ? 'bg-white/10 text-gray-300 hover:bg-white/20'
+                              : 'bg-gray-600/20 text-gray-500 cursor-not-allowed'
+                        }`}
+                        title={`${tamanho.nome}${disponivel ? ` (${estoqueTamanho} unidades)` : ' (Fora de estoque)'}`}
+                      >
+                        {tamanho.nome}
+                        {!disponivel && (
+                          <span className="absolute -top-1 -right-1 text-xs">✗</span>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
               {/* Estoque */}
               <div className="text-gray-400">
-                {produto.estoque > 0 ? (
-                  <span className="text-green-400">✓ {produto.estoque} em estoque</span>
-                ) : (
-                  <span className="text-red-400">✗ Fora de estoque</span>
-                )}
+                {(() => {
+                  if (!corSelecionada || !tamanhoSelecionado) {
+                    return (
+                      <span className="text-yellow-400">Selecione cor e tamanho para ver o estoque</span>
+                    );
+                  }
+                  
+                  const quantidade = getQuantidadeDisponivel(produto, corSelecionada.nome, tamanhoSelecionado.nome);
+                  const disponivel = isCombinacaoDisponivel(produto, corSelecionada.nome, tamanhoSelecionado.nome);
+                  
+                  if (disponivel) {
+                    return (
+                      <span className="text-green-400">
+                        ✓ {quantidade} unidades disponíveis ({corSelecionada.nome} - {tamanhoSelecionado.nome})
+                      </span>
+                    );
+                  } else {
+                    return (
+                      <span className="text-red-400">
+                        ✗ Fora de estoque ({corSelecionada.nome} - {tamanhoSelecionado.nome})
+                      </span>
+                    );
+                  }
+                })()}
               </div>
 
               {/* Botão Comprar */}
               <button
                 onClick={handleComprar}
-                disabled={loadingCompra || produto.estoque === 0 || !corSelecionada || !tamanhoSelecionado}
+                disabled={loadingCompra || !corSelecionada || !tamanhoSelecionado || !isCombinacaoDisponivel(produto, corSelecionada?.nome || '', tamanhoSelecionado?.nome || '')}
                 className="w-full py-4 px-6 bg-pink-600 hover:bg-pink-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-3 text-lg"
               >
                 {loadingCompra ? (

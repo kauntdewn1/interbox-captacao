@@ -208,6 +208,11 @@ export default function FornecedorDashboard() {
       {/* Header */}
       <div className="bg-gradient-to-r from-purple-600 to-purple-800 text-white shadow-lg">
         <div className="container mx-auto px-4 py-6">
+                <img
+          src="https://res.cloudinary.com/duifkkhm6/image/upload/v1757360942/interbox/logos/n12ystccvxwzppvi2yaz.png"
+          alt="PlayK Logo"
+          className="h-12 mb-4"
+        />
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-3xl font-bold">Dashboard PlayK</h1>
@@ -427,8 +432,20 @@ export default function FornecedorDashboard() {
 
         {/* Footer */}
         <div className="mt-8 text-center text-sm text-gray-500">
+          <img
+            src="/logos/FLOWPAY_trans.png"
+            alt="FlowPay Logo"
+            className="h-8 mx-auto mb-2"
+          />
           <p>INTERBØX 2025 - Painel do Fornecedor PlayK</p>
           <p className="mt-1">Última atualização: {new Date().toLocaleTimeString('pt-BR')}</p>
+        </div>
+        <div className="mt-4 text-center">
+          <img
+            src="/logos/nome_hrz.png"
+            alt="Powered by Nome"
+            className="h-5 mx-auto opacity-60"
+          />
         </div>
       </div>
     </div>

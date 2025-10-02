@@ -7,18 +7,16 @@ export const handler = async (event, context) => {
   console.log('=== TESTE DE CONEXÃO OPENPIX/WOOVI ===');
   
   const openpixApiKey = process.env.OPENPIX_API_KEY?.trim();
-  const openpixClientId = process.env.OPENPIX_CLIENT_ID?.trim();
   const openpixCorpId = process.env.OPENPIX_CORP_ID;
   const apiBaseUrl = process.env.API_BASE_URL || 'https://api.woovi.com';
   
   console.log('OPENPIX_API_KEY exists:', !!openpixApiKey);
-  console.log('OPENPIX_CLIENT_ID exists:', !!openpixClientId);
   console.log('OPENPIX_CORP_ID exists:', !!openpixCorpId);
   console.log('API_BASE_URL:', apiBaseUrl);
   
   try {
     // Teste 1: Verificar se as variáveis estão configuradas
-    if (!openpixApiKey || !openpixClientId || !openpixCorpId) {
+    if (!openpixApiKey || !openpixCorpId) {
       return {
         statusCode: 400,
         headers: {
@@ -30,7 +28,6 @@ export const handler = async (event, context) => {
           error: 'Variáveis OpenPix não configuradas',
           details: {
             openpix_api_key_exists: !!openpixApiKey,
-            openpix_client_id_exists: !!openpixClientId,
             openpix_corp_id_exists: !!openpixCorpId
           }
         })
@@ -38,13 +35,10 @@ export const handler = async (event, context) => {
     }
 
     // Teste 2: Tentar fazer uma requisição para a API
-    const credentials = `${openpixClientId}:${openpixApiKey}`;
-    const encoded = Buffer.from(credentials).toString('base64');
-    
-    const testResponse = await fetch(`${apiBaseUrl}/api/v1/me`, {
+    const testResponse = await fetch(`${apiBaseUrl}/api/v1/charge`, {
       method: 'GET',
       headers: {
-        'Authorization': `Basic ${encoded}`,
+        'Authorization': openpixApiKey,
         'Content-Type': 'application/json'
       }
     });

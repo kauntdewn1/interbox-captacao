@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, type ReactElement } from 'react';
 import { FaStar, FaEye, FaSpinner } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import { getEstoqueTotal, type TamanhoComQuantidade } from '../utils/estoque';
 
 type Cor = {
   nome: string;
@@ -9,11 +10,7 @@ type Cor = {
   disponivel: boolean;
 };
 
-type Tamanho = {
-  nome: string;
-  medidas: string;
-  disponivel: boolean;
-};
+type Tamanho = TamanhoComQuantidade;
 
 type Produto = {
   id: string;
@@ -244,19 +241,22 @@ export default function ProdutoCard({ produto, onViewDetails }: Props): ReactEle
 
         {/* Stock */}
         <div className="text-gray-400 text-sm mb-4">
-          {produto.estoque > 0 ? (
-            <span className="text-green-400">✓ {produto.estoque} em estoque</span>
-          ) : (
-            <span className="text-red-400">✗ Fora de estoque</span>
-          )}
+          {(() => {
+            const estoqueTotal = getEstoqueTotal(produto);
+            return estoqueTotal > 0 ? (
+              <span className="text-green-400">✓ {estoqueTotal} em estoque</span>
+            ) : (
+              <span className="text-red-400">✗ Fora de estoque</span>
+            );
+          })()}
         </div>
 
         {/* Buy Button */}
         <button
           onClick={handleBuyClick}
-          disabled={isLoading || produto.estoque === 0}
+          disabled={isLoading || getEstoqueTotal(produto) === 0}
           className={`w-full py-3 px-4 text-white font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 ${
-            isLoading || produto.estoque === 0
+            isLoading || getEstoqueTotal(produto) === 0
               ? 'bg-gray-600 cursor-not-allowed opacity-50'
               : 'bg-pink-600 hover:bg-pink-500'
           }`}
