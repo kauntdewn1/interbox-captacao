@@ -4,6 +4,16 @@
  * Service para split automático de pagamentos entre FlowPay e Fornecedores
  * Integração com OpenPix/Woovi e APIs de Pix
  */
+// Helper para pegar env vars
+const getEnv = (key) => {
+    if (typeof process !== 'undefined' && process.env) {
+        return process.env[key];
+    }
+    if (typeof import.meta !== 'undefined' && import.meta.env) {
+        return import.meta.env[key];
+    }
+    return undefined;
+};
 // ============================================================================
 // Configurações Padrão
 // ============================================================================
@@ -15,7 +25,7 @@ export const DEFAULT_SPLIT_RULES = {
         {
             percentage: 10,
             recipient: 'FlowPay',
-            pixKey: import.meta.env?.VITE_FLOWPAY_PIX_KEY || '',
+            pixKey: getEnv('VITE_FLOWPAY_PIX_KEY') || '',
             description: 'Comissão FlowPay',
         },
         {
@@ -34,8 +44,8 @@ export class PaymentSplitService {
     apiUrl;
     apiKey;
     constructor(config) {
-        const envApiUrl = import.meta.env?.VITE_OPENPIX_API_URL;
-        const envApiKey = import.meta.env?.VITE_OPENPIX_API_KEY;
+        const envApiUrl = getEnv('VITE_OPENPIX_API_URL') || getEnv('API_BASE_URL');
+        const envApiKey = getEnv('VITE_OPENPIX_API_KEY') || getEnv('OPENPIX_API_KEY');
         this.apiUrl = config?.apiUrl ?? envApiUrl ?? 'https://api.woovi.com';
         this.apiKey = config?.apiKey ?? envApiKey ?? '';
         if (!this.apiKey) {

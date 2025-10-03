@@ -5,6 +5,17 @@
  * Integração com OpenPix/Woovi e APIs de Pix
  */
 
+// Helper para pegar env vars
+const getEnv = (key: string): string | undefined => {
+  if (typeof process !== 'undefined' && process.env) {
+    return process.env[key];
+  }
+  if (typeof import.meta !== 'undefined' && import.meta.env) {
+    return import.meta.env[key] as string | undefined;
+  }
+  return undefined;
+};
+
 // ============================================================================
 // Types & Interfaces
 // ============================================================================
@@ -78,7 +89,7 @@ export const DEFAULT_SPLIT_RULES: Record<string, SplitRule[]> = {
   {
   percentage: 10,
   recipient: 'FlowPay',
-  pixKey: (import.meta as { env?: Record<string, unknown> }).env?.VITE_FLOWPAY_PIX_KEY as string || '',
+  pixKey: getEnv('VITE_FLOWPAY_PIX_KEY') || '',
   description: 'Comissão FlowPay',
   },
   {
@@ -100,8 +111,8 @@ export class PaymentSplitService {
   private apiKey: string;
 
   constructor(config?: { apiUrl?: string; apiKey?: string }) {
-    const envApiUrl = (import.meta as { env?: Record<string, unknown> }).env?.VITE_OPENPIX_API_URL as string | undefined;
-    const envApiKey = (import.meta as { env?: Record<string, unknown> }).env?.VITE_OPENPIX_API_KEY as string | undefined;
+    const envApiUrl = getEnv('VITE_OPENPIX_API_URL') || getEnv('API_BASE_URL');
+    const envApiKey = getEnv('VITE_OPENPIX_API_KEY') || getEnv('OPENPIX_API_KEY');
 
     this.apiUrl = config?.apiUrl ?? envApiUrl ?? 'https://api.woovi.com';
     this.apiKey = config?.apiKey ?? envApiKey ?? '';

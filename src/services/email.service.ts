@@ -268,18 +268,24 @@ Acesse o Painel do Fornecedor: https://interbox-captacao.netlify.app/fornecedor
 // Email Service Class
 // ============================================================================
 
+// Helper para pegar env vars
+const getEnv = (key: string): string | undefined => {
+  if (typeof process !== 'undefined' && process.env) {
+    return process.env[key];
+  }
+  if (typeof import.meta !== 'undefined' && import.meta.env) {
+    return import.meta.env[key] as string | undefined;
+  }
+  return undefined;
+};
+
 export class EmailService {
   private config: EmailServiceConfig;
 
   constructor(config?: Partial<EmailServiceConfig>) {
-    const env = (import.meta as { env: Record<string, unknown> }).env ?? {};
-    const envApiKey = typeof env.VITE_RESEND_API_KEY === 'string' ? env.VITE_RESEND_API_KEY : undefined;
-    const envDefaultFrom = typeof env.VITE_DEFAULT_FROM === 'string' ? env.VITE_DEFAULT_FROM : undefined;
-    const envNodeEnv = typeof env.MODE === 'string'
-      ? env.MODE
-      : typeof env.VITE_NODE_ENV === 'string'
-        ? env.VITE_NODE_ENV
-        : 'production';
+    const envApiKey = getEnv('VITE_RESEND_API_KEY') || getEnv('RESEND_API_KEY');
+    const envDefaultFrom = getEnv('VITE_DEFAULT_FROM');
+    const envNodeEnv = getEnv('MODE') || getEnv('VITE_NODE_ENV') || getEnv('NODE_ENV') || 'production';
 
     this.config = {
     apiKey: config?.apiKey || envApiKey || '',

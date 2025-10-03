@@ -75,9 +75,21 @@ class NetlifyBlobsStorage {
         }
     }
 }
+// Helper para pegar env vars em ambos Node.js e browser
+const getEnv = (key) => {
+    // No Node.js (Netlify Functions)
+    if (typeof process !== 'undefined' && process.env) {
+        return process.env[key];
+    }
+    // No browser (Vite)
+    if (typeof import.meta !== 'undefined' && import.meta.env) {
+        return import.meta.env[key];
+    }
+    return undefined;
+};
 export const createStorage = () => {
-    const isProd = import.meta.env.VITE_NODE_ENV === 'production';
-    const useBlobs = import.meta.env.USE_NETLIFY_BLOBS === 'true';
+    const isProd = getEnv('VITE_NODE_ENV') === 'production' || getEnv('NODE_ENV') === 'production';
+    const useBlobs = getEnv('USE_NETLIFY_BLOBS') === 'true';
     return isProd && useBlobs ? new NetlifyBlobsStorage() : new FileSystemStorage();
 };
 export const validateOrder = (order) => {
