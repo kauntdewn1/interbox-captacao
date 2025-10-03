@@ -199,8 +199,15 @@ const getEnv = (key) => {
     if (typeof process !== 'undefined' && process.env) {
         return process.env[key];
     }
-    if (typeof import.meta !== 'undefined' && import.meta.env) {
-        return import.meta.env[key];
+    try {
+        // @ts-ignore - import.meta só existe em contexto ESM
+        if (typeof import.meta !== 'undefined' && import.meta.env) {
+            // @ts-ignore
+            return import.meta.env[key];
+        }
+    }
+    catch {
+        // import.meta não disponível (CJS bundle)
     }
     return undefined;
 };
