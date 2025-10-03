@@ -1,1 +1,53 @@
-# Não ignorar nada por enquanto
+# Dependências e builds
+node_modules/
+dist/
+build/
+.netlify/
+
+# Logs
+*.log
+logs/
+
+# Temporários
+*.tmp
+*.temp
+*.cache
+
+# Backups
+*.backup
+*.bak
+*.backup.*
+
+# SQL files (não precisa no contexto)
+supabase/*.sql
+
+# Documentação excessiva
+docs/*.md
+!docs/README.md
+ATUALIZACAO_*.md
+MODULO_*.md
+RESUMO_*.md
+CONFIGURACAO_*.md
+ESTOQUE_*.md
+OPENPIX_*.md
+WEBHOOK_*.md
+SECURITY_*.md
+
+# TypeScript build artifacts
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Package manager locks (mostrar só package.json)
+yarn.lock
+pnpm-workspace.yaml
+
+# Test/debug files
+test_*.js
+test-*.js
+check_*.js
+*.test.js
+*.spec.js
+
+# API docs
+api-documentation.yaml
+plugin-redoc-2.yaml
