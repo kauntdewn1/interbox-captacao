@@ -1,131 +1,107 @@
 import { Link } from 'react-router-dom';
-import { FaArrowTurnDown } from "react-icons/fa6";
 import Footer from '../components/Footer';
 
-const Home = () => {
-  const products = [
-    {
-      id: 'judge',
-      title: 'Inscrição Judge',
-      description: 'Seja um Judge oficial do INTERBØX 2025',
-      price: 'Gratuito',
-      link: '/judge/cadastro',
-      color: 'from-blue-500 to-purple-600',
-      icon: '⧖'
-    },
-    {
-      id: 'staff',
-      title: 'Inscrição Staff',
-      description: 'Faça parte da equipe organizacional',
-      price: 'Gratuito',
-      link: '/staff/cadastro',
-      color: 'from-green-500 to-teal-600',
-      icon: '⧉'
-    },
-    {
-      id: 'loja',
-      title: 'Loja INTERBØX',
-      description: 'Produtos oficiais do INTERBØX 2025',
-      price: 'A partir de R$ 139,90',
-      link: '/produtos',
-      color: 'from-pink-500 to-purple-600',
-      icon: '🛍️'
-    },
-    {
-      id: 'seguro',
-      title: 'Sistema de Seguros',
-      description: 'Proteja sua equipe com nossos seguros',
-      link: '/seguro',
-      color: 'from-purple-500 to-pink-600',
-      icon: '⟠'
-    }
-  ];
-
+export default function Home() {
   return (
-    <div 
-      className="min-h-screen text-white relative"
-      style={{ 
-        backgroundImage: 'url(/images/bg_grunge.png)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
-      }}
-    >
-      {/* Overlay escuro para melhorar legibilidade */}
-      <div className="absolute inset-0 bg-black/40"></div>
-      
-      {/* Header */}
-      <div className="container mx-auto px-4 py-8 relative z-10">
-        <div className="text-center mb-12">
-          {/* Logo no topo */}
-          <img 
-            src="/logos/nome_hrz.png" 
-            alt="INTERBØX Logo" 
-            className="mx-auto mb-8 max-w-md lg:max-w-lg drop-shadow-2xl"
+    <div className="bg-white min-h-screen text-gray-800">
+      {/* HERO SECTION */}
+      <section className="relative bg-gray-900 text-white">
+        <img
+          src="/images/banner-hero.jpg" // Substitua pela imagem que você enviar
+          alt="Banner do INTERBØX 2025"
+          className="w-full h-[400px] object-cover opacity-60"
+        />
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
+          <img
+            src="/logos/nome_hrz.png"
+            alt="Logo INTERBØX"
+            className="h-16 md:h-24 mb-4 drop-shadow-lg"
           />
-          
-          <p className="text-xl text-white/90 mb-8 drop-shadow-lg">
-            Escolha um dos links para continuar <FaArrowTurnDown className="inline-block ml-2" />
+          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight">
+            Competição. Comunidade. Propósito.
+          </h1>
+          <p className="mt-4 text-white/80 max-w-xl text-sm md:text-base">
+            O maior campeonato fitness de times da América Latina.
           </p>
         </div>
+      </section>
 
-        {/* Products Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
-          {products.map((product) => (
-            <Link
-              key={product.id}
-              to={product.link}
-              className="group relative"
-            >
-              <div className="relative bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105 hover:shadow-2xl">
-                {/* Glassmorphism Effect */}
-                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent rounded-2xl"></div>
-                
-                {/* Content */}
-                <div className="relative z-10">
-                  {/* Icon */}
-                  <div className="text-6xl mb-4 text-center">
-                    {product.icon}
-                  </div>
-                  
-                  {/* Title */}
-                  <h3 className="text-2xl font-bold text-white mb-3 text-center">
-                    {product.title}
-                  </h3>
-                  
-                  {/* Description */}
-                  <p className="text-gray-300 text-center mb-4 leading-relaxed">
-                    {product.description}
-                  </p>
-                  
-                  {/* Price */}
-                  <div className="text-center">
-                    <span className="text-3xl font-bold text-white">
-                      {product.price}
-                    </span>
-                  </div>
-                  
-                  {/* CTA Button */}
-                  <div className="mt-6">
-                    <div className={`w-full py-3 px-6 rounded-xl bg-gradient-to-r ${product.color} text-white font-semibold text-center group-hover:shadow-lg transition-all duration-300`}>
-                      Acessar
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Hover Effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
-              </div>
-            </Link>
-          ))}
+      {/* LOJA - DESTAQUES */}
+      <section className="py-16 px-4 bg-gray-50">
+        <div className="max-w-7xl mx-auto text-center mb-10">
+          <h2 className="text-3xl font-bold mb-2">🛍️ Produtos Oficiais</h2>
+          <p className="text-gray-600">Garanta seu item exclusivo do INTERBØX 2025</p>
         </div>
-      </div>
 
-      <div className="relative z-10">
-        <Footer />
-      </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          {/* Cards de Produto */}
+          <div className="border rounded-xl p-6 bg-white shadow hover:shadow-lg transition">
+            <img src="/images/produto1.jpg" alt="Produto" className="rounded mb-4" />
+            <h3 className="text-lg font-semibold">Camiseta Mocha Mousse</h3>
+            <p className="text-gray-500">A partir de R$ 89,90</p>
+          </div>
+
+          <div className="border rounded-xl p-6 bg-white shadow hover:shadow-lg transition">
+            <img src="/images/produto2.jpg" alt="Produto" className="rounded mb-4" />
+            <h3 className="text-lg font-semibold">Cropped Preto</h3>
+            <p className="text-gray-500">A partir de R$ 89,90</p>
+          </div>
+
+          <div className="border rounded-xl p-6 bg-white shadow hover:shadow-lg transition">
+            <img src="/images/produto3.jpg" alt="Produto" className="rounded mb-4" />
+            <h3 className="text-lg font-semibold">Camiseta Amora</h3>
+            <p className="text-gray-500">A partir de R$ 89,90</p>
+          </div>
+        </div>
+
+        <div className="text-center mt-10">
+          <Link
+            to="/produtos"
+            className="inline-block bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-xl transition"
+          >
+            Ver todos os produtos
+          </Link>
+        </div>
+      </section>
+
+      {/* SOBRE O EVENTO */}
+      <section className="py-16 px-4 bg-white">
+        <div className="max-w-5xl mx-auto text-center">
+          <h2 className="text-3xl font-bold mb-4">🏋️‍♀️ Sobre o INTERBØX</h2>
+          <p className="text-gray-700 text-lg leading-relaxed">
+            O INTERBØX é mais que uma competição: é um movimento que une atletas, treinadores e entusiastas em uma celebração da força, superação e trabalho em equipe. Conheça também nossa plataforma de gamificação exclusiva: <a href="https://cerradointerbox.com.br" target="_blank" rel="noopener noreferrer" className="text-purple-600 underline">cerradointerbox.com.br</a>
+          </p>
+        </div>
+      </section>
+
+      {/* INSCRIÇÕES DESTAQUE */}
+      <section className="py-16 px-4 bg-purple-50">
+        <div className="max-w-6xl mx-auto text-center mb-10">
+          <h2 className="text-2xl font-bold">⏳ Últimos dias para inscrições</h2>
+          <p className="text-gray-600">Ainda dá tempo de fazer parte do time</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          <Link to="/judge/cadastro" className="bg-white border-l-4 border-blue-600 p-6 rounded-xl shadow hover:shadow-lg transition block">
+            <h3 className="text-xl font-semibold text-blue-700">Inscrição Judge</h3>
+            <p className="text-gray-600 text-sm mt-2">Faça parte do corpo técnico da competição.</p>
+          </Link>
+
+          <Link to="/staff/cadastro" className="bg-white border-l-4 border-green-600 p-6 rounded-xl shadow hover:shadow-lg transition block">
+            <h3 className="text-xl font-semibold text-green-700">Inscrição Staff</h3>
+            <p className="text-gray-600 text-sm mt-2">Ajude na organização e execução do evento.</p>
+          </Link>
+        </div>
+      </section>
+
+      {/* SOBRE A FLOWPAY */}
+      <section className="py-8 px-4 bg-gray-100 text-center text-sm text-gray-500">
+        <p>
+          Ambiente seguro operado por <strong className="text-purple-600">FlowPay</strong> — plataforma oficial de pagamentos do INTERBØX 2025.
+        </p>
+      </section>
+
+      <Footer />
     </div>
   );
-};
-
-export default Home;
+}

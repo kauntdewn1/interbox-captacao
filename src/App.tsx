@@ -13,28 +13,26 @@ import Interbox25EventPage from '../evento/interbox25/Interbox25EventPage';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-
 function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-      <Routes />
-    <ToastContainer position="top-center" />
-        {/** Rotas de audiovisual removidas */}
-        <Route path="/captacao/judge-staff" element={<JudgeStaff />} />
-        <Route path="/judge/cadastro" element={<JudgeCadastro />} />
-        <Route path="/staff/cadastro" element={<StaffCadastro />} />
-        <Route path="/produtos" element={<ProdutosPage />} />
-        <Route path="/produto/:slug" element={<ProdutoDetalhes />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/admin/seguro" element={<AdminSeguro />} />
-        <Route path="/seguro" element={<SeguroPage />} />
-        <Route path="/fornecedor" element={<FornecedorDashboard />} />
-        <Route path="/evento/interbox25" element={<Interbox25EventPage />} />
-        <Route path="/" element={<Home />} />
-      </Routes>
-    </BrowserRouter>
-  );
+return (
+<BrowserRouter>
+<ToastContainer position="top-center" />
+<Routes>
+<Route path="/captacao/judge-staff" element={<JudgeStaff />} />
+<Route path="/judge/cadastro" element={<JudgeCadastro />} />
+<Route path="/staff/cadastro" element={<StaffCadastro />} />
+<Route path="/produtos" element={<ProdutosPage />} />
+<Route path="/produto/:slug" element={<ProdutoDetalhes />} />
+<Route path="/admin" element={<AdminDashboard />} />
+<Route path="/admin/seguro" element={<AdminSeguro />} />
+<Route path="/seguro" element={<SeguroPage />} />
+<Route path="/fornecedor" element={<FornecedorDashboard />} />
+<Route path="/evento/interbox25" element={<Interbox25EventPage />} />
+<Route path="/" element={<Home />} />
+<Route path="" element={<Home />} />
+</Routes>
+</BrowserRouter>
+);
 }
 
 export default App;
