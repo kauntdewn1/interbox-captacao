@@ -4,7 +4,7 @@
  * Zero lock-in, controle total
  */
 
-import { withCors, jsonResponse, CORS_PRESETS } from './_shared/cors.ts';
+import { withCors, jsonResponse } from './_shared/cors.ts';
 
 // Usa o adapter via import dinâmico do TS para manter consistência
 let createStorage;
@@ -97,4 +97,4 @@ export const handler = withCors(async (event) => {
 			details: error.message
 		});
 	}
-}, CORS_PRESETS.READ_ONLY);
+});

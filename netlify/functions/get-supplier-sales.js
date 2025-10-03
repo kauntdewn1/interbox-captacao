@@ -4,7 +4,7 @@
  */
 
 import './_shared/fix-util-extend.js';
-import { withCors, jsonResponse, CORS_PRESETS } from './_shared/cors.ts';
+import { withCors, jsonResponse } from './_shared/cors.ts';
 import { createStorage } from '../../src/utils/storage.ts';
 import productsData from '../../data/products.json';
 
@@ -217,4 +217,4 @@ export const handler = withCors(async (event) => {
       message: error.message || 'Erro desconhecido',
     });
   }
-}, CORS_PRESETS.READ_ONLY);
+});

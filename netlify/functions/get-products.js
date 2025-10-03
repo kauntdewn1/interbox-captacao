@@ -1,5 +1,5 @@
 import './_shared/fix-util-extend.js';
-import { withCors, jsonResponse, CORS_PRESETS } from './_shared/cors.ts';
+import { withCors, jsonResponse } from './_shared/cors.ts';
 
 export const handler = withCors(async () => {
   try {
@@ -40,4 +40,4 @@ export const handler = withCors(async () => {
       details: err?.message
     });
   }
-}, CORS_PRESETS.READ_ONLY);
+});

@@ -60,3 +60,23 @@ export const parseBody = (event) => {
         return {};
     }
 };
+/**
+ * Helper para criar respostas JSON com CORS
+ */
+export const jsonResponse = (statusCode, data) => {
+    return {
+        statusCode,
+        headers: corsHeaders,
+        body: JSON.stringify(data),
+    };
+};
+/**
+ * Presets de CORS para diferentes origens
+ */
+export const CORS_PRESETS = {
+    allowAll: corsHeaders,
+    localhost: {
+        ...corsHeaders,
+        'Access-Control-Allow-Origin': 'http://localhost:5173',
+    },
+};

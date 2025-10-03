@@ -74,3 +74,25 @@ import type {
       return {} as T;
     }
   };
+
+  /**
+   * Helper para criar respostas JSON com CORS
+   */
+  export const jsonResponse = (statusCode: number, data: unknown) => {
+    return {
+      statusCode,
+      headers: corsHeaders,
+      body: JSON.stringify(data),
+    };
+  };
+
+  /**
+   * Presets de CORS para diferentes origens
+   */
+  export const CORS_PRESETS = {
+    allowAll: corsHeaders,
+    localhost: {
+      ...corsHeaders,
+      'Access-Control-Allow-Origin': 'http://localhost:5173',
+    },
+  };

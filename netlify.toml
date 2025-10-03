@@ -25,6 +25,11 @@
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
+  external_node_modules = []
+
+[functions.esbuild]
+  format = "esm"
+  target = "es2020"
 
 # Variáveis de ambiente para as Functions
 [functions.environment]

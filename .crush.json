@@ -1,0 +1,10 @@
+{
+  "model": "qwen/qwen1.5-110b-chat",
+  "base_url": "https://openrouter.ai/api/v1",
+  "api_key": "$OPENROUTER_API_KEY",
+  "headers": {
+    "HTTP-Referer": "https://neo-flowoff.netlify.app",
+    "X-Title": "NEØ Protocol // Descentralyzed Nodes Web3"
+  },
+  "prompt_path": "/Users/nettomello/CODIGOS/prompt.json"
+}
