@@ -1,6 +1,7 @@
 import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
 import { useEffect, useState } from 'react';
 import ProdutoCard from '../../components/ProdutoCard';
+import CheckoutFormModal from '../../components/CheckoutFormModal';
 import SEOHead from '../../components/SEOHead';
 import Footer from '../../components/Footer';
 export default function ProdutosPage() {
@@ -8,6 +9,48 @@ export default function ProdutosPage() {
     const [produtos, setProdutos] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    // Estado do Checkout Modal (precisa estar antes de qualquer return condicional)
+    const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [loadingCompra, setLoadingCompra] = useState(false);
+    const [, setErrorCompra] = useState(null);
+    const openCheckout = (produto) => {
+        setSelectedProduct(produto);
+        setShowCheckoutModal(true);
+    };
+    const handleCheckoutSubmit = async (form) => {
+        if (!selectedProduct)
+            return;
+        try {
+            setLoadingCompra(true);
+            setErrorCompra(null);
+            const res = await fetch('/.netlify/functions/create-charge', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    productId: selectedProduct.id,
+                    productSlug: selectedProduct.slug,
+                    customerData: { name: form.nome, email: form.email, phone: form.telefone, cpf: form.cpf },
+                    address: form.endereco,
+                    tag: `produto-${selectedProduct.slug}`,
+                    origin: '/produtos'
+                })
+            });
+            if (!res.ok)
+                throw new Error(await res.text());
+            const data = await res.json();
+            if (!data.success)
+                throw new Error(data?.message || 'Falha ao criar charge');
+            window.location.href = `/produto/${selectedProduct.slug}`;
+        }
+        catch (e) {
+            setErrorCompra(e instanceof Error ? e.message : 'Erro ao processar compra');
+        }
+        finally {
+            setLoadingCompra(false);
+            setShowCheckoutModal(false);
+        }
+    };
     console.log('📊 [PRODUTOS PAGE] Estados iniciais:', {
         produtos: produtos.length,
         loading,
@@ -171,6 +214,7 @@ export default function ProdutosPage() {
                                                     id: produto.id,
                                                     nome: produto.nome
                                                 });
+                                                openCheckout(produto);
                                             } }, produto.id));
-                                    }) }) }), _jsx("div", { className: "text-center mt-16" })] })] }), _jsx("div", { className: "relative z-10", children: _jsx(Footer, {}) })] }));
+                                    }) }) }), _jsx("div", { className: "text-center mt-16" })] })] }), _jsx("div", { className: "relative z-10", children: _jsx(Footer, {}) }), _jsx(CheckoutFormModal, { isOpen: showCheckoutModal, onClose: () => setShowCheckoutModal(false), onSubmit: handleCheckoutSubmit, productName: selectedProduct?.nome || 'Produto', productPrice: Math.round((selectedProduct?.preco || 0) * 100), loading: loadingCompra })] }));
 }

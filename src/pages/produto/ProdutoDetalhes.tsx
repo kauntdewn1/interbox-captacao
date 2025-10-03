@@ -4,6 +4,7 @@ import { FaStar, FaShoppingCart, FaArrowLeft } from 'react-icons/fa';
 import SEOHead from '../../components/SEOHead';
 import { saveOrderToHistory } from '../../utils/orderHistory';
 import Footer from '../../components/Footer';
+import CheckoutFormModal, { CheckoutFormData } from '../../components/CheckoutFormModal';
 import { 
   getQuantidadeDisponivel, 
   isCombinacaoDisponivel, 
@@ -66,6 +67,7 @@ export default function ProdutoDetalhes() {
   const [corSelecionada, setCorSelecionada] = useState<Cor | null>(null);
   const [tamanhoSelecionado, setTamanhoSelecionado] = useState<Tamanho | null>(null);
   const [imagemAtual, setImagemAtual] = useState(0);
+  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
 
   // Chave única para localStorage baseada no ID do produto
   const getSessionKey = () => `produto_session_${produto?.id || slug}`;
@@ -170,24 +172,35 @@ export default function ProdutoDetalhes() {
       setErrorCompra('Selecione cor e tamanho');
       return;
     }
+    setErrorCompra(null);
+    setShowCheckoutModal(true);
+  };
+
+  const handleCheckoutSubmit = async (form: CheckoutFormData) => {
+    if (!produto || !corSelecionada || !tamanhoSelecionado) {
+      setErrorCompra('Selecione cor e tamanho');
+      return;
+    }
 
     setLoadingCompra(true);
     setErrorCompra(null);
     setPix(null);
     setStatusPix(null);
-    
+
     try {
       const response = await fetch('/.netlify/functions/create-charge', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           productId: produto.id,
+          productSlug: produto.slug,
           customerData: {
-            name: 'Cliente INTERBØX',
-            email: 'cliente@example.com',
-            phone: '',
-            cpf: ''
+            name: form.nome,
+            email: form.email,
+            phone: form.telefone,
+            cpf: form.cpf
           },
+          address: form.endereco,
           variantes: {
             cor: corSelecionada.nome,
             tamanho: tamanhoSelecionado.nome
@@ -202,24 +215,20 @@ export default function ProdutoDetalhes() {
         throw new Error(`Erro HTTP ${response.status}: ${errorText}`);
       }
 
-      const responseText = await response.text();
-      let data;
-      try {
-        data = JSON.parse(responseText);
-      } catch {
-        throw new Error('Resposta inválida do servidor');
-      }
+      const data = await response.json();
 
       if (!data.success) {
         throw new Error(data?.message || 'Falha ao criar charge');
       }
-      
-      setPix({ 
-        qrCode: data.charge?.qrCodeImage || data.qrCode, 
-        pixCopyPaste: data.charge?.brCode || data.pixCopyPaste 
+
+      setShowCheckoutModal(false);
+
+      setPix({
+        qrCode: data.charge?.qrCodeImage || data.qrCode,
+        pixCopyPaste: data.charge?.brCode || data.pixCopyPaste
       });
 
-      // Iniciar polling para verificar status do pagamento
+      // Iniciar polling para verificar status do pagamento e acionar pós-pagamento
       const identifier = data?.charge?.charge?.identifier || data?.charge?.identifier;
       const correlationID = data?.charge?.correlationID || data?.correlationID;
 
@@ -227,7 +236,7 @@ export default function ProdutoDetalhes() {
         setStatusPix('pending');
         const start = Date.now();
         const interval = setInterval(async () => {
-          if (Date.now() - start > 5 * 60 * 1000) { // 5min timeout
+          if (Date.now() - start > 5 * 60 * 1000) {
             clearInterval(interval);
             setStatusPix('expired');
             return;
@@ -238,6 +247,49 @@ export default function ProdutoDetalhes() {
             if (st?.status === 'paid') {
               clearInterval(interval);
               setStatusPix('paid');
+
+              // Enviar emails (fornecedor e cliente)
+              try {
+                await fetch('/.netlify/functions/send-order-email', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    correlationID: correlationID || identifier,
+                    productId: produto.id,
+                    amount: Math.round(produto.preco * 100),
+                    size: tamanhoSelecionado.nome,
+                    color: corSelecionada.nome,
+                    address: form.endereco,
+                    customer: {
+                      name: form.nome,
+                      email: form.email,
+                      phone: form.telefone,
+                      cpf: form.cpf
+                    }
+                  })
+                });
+              } catch (e) {
+                console.warn('Falha ao enviar emails de pedido:', e);
+              }
+
+              // Registrar pedido (status pago)
+              try {
+                await fetch('/.netlify/functions/save-order', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    produto_id: produto.id,
+                    cliente_email: form.email,
+                    cor: corSelecionada.nome,
+                    tamanho: tamanhoSelecionado.nome,
+                    valor: Math.round(produto.preco * 100),
+                    correlation_id: correlationID || identifier,
+                    charge_id: identifier || null
+                  })
+                });
+              } catch (e) {
+                console.warn('Falha ao registrar pedido:', e);
+              }
             }
           } catch (e) {
             console.warn('Erro ao verificar status:', e);
@@ -245,7 +297,7 @@ export default function ProdutoDetalhes() {
         }, 5000);
       }
 
-      // Salvar no histórico de compras após sucesso
+      // Salvar no histórico local
       saveOrderToHistory({
         produtoId: produto.id,
         slug: produto.slug,
@@ -609,6 +661,15 @@ export default function ProdutoDetalhes() {
       </div>
 
       <Footer />
+      {/* Modal de Checkout */}
+      <CheckoutFormModal
+        isOpen={showCheckoutModal}
+        onClose={() => setShowCheckoutModal(false)}
+        onSubmit={handleCheckoutSubmit}
+        productName={produto.nome}
+        productPrice={Math.round(produto.preco * 100)}
+        loading={loadingCompra}
+      />
     </>
   );
 }

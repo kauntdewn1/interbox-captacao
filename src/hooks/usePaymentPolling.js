@@ -59,7 +59,22 @@ export const usePaymentPolling = (identifiers, options = {}) => {
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
-            const data = await response.json();
+            const contentType = response.headers.get('content-type') || '';
+            if (!contentType.toLowerCase().includes('application/json')) {
+                const rawText = await response.text();
+                // incluir um trecho do body para facilitar debug
+                const snippet = rawText.slice(0, 120).replace(/\s+/g, ' ').trim();
+                throw new Error(`Resposta não-JSON recebida (content-type: ${contentType}). Trecho: ${snippet}`);
+            }
+            let data;
+            try {
+                data = (await response.json());
+            }
+            catch {
+                const rawText = await response.text();
+                const snippet = rawText.slice(0, 120).replace(/\s+/g, ' ').trim();
+                throw new Error(`Falha ao parsear JSON. Trecho: ${snippet}`);
+            }
             log('Resposta recebida:', data);
             // Normalizar status de diferentes APIs
             const normalizedStatus = normalizeStatus(data?.status || data?.charge?.status);

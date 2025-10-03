@@ -5,6 +5,7 @@ import { FaStar, FaShoppingCart, FaArrowLeft } from 'react-icons/fa';
 import SEOHead from '../../components/SEOHead';
 import { saveOrderToHistory } from '../../utils/orderHistory';
 import Footer from '../../components/Footer';
+import CheckoutFormModal from '../../components/CheckoutFormModal';
 import { getQuantidadeDisponivel, isCombinacaoDisponivel, getEstoquePorCor, getEstoquePorTamanho } from '../../utils/estoque';
 export default function ProdutoDetalhes() {
     const { slug } = useParams();
@@ -19,6 +20,7 @@ export default function ProdutoDetalhes() {
     const [corSelecionada, setCorSelecionada] = useState(null);
     const [tamanhoSelecionado, setTamanhoSelecionado] = useState(null);
     const [imagemAtual, setImagemAtual] = useState(0);
+    const [showCheckoutModal, setShowCheckoutModal] = useState(false);
     // Chave única para localStorage baseada no ID do produto
     const getSessionKey = () => `produto_session_${produto?.id || slug}`;
     // Função para salvar sessão no localStorage
@@ -122,6 +124,14 @@ export default function ProdutoDetalhes() {
             setErrorCompra('Selecione cor e tamanho');
             return;
         }
+        setErrorCompra(null);
+        setShowCheckoutModal(true);
+    };
+    const handleCheckoutSubmit = async (form) => {
+        if (!produto || !corSelecionada || !tamanhoSelecionado) {
+            setErrorCompra('Selecione cor e tamanho');
+            return;
+        }
         setLoadingCompra(true);
         setErrorCompra(null);
         setPix(null);
@@ -132,12 +142,14 @@ export default function ProdutoDetalhes() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     productId: produto.id,
+                    productSlug: produto.slug,
                     customerData: {
-                        name: 'Cliente INTERBØX',
-                        email: 'cliente@example.com',
-                        phone: '',
-                        cpf: ''
+                        name: form.nome,
+                        email: form.email,
+                        phone: form.telefone,
+                        cpf: form.cpf
                     },
+                    address: form.endereco,
                     variantes: {
                         cor: corSelecionada.nome,
                         tamanho: tamanhoSelecionado.nome
@@ -150,29 +162,23 @@ export default function ProdutoDetalhes() {
                 const errorText = await response.text();
                 throw new Error(`Erro HTTP ${response.status}: ${errorText}`);
             }
-            const responseText = await response.text();
-            let data;
-            try {
-                data = JSON.parse(responseText);
-            }
-            catch {
-                throw new Error('Resposta inválida do servidor');
-            }
+            const data = await response.json();
             if (!data.success) {
                 throw new Error(data?.message || 'Falha ao criar charge');
             }
+            setShowCheckoutModal(false);
             setPix({
                 qrCode: data.charge?.qrCodeImage || data.qrCode,
                 pixCopyPaste: data.charge?.brCode || data.pixCopyPaste
             });
-            // Iniciar polling para verificar status do pagamento
+            // Iniciar polling para verificar status do pagamento e acionar pós-pagamento
             const identifier = data?.charge?.charge?.identifier || data?.charge?.identifier;
             const correlationID = data?.charge?.correlationID || data?.correlationID;
             if (identifier || correlationID) {
                 setStatusPix('pending');
                 const start = Date.now();
                 const interval = setInterval(async () => {
-                    if (Date.now() - start > 5 * 60 * 1000) { // 5min timeout
+                    if (Date.now() - start > 5 * 60 * 1000) {
                         clearInterval(interval);
                         setStatusPix('expired');
                         return;
@@ -183,6 +189,49 @@ export default function ProdutoDetalhes() {
                         if (st?.status === 'paid') {
                             clearInterval(interval);
                             setStatusPix('paid');
+                            // Enviar emails (fornecedor e cliente)
+                            try {
+                                await fetch('/.netlify/functions/send-order-email', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        correlationID: correlationID || identifier,
+                                        productId: produto.id,
+                                        amount: Math.round(produto.preco * 100),
+                                        size: tamanhoSelecionado.nome,
+                                        color: corSelecionada.nome,
+                                        address: form.endereco,
+                                        customer: {
+                                            name: form.nome,
+                                            email: form.email,
+                                            phone: form.telefone,
+                                            cpf: form.cpf
+                                        }
+                                    })
+                                });
+                            }
+                            catch (e) {
+                                console.warn('Falha ao enviar emails de pedido:', e);
+                            }
+                            // Registrar pedido (status pago)
+                            try {
+                                await fetch('/.netlify/functions/save-order', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        produto_id: produto.id,
+                                        cliente_email: form.email,
+                                        cor: corSelecionada.nome,
+                                        tamanho: tamanhoSelecionado.nome,
+                                        valor: Math.round(produto.preco * 100),
+                                        correlation_id: correlationID || identifier,
+                                        charge_id: identifier || null
+                                    })
+                                });
+                            }
+                            catch (e) {
+                                console.warn('Falha ao registrar pedido:', e);
+                            }
                         }
                     }
                     catch (e) {
@@ -190,7 +239,7 @@ export default function ProdutoDetalhes() {
                     }
                 }, 5000);
             }
-            // Salvar no histórico de compras após sucesso
+            // Salvar no histórico local
             saveOrderToHistory({
                 produtoId: produto.id,
                 slug: produto.slug,
@@ -253,5 +302,5 @@ export default function ProdutoDetalhes() {
                                                     else {
                                                         return (_jsxs("span", { className: "text-red-400", children: ["\u2717 Fora de estoque (", corSelecionada.nome, " - ", tamanhoSelecionado.nome, ")"] }));
                                                     }
-                                                })() }), _jsx("button", { onClick: handleComprar, disabled: loadingCompra || !corSelecionada || !tamanhoSelecionado || !isCombinacaoDisponivel(produto, corSelecionada?.nome || '', tamanhoSelecionado?.nome || ''), className: "w-full py-4 px-6 bg-pink-600 hover:bg-pink-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-3 text-lg", children: loadingCompra ? (_jsxs(_Fragment, { children: [_jsx("div", { className: "animate-spin rounded-full h-5 w-5 border-b-2 border-white" }), "Gerando PIX..."] })) : (_jsxs(_Fragment, { children: [_jsx(FaShoppingCart, {}), "Comprar Agora"] })) }), errorCompra && (_jsx("div", { className: "text-red-400 text-center", children: errorCompra })), pix && (_jsxs("div", { className: "mt-6 p-6 bg-green-900/20 border border-green-500/30 rounded-xl", children: [_jsx("div", { className: "text-green-400 text-lg font-semibold mb-4 text-center", children: "PIX Gerado!" }), pix.qrCode && (_jsx("div", { className: "text-center mb-4", children: _jsx("img", { src: pix.qrCode, alt: "QR Code PIX", className: "w-48 h-48 mx-auto" }) })), pix.pixCopyPaste && (_jsxs("div", { className: "text-sm text-gray-300 break-all bg-black/20 p-3 rounded", children: [_jsx("div", { className: "text-green-400 mb-2 font-semibold", children: "C\u00F3digo PIX:" }), pix.pixCopyPaste] })), statusPix === 'pending' && (_jsx("div", { className: "text-yellow-400 mt-4 text-center", children: _jsx("div", { className: "animate-pulse", children: "\u23F3 Aguardando pagamento PIX..." }) })), statusPix === 'paid' && (_jsx("div", { className: "text-green-400 mt-4 text-center", children: _jsx("div", { className: "text-xl font-bold", children: "\u2705 Pagamento confirmado! \uD83D\uDD25" }) })), statusPix === 'expired' && (_jsx("div", { className: "text-red-400 mt-4 text-center", children: _jsx("div", { children: "\u23F0 Pagamento expirado. Gere um novo PIX." }) }))] })), _jsxs("div", { className: "space-y-4 pt-6 border-t border-white/20", children: [produto.material && (_jsxs("div", { children: [_jsx("span", { className: "text-gray-400", children: "Material: " }), _jsx("span", { className: "text-white", children: produto.material })] })), produto.cuidados && (_jsxs("div", { children: [_jsx("span", { className: "text-gray-400", children: "Cuidados: " }), _jsx("span", { className: "text-white", children: produto.cuidados })] })), produto.garantia && (_jsxs("div", { children: [_jsx("span", { className: "text-gray-400", children: "Garantia: " }), _jsx("span", { className: "text-white", children: produto.garantia })] }))] })] })] })] })] }), _jsx(Footer, {})] }));
+                                                })() }), _jsx("button", { onClick: handleComprar, disabled: loadingCompra || !corSelecionada || !tamanhoSelecionado || !isCombinacaoDisponivel(produto, corSelecionada?.nome || '', tamanhoSelecionado?.nome || ''), className: "w-full py-4 px-6 bg-pink-600 hover:bg-pink-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-3 text-lg", children: loadingCompra ? (_jsxs(_Fragment, { children: [_jsx("div", { className: "animate-spin rounded-full h-5 w-5 border-b-2 border-white" }), "Gerando PIX..."] })) : (_jsxs(_Fragment, { children: [_jsx(FaShoppingCart, {}), "Comprar Agora"] })) }), errorCompra && (_jsx("div", { className: "text-red-400 text-center", children: errorCompra })), pix && (_jsxs("div", { className: "mt-6 p-6 bg-green-900/20 border border-green-500/30 rounded-xl", children: [_jsx("div", { className: "text-green-400 text-lg font-semibold mb-4 text-center", children: "PIX Gerado!" }), pix.qrCode && (_jsx("div", { className: "text-center mb-4", children: _jsx("img", { src: pix.qrCode, alt: "QR Code PIX", className: "w-48 h-48 mx-auto" }) })), pix.pixCopyPaste && (_jsxs("div", { className: "text-sm text-gray-300 break-all bg-black/20 p-3 rounded", children: [_jsx("div", { className: "text-green-400 mb-2 font-semibold", children: "C\u00F3digo PIX:" }), pix.pixCopyPaste] })), statusPix === 'pending' && (_jsx("div", { className: "text-yellow-400 mt-4 text-center", children: _jsx("div", { className: "animate-pulse", children: "\u23F3 Aguardando pagamento PIX..." }) })), statusPix === 'paid' && (_jsx("div", { className: "text-green-400 mt-4 text-center", children: _jsx("div", { className: "text-xl font-bold", children: "\u2705 Pagamento confirmado! \uD83D\uDD25" }) })), statusPix === 'expired' && (_jsx("div", { className: "text-red-400 mt-4 text-center", children: _jsx("div", { children: "\u23F0 Pagamento expirado. Gere um novo PIX." }) }))] })), _jsxs("div", { className: "space-y-4 pt-6 border-t border-white/20", children: [produto.material && (_jsxs("div", { children: [_jsx("span", { className: "text-gray-400", children: "Material: " }), _jsx("span", { className: "text-white", children: produto.material })] })), produto.cuidados && (_jsxs("div", { children: [_jsx("span", { className: "text-gray-400", children: "Cuidados: " }), _jsx("span", { className: "text-white", children: produto.cuidados })] })), produto.garantia && (_jsxs("div", { children: [_jsx("span", { className: "text-gray-400", children: "Garantia: " }), _jsx("span", { className: "text-white", children: produto.garantia })] }))] })] })] })] })] }), _jsx(Footer, {}), _jsx(CheckoutFormModal, { isOpen: showCheckoutModal, onClose: () => setShowCheckoutModal(false), onSubmit: handleCheckoutSubmit, productName: produto.nome, productPrice: Math.round(produto.preco * 100), loading: loadingCompra })] }));
 }
