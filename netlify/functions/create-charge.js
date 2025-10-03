@@ -230,8 +230,11 @@ export const handler = withCors(async (event) => {
           customer: { email: customerData.email, name: customerData.name },
           created_at: new Date().toISOString()
         };
-        // Evitar duplicatas por identifier
-        const exists = orders.some(o => o.identifier === pendingOrder.identifier);
+        // Evitar duplicatas por identifier OU correlationID
+        const dedupeKey = pendingOrder.identifier || pendingOrder.correlationID;
+        const exists = dedupeKey
+          ? orders.some(o => (o.identifier || o.correlationID) === dedupeKey)
+          : false;
         if (!exists) {
           orders.push(pendingOrder);
           await storage.write('orders.json', orders);
