@@ -274,10 +274,8 @@ const getEnv = (key: string): string | undefined => {
     return process.env[key];
   }
   try {
-    // @ts-ignore - import.meta só existe em contexto ESM
     if (typeof import.meta !== 'undefined' && import.meta.env) {
-      // @ts-ignore
-      return import.meta.env[key] as string | undefined;
+      return (import.meta.env as Record<string, string>)[key];
     }
   } catch {
     // import.meta não disponível (CJS bundle)

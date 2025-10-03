@@ -200,9 +200,7 @@ const getEnv = (key) => {
         return process.env[key];
     }
     try {
-        // @ts-ignore - import.meta só existe em contexto ESM
         if (typeof import.meta !== 'undefined' && import.meta.env) {
-            // @ts-ignore
             return import.meta.env[key];
         }
     }
