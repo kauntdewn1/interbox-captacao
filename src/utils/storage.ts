@@ -114,8 +114,13 @@ const getEnv = (key: string): string | undefined => {
 
 export const createStorage = (): StorageAdapter => {
   const isProd = getEnv('VITE_NODE_ENV') === 'production' || getEnv('NODE_ENV') === 'production';
-  const useBlobs = getEnv('USE_NETLIFY_BLOBS') === 'true';
-  return isProd && useBlobs ? new NetlifyBlobsStorage() : new FileSystemStorage();
+  const useBlobsFlag = getEnv('USE_NETLIFY_BLOBS') === 'true';
+  const isNetlifyEnv = typeof process !== 'undefined' && !!process.env.NETLIFY;
+  // Em produção/Netlify, priorize Blobs automaticamente (mesmo sem flag)
+  if (useBlobsFlag || isProd || isNetlifyEnv) {
+    return new NetlifyBlobsStorage();
+  }
+  return new FileSystemStorage();
 };
 
 export const validateOrder = (order: unknown): boolean => {
