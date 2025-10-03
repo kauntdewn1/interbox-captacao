@@ -36,21 +36,21 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {/* Cards de Produto */}
           <div className="border rounded-xl p-6 bg-white shadow hover:shadow-lg transition">
-            <img src="/images/produto1.jpg" alt="Produto" className="rounded mb-4" />
-            <h3 className="text-lg font-semibold">Camiseta Mocha Mousse</h3>
-            <p className="text-gray-500">A partir de R$ 89,90</p>
-          </div>
-
-          <div className="border rounded-xl p-6 bg-white shadow hover:shadow-lg transition">
             <img src="/images/produto2.jpg" alt="Produto" className="rounded mb-4" />
-            <h3 className="text-lg font-semibold">Cropped Preto</h3>
-            <p className="text-gray-500">A partir de R$ 89,90</p>
+            <h3 className="text-lg font-semibold">Cropped Mocha Mousse</h3>
+            <p className="text-gray-500">A partir de R$ 139,90</p>
           </div>
 
           <div className="border rounded-xl p-6 bg-white shadow hover:shadow-lg transition">
             <img src="/images/produto3.jpg" alt="Produto" className="rounded mb-4" />
+            <h3 className="text-lg font-semibold">Cropped Preto</h3>
+            <p className="text-gray-500">A partir de R$ 139,90</p>
+          </div>
+
+          <div className="border rounded-xl p-6 bg-white shadow hover:shadow-lg transition">
+            <img src="/images/produto1.jpg" alt="Produto" className="rounded mb-4" />
             <h3 className="text-lg font-semibold">Camiseta Amora</h3>
-            <p className="text-gray-500">A partir de R$ 89,90</p>
+            <p className="text-gray-500">A partir de R$ 139,90</p>
           </div>
         </div>
 
