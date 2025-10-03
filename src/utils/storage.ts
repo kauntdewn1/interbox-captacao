@@ -103,9 +103,6 @@ const getEnv = (key: string): string | undefined => {
   }
   // No browser (Vite) - usar try-catch para evitar erro de bundling
   try {
-    // @ts-ignore - import.meta só existe em contexto ESM
-    if (typeof import.meta !== 'undefined' && import.meta.env) {
-      // @ts-ignore
       return import.meta.env[key] as string | undefined;
     }
   } catch {

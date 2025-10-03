@@ -66,7 +66,10 @@ export const parseBody = (event) => {
 export const jsonResponse = (statusCode, data) => {
     return {
         statusCode,
-        headers: corsHeaders,
+        headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+        },
         body: JSON.stringify(data),
     };
 };

@@ -81,7 +81,10 @@ import type {
   export const jsonResponse = (statusCode: number, data: unknown) => {
     return {
       statusCode,
-      headers: corsHeaders,
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify(data),
     };
   };
