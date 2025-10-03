@@ -35,6 +35,16 @@ const PAYMENT_CONFIGS = {
     description: 'Inscrição Staff INTERBØX 2025',
     comment: 'Taxa de inscrição para candidatura staff'
   },
+  ingresso_duplo: {
+    amount: 18000, // R$ 180,00
+    description: 'Ingresso INTERBØX 2025 (2 dias)',
+    comment: 'Acesso completo ao evento nos dias 15 e 16 de Novembro'
+  },
+  ingresso_dia: {
+    amount: 9000, // R$ 90,00
+    description: 'Ingresso INTERBØX 2025 (1 dia)',
+    comment: 'Acesso único a um dos dias do evento'
+  },
 
 };
 

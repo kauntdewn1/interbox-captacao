@@ -186,7 +186,7 @@ export const SEGURO_CONFIG = {
 
   // 🔧 Configurações de Desenvolvimento
   DEV: {
-    debug: process.env.NODE_ENV === 'development',
+    debug: process.env.NODE_ENV === 'production',
     logs: {
       console: true,
       arquivo: false,
