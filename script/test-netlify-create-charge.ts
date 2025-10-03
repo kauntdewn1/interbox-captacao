@@ -76,11 +76,4 @@ const testNetlifyCreateCharge = async () => {
 
 // Executar
 testNetlifyCreateCharge()
-  .then(() => {
-    console.log('\n✅ Teste concluído!');
-    process.exit(0);
-  })
-  .catch((error) => {
-    console.error('\n❌ Teste falhou');
-    process.exit(1);
-  });
+  .then(() => console.log('\n✅ Teste concluído!'))

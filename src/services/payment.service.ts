@@ -54,11 +54,6 @@ export interface PaymentConfig {
 // ============================================================================
 
 export const PAYMENT_CONFIGS: Record<string, PaymentConfig> = {
-	audiovisual: {
-		amount: 2990, // R$ 29,90
-		description: 'Inscrição Audiovisual INTERBØX 2025',
-		comment: 'Taxa de inscrição para candidatura audiovisual',
-	},
 	judge: {
 		amount: 1990, // R$ 19,90
 		description: 'Inscrição Judge INTERBØX 2025',

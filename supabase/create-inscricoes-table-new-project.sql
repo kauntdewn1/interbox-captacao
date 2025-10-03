@@ -11,8 +11,8 @@ CREATE TABLE IF NOT EXISTS inscricoes (
   whatsapp VARCHAR(20) NOT NULL,
   cpf VARCHAR(14),
   
-  -- Tipo e status
-  tipo VARCHAR(50) NOT NULL CHECK (tipo IN ('judge', 'audiovisual', 'staff')),
+  -- Tipo e status (Audiovisual descontinuado)
+  tipo VARCHAR(50) NOT NULL CHECK (tipo IN ('judge', 'staff')),
   valor DECIMAL(10,2) DEFAULT 0,
   status VARCHAR(50) DEFAULT 'cadastrado',
   
@@ -77,6 +77,7 @@ CREATE POLICY inscricoes_delete_policy ON inscricoes
   FOR DELETE USING (true);
 
 -- Inserir dados de exemplo para teste
+-- Removidos exemplos com audiovisual e valores pagos
 INSERT INTO inscricoes (
   nome, 
   email, 
@@ -110,14 +111,14 @@ INSERT INTO inscricoes (
   'maria@email.com',
   '(21) 88888-8888',
   '987.654.321-00',
-  'audiovisual',
-  29.90,
-  'pago',
-  'https://maria-portfolio.com',
-  '3 anos de fotografia esportiva',
+  'staff',
+  0,
+  'cadastrado',
+  NULL,
+  'Experiência básica em suporte',
   'Durante o evento',
-  'Capturar momentos épicos',
-  NULL
+  'Apoiar operações',
+  'NR'
 ),
 (
   'Pedro Santos Lima',
@@ -139,6 +140,6 @@ SELECT
   'Tabela inscricoes criada com sucesso!' as status,
   COUNT(*) as total_inscricoes,
   COUNT(CASE WHEN tipo = 'judge' THEN 1 END) as total_judges,
-  COUNT(CASE WHEN tipo = 'audiovisual' THEN 1 END) as total_audiovisual,
+  -- Removido total_audiovisual (descontinuado)
   COUNT(CASE WHEN tipo = 'staff' THEN 1 END) as total_staff
 FROM inscricoes;

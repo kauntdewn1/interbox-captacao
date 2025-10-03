@@ -27,7 +27,7 @@ export const ADMIN_CONFIG = {
   
   // 🔍 Filtros disponíveis
   FILTERS: {
-    tipos: ['judge', 'audiovisual', 'staff'],
+    tipos: ['judge', 'staff'],
     status: ['confirmado', 'pendente', 'cancelado']
   },
   

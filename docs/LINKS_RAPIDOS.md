@@ -15,10 +15,9 @@
 
 ---
 
-## 📸 **AUDIOVISUAL - R$ 29,90**
+## Audiovisual descontinuado
 ```
-📝 Inscrição: https://interbox-captacao.netlify.app/audiovisual
-💳 Pagamento: https://interbox-captacao.netlify.app/audiovisual/pagar
+Audiovisual foi descontinuado. Links removidos.
 ```
 
 ---
@@ -36,9 +35,8 @@
 ### **WhatsApp/Telegram**
 ```
 🏆 INTERBØX 2025 - Inscrições Abertas!
-🎯 Judge, Audiovisual ou Staff? Escolha seu papel!
+🎯 Judge ou Staff? Escolha seu papel!
 💰 JUDGE e STAFF: GRATUITOS
-💰 AUDIOVISUAL: R$ 29,90
 🔗 https://interbox-captacao.netlify.app/
 ```
 
@@ -48,7 +46,6 @@
 ⚡ CERRADO INTERBØX 2025
 🎯 Sua chance de participar!
 💰 JUDGE e STAFF: GRATUITOS
-💰 AUDIOVISUAL: R$ 29,90
 🔗 Link na bio
 ```
 
@@ -60,7 +57,6 @@ Olá! As inscrições para o INTERBØX 2025 estão abertas!
 
 🎯 Tipos de participação:
 - Judge: GRATUITO
-- Audiovisual: R$ 29,90  
 - Staff: GRATUITO
 
 🔗 Inscreva-se: https://interbox-captacao.netlify.app/
@@ -76,7 +72,7 @@ Estamos recrutando para o maior evento fitness de times da América Latina:
 
 ⚖️ JUDGE - Avaliação técnica e fair play (GRATUITO)
 👥 STAFF - Operação e logística do evento (GRATUITO)
-🎬 AUDIOVISUAL - Cobertura oficial (R$ 29,90)
+Audiovisual descontinuado
 
 🌟 Networking com profissionais do setor
 📈 Desenvolvimento de carreira
@@ -94,7 +90,7 @@ Estamos recrutando para o maior evento fitness de times da América Latina:
 🎯 Escolha seu papel:
 ⚖️ JUDGE - GRATUITO
 👥 STAFF - GRATUITO
-🎬 AUDIOVISUAL - R$ 29,90
+Audiovisual descontinuado
 
 💪 Maior evento fitness da América Latina
 🌟 Faça parte da história!
@@ -118,7 +114,7 @@ Estamos recrutando para o maior evento fitness de times da América Latina:
 
 - **JUDGE**: Cadastro gratuito em `/judge/cadastro`
 - **STAFF**: Cadastro gratuito em `/staff/cadastro`  
-- **AUDIOVISUAL**: Pagamento R$ 29,90 em `/audiovisual/pagar`
+- Audiovisual descontinuado
 - **ADMIN**: Dashboard em `/admin` (senha: `i`)
 
 ---

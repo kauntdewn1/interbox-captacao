@@ -41,7 +41,7 @@ O **INTERBØX Captação** é uma aplicação web moderna para gestão estratég
 
 * **Judge** — júri técnico do evento
 * **Staff** — equipe de operação e logística
-* **Audiovisual** — criadores selecionados para cobertura oficial
+* (Audiovisual descontinuado)
 
 Integra-se ao ecossistema digital do **INTERBØX 2025**, operando sob os princípios do **NEØ Protocol** — uma camada simbólica de governança e tokenização conectada ao token **`$NEØ`**.
 
@@ -122,7 +122,7 @@ npm run preview
 
 * 🔗 Aplicação principal: [https://interbox-captacao.netlify.app](https://interbox-captacao.netlify.app)
 * 🧑‍⚖️ Judge & Staff: [https://interbox-captacao.netlify.app/captacao/judge-staff](https://interbox-captacao.netlify.app/captacao/judge-staff)
-* 🎥 Audiovisual: [https://interbox-captacao.netlify.app/audiovisual](https://interbox-captacao.netlify.app/audiovisual)
+* (Audiovisual descontinuado)
 
 > Dica: mantenha estes links no README para facilitar auditoria e QA.
 
