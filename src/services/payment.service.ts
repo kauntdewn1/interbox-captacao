@@ -50,23 +50,6 @@ export interface PaymentConfig {
 }
 
 // ============================================================================
-// Payment Configs
-// ============================================================================
-
-export const PAYMENT_CONFIGS: Record<string, PaymentConfig> = {
-	judge: {
-		amount: 1990, // R$ 19,90
-		description: 'Inscrição Judge INTERBØX 2025',
-		comment: 'Taxa de inscrição para candidatura judge',
-	},
-	staff: {
-		amount: 1990, // R$ 19,90
-		description: 'Inscrição Staff INTERBØX 2025',
-		comment: 'Taxa de inscrição para candidatura staff',
-	},
-} as const;
-
-// ============================================================================
 // OpenPix/Woovi API Client
 // ============================================================================
 
@@ -75,11 +58,11 @@ export class PaymentService {
 	private apiUrl: string;
 
 	constructor(apiKey?: string, apiUrl?: string) {
-		this.apiKey = apiKey || process.env.OPENPIX_API_KEY || '';
-		this.apiUrl = apiUrl || process.env.API_BASE_URL || 'https://api.woovi.com';
+				this.apiKey = apiKey || '';
+		this.apiUrl = apiUrl || 'https://api.woovi.com';
 
 		if (!this.apiKey) {
-			throw new Error('OPENPIX_API_KEY não configurada');
+		throw new Error('OPENPIX_API_KEY não configurada (defina VITE_OPENPIX_API_KEY no .env)');
 		}
 	}
 
@@ -157,38 +140,6 @@ export class PaymentService {
 // Helper Functions
 // ============================================================================
 
-/**
- * Cria charge para inscrição (audiovisual/judge/staff)
- */
-export const createInscricaoCharge = async (
-	type: keyof typeof PAYMENT_CONFIGS,
-	customer: PaymentCustomer
-): Promise<PaymentCharge> => {
-	const config = PAYMENT_CONFIGS[type];
-	if (!config) {
-		throw new Error(`Tipo de inscrição inválido: ${type}`);
-	}
-
-	const service = new PaymentService();
-	const chargeData: PaymentChargeData = {
-		correlationID: PaymentService.generateCorrelationID(type),
-		value: config.amount,
-		comment: config.comment,
-		customer: {
-			name: customer.name,
-			email: customer.email,
-			phone: customer.phone || '',
-			taxID: PaymentService.sanitizeCPF(customer.taxID),
-		},
-		additionalInfo: [
-			{ key: 'event', value: 'INTERBØX 2025' },
-			{ key: 'type', value: type },
-			{ key: 'customer_id', value: customer.email },
-		],
-	};
-
-	return service.createCharge(chargeData);
-};
 
 /**
  * Cria charge para produto do catálogo

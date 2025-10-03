@@ -4,99 +4,30 @@
  * Service para envio de emails transacionais via Resend
  * Suporta múltiplos templates e destinatários
  */
-
-// ============================================================================
-// Types & Interfaces
-// ============================================================================
-
-export interface EmailAddress {
-  email: string;
-  name?: string;
-}
-
-export interface OrderEmailData {
-  produto: string;
-  produto_id: string;
-  categoria: string;
-  genero: 'Masculino' | 'Feminino' | 'Unissex';
-  valor: number;
-  cliente: {
-    nome: string;
-    email: string;
-    telefone?: string;
-    cpf?: string;
-  };
-  endereco?: {
-    rua: string;
-    numero: string;
-    complemento?: string;
-    bairro: string;
-    cidade: string;
-    estado: string;
-    cep: string;
-  };
-  tamanho?: string;
-  cor?: string;
-  observacoes?: string;
-  correlationID: string;
-  data_pedido: string;
-}
-
-export interface EmailTemplate {
-  subject: string;
-  html: string;
-  text?: string;
-}
-
-export interface SendEmailOptions {
-  to: EmailAddress | EmailAddress[];
-  from?: EmailAddress;
-  subject: string;
-  html: string;
-  text?: string;
-  cc?: EmailAddress[];
-  bcc?: EmailAddress[];
-  replyTo?: EmailAddress;
-  tags?: Array<{ name: string; value: string }>;
-}
-
-export interface EmailServiceConfig {
-  apiKey: string;
-  defaultFrom: EmailAddress;
-  providers: {
-    resend?: boolean;
-    nodemailer?: boolean;
-  };
-}
-
 // ============================================================================
 // Helper Functions
 // ============================================================================
-
 /**
  * Normaliza string para usar em tags (apenas ASCII, números, underscore, dash)
  */
-const normalizeTagValue = (value: string): string => {
-  return value
-    .normalize('NFD') // Decompor caracteres acentuados
-    .replace(/[\u0300-\u036f]/g, '') // Remover diacríticos
-    .replace(/[^a-zA-Z0-9_-]/g, '_') // Substituir caracteres inválidos por underscore
-    .toLowerCase();
+const normalizeTagValue = (value) => {
+    return value
+        .normalize('NFD') // Decompor caracteres acentuados
+        .replace(/[\u0300-\u036f]/g, '') // Remover diacríticos
+        .replace(/[^a-zA-Z0-9_-]/g, '_') // Substituir caracteres inválidos por underscore
+        .toLowerCase();
 };
-
 // ============================================================================
 // Email Templates
 // ============================================================================
-
 /**
  * Template de email de novo pedido para fornecedor
  */
-export const orderEmailTemplate = (data: OrderEmailData): EmailTemplate => {
-  const valorFormatado = (data.valor / 100).toFixed(2);
-  const dataFormatada = new Date(data.data_pedido).toLocaleString('pt-BR');
-
-  const enderecoHtml = data.endereco
-    ? `
+export const orderEmailTemplate = (data) => {
+    const valorFormatado = (data.valor / 100).toFixed(2);
+    const dataFormatada = new Date(data.data_pedido).toLocaleString('pt-BR');
+    const enderecoHtml = data.endereco
+        ? `
       <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 15px;">
         <h3 style="color: #495057; margin-top: 0;">📍 Endereço de Entrega</h3>
         <p style="margin: 5px 0;">${data.endereco.rua}, ${data.endereco.numero}</p>
@@ -105,9 +36,8 @@ export const orderEmailTemplate = (data: OrderEmailData): EmailTemplate => {
         <p style="margin: 5px 0;">CEP: ${data.endereco.cep}</p>
       </div>
     `
-    : '<p style="color: #dc3545;">⚠️ Endereço não informado</p>';
-
-  const html = `
+        : '<p style="color: #dc3545;">⚠️ Endereço não informado</p>';
+    const html = `
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -219,8 +149,7 @@ export const orderEmailTemplate = (data: OrderEmailData): EmailTemplate => {
 </body>
 </html>
   `;
-
-  const text = `
+    const text = `
 🛍️ NOVO PEDIDO - INTERBØX 2025
 
 ✅ Pagamento confirmado via PIX
@@ -256,125 +185,108 @@ Data: ${dataFormatada}
 INTERBØX 2025
 Acesse o Painel do Fornecedor: https://interbox-captacao.netlify.app/fornecedor
   `;
-
-  return {
-    subject: `🛍️ Novo Pedido: ${data.produto} - R$ ${valorFormatado}`,
-    html,
-    text,
-  };
+    return {
+        subject: `🛍️ Novo Pedido: ${data.produto} - R$ ${valorFormatado}`,
+        html,
+        text,
+    };
 };
-
 // ============================================================================
 // Email Service Class
 // ============================================================================
-
 export class EmailService {
-  private config: EmailServiceConfig;
-
-  constructor(config?: Partial<EmailServiceConfig>) {
-    const env = (import.meta as { env: Record<string, unknown> }).env ?? {};
-    const envApiKey = typeof env.VITE_RESEND_API_KEY === 'string' ? env.VITE_RESEND_API_KEY : undefined;
-    const envDefaultFrom = typeof env.VITE_DEFAULT_FROM === 'string' ? env.VITE_DEFAULT_FROM : undefined;
-    const envNodeEnv = typeof env.MODE === 'string'
-      ? env.MODE
-      : typeof env.VITE_NODE_ENV === 'string'
-        ? env.VITE_NODE_ENV
-        : 'production';
-
-    this.config = {
-    apiKey: config?.apiKey || envApiKey || '',
-    defaultFrom: config?.defaultFrom || {
-    email: envNodeEnv === 'production'
-    ? (envDefaultFrom || 'pedidos@interbox.com.br')
-    : 'onboarding@resend.dev',
-    name: 'INTERBØX 2025',
-    },
-    providers: config?.providers || {
-    resend: true,
-    nodemailer: false,
-    },
-    };
-    
-    if (!this.config.apiKey) {
-    console.warn('⚠️ EmailService: API Key não configurada (use VITE_RESEND_API_KEY)');
+    config;
+    constructor(config) {
+        const env = import.meta.env ?? {};
+        const envApiKey = typeof env.VITE_RESEND_API_KEY === 'string' ? env.VITE_RESEND_API_KEY : undefined;
+        const envDefaultFrom = typeof env.VITE_DEFAULT_FROM === 'string' ? env.VITE_DEFAULT_FROM : undefined;
+        const envNodeEnv = typeof env.MODE === 'string'
+            ? env.MODE
+            : typeof env.VITE_NODE_ENV === 'string'
+                ? env.VITE_NODE_ENV
+                : 'production';
+        this.config = {
+            apiKey: config?.apiKey || envApiKey || '',
+            defaultFrom: config?.defaultFrom || {
+                email: envNodeEnv === 'production'
+                    ? (envDefaultFrom || 'pedidos@interbox.com.br')
+                    : 'onboarding@resend.dev',
+                name: 'INTERBØX 2025',
+            },
+            providers: config?.providers || {
+                resend: true,
+                nodemailer: false,
+            },
+        };
+        if (!this.config.apiKey) {
+            console.warn('⚠️ EmailService: API Key não configurada (use VITE_RESEND_API_KEY)');
+        }
     }
+    /**
+     * Envia email usando Resend API
+     */
+    async sendWithResend(options) {
+        try {
+            const payload = {
+                from: options.from
+                    ? `${options.from.name} <${options.from.email}>`
+                    : `${this.config.defaultFrom.name} <${this.config.defaultFrom.email}>`,
+                to: Array.isArray(options.to)
+                    ? options.to.map((addr) => (addr.name ? `${addr.name} <${addr.email}>` : addr.email))
+                    : options.to.name
+                        ? `${options.to.name} <${options.to.email}>`
+                        : options.to.email,
+                subject: options.subject,
+                html: options.html,
+                text: options.text,
+                cc: options.cc?.map((addr) => (addr.name ? `${addr.name} <${addr.email}>` : addr.email)),
+                bcc: options.bcc?.map((addr) => (addr.name ? `${addr.name} <${addr.email}>` : addr.email)),
+                reply_to: options.replyTo
+                    ? options.replyTo.name
+                        ? `${options.replyTo.name} <${options.replyTo.email}>`
+                        : options.replyTo.email
+                    : undefined,
+                tags: options.tags,
+            };
+            console.log('📧 Enviando email via Resend:', { from: payload.from, to: payload.to, subject: payload.subject });
+            const response = await fetch('https://api.resend.com/emails', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${this.config.apiKey}`,
+                },
+                body: JSON.stringify(payload),
+            });
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Resend API Error: ${response.status} - ${errorText}`);
+            }
+            const data = await response.json();
+            return { success: true, id: data.id };
+        }
+        catch (error) {
+            console.error('❌ Erro ao enviar email via Resend:', error);
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : String(error),
+            };
+        }
     }
-
-  /**
-   * Envia email usando Resend API
+    /**
+     * Envia email genérico
+     */
+    async send(options) {
+        if (this.config.providers.resend) {
+            return this.sendWithResend(options);
+        }
+        throw new Error('Nenhum provider de email configurado');
+    }
+    /**
+   * Envia email de novo pedido para fornecedor
    */
-  async sendWithResend(options: SendEmailOptions): Promise<{ success: boolean; id?: string; error?: string }> {
-    try {
-      const payload = {
-        from: options.from
-          ? `${options.from.name} <${options.from.email}>`
-          : `${this.config.defaultFrom.name} <${this.config.defaultFrom.email}>`,
-        to: Array.isArray(options.to)
-          ? options.to.map((addr) => (addr.name ? `${addr.name} <${addr.email}>` : addr.email))
-          : options.to.name
-          ? `${options.to.name} <${options.to.email}>`
-          : options.to.email,
-        subject: options.subject,
-        html: options.html,
-        text: options.text,
-        cc: options.cc?.map((addr) => (addr.name ? `${addr.name} <${addr.email}>` : addr.email)),
-        bcc: options.bcc?.map((addr) => (addr.name ? `${addr.name} <${addr.email}>` : addr.email)),
-        reply_to: options.replyTo
-          ? options.replyTo.name
-            ? `${options.replyTo.name} <${options.replyTo.email}>`
-            : options.replyTo.email
-          : undefined,
-        tags: options.tags,
-      };
-
-      console.log('📧 Enviando email via Resend:', { from: payload.from, to: payload.to, subject: payload.subject });
-
-      const response = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${this.config.apiKey}`,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Resend API Error: ${response.status} - ${errorText}`);
-      }
-
-      const data = await response.json();
-      return { success: true, id: data.id };
-    } catch (error) {
-      console.error('❌ Erro ao enviar email via Resend:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : String(error),
-      };
-    }
-  }
-
-  /**
-   * Envia email genérico
-   */
-  async send(options: SendEmailOptions): Promise<{ success: boolean; id?: string; error?: string }> {
-    if (this.config.providers.resend) {
-      return this.sendWithResend(options);
-    }
-
-    throw new Error('Nenhum provider de email configurado');
-  }
-
-  /**
- * Envia email de novo pedido para fornecedor
- */
-async sendOrderEmail(
-  orderData: OrderEmailData,
-  supplierEmail: string = 'contatoplayk@gmail.com'
-): Promise<{ success: boolean; id?: string; error?: string }> {
-  const valorFormatado = (orderData.valor / 100).toFixed(2);
-
-  const html = `
+    async sendOrderEmail(orderData, supplierEmail = 'contatoplayk@gmail.com') {
+        const valorFormatado = (orderData.valor / 100).toFixed(2);
+        const html = `
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -418,39 +330,32 @@ async sendOrderEmail(
 </body>
 </html>
 `;
-
-  return this.send({
-    to: { email: supplierEmail }, // Sem nome em modo teste
-    subject: `📥 Novo Pedido Recebido - ${orderData.produto}`,
-    html,
-    tags: [
-      { name: 'type', value: 'order' },
-      { name: 'supplier', value: 'playk' },
-      { name: 'product', value: normalizeTagValue(orderData.produto_id) },
-      { name: 'category', value: normalizeTagValue(orderData.genero) },
-    ],
-  });
+        return this.send({
+            to: { email: supplierEmail }, // Sem nome em modo teste
+            subject: `📥 Novo Pedido Recebido - ${orderData.produto}`,
+            html,
+            tags: [
+                { name: 'type', value: 'order' },
+                { name: 'supplier', value: 'playk' },
+                { name: 'product', value: normalizeTagValue(orderData.produto_id) },
+                { name: 'category', value: normalizeTagValue(orderData.genero) },
+            ],
+        });
+    }
 }
-}
-
 // ============================================================================
 // Helper Functions
 // ============================================================================
-
 /**
  * Cria instância do EmailService com configuração padrão
  */
-export const createEmailService = (config?: Partial<EmailServiceConfig>): EmailService => {
-  return new EmailService(config);
+export const createEmailService = (config) => {
+    return new EmailService(config);
 };
-
 /**
  * Helper para envio rápido de email de pedido
  */
-export const sendOrderNotification = async (
-  orderData: OrderEmailData,
-  supplierEmail: string = 'contatoplayk@gmail.com'
-): Promise<{ success: boolean; id?: string; error?: string }> => {
-  const emailService = createEmailService();
-  return emailService.sendOrderEmail(orderData, supplierEmail);
+export const sendOrderNotification = async (orderData, supplierEmail = 'contatoplayk@gmail.com') => {
+    const emailService = createEmailService();
+    return emailService.sendOrderEmail(orderData, supplierEmail);
 };

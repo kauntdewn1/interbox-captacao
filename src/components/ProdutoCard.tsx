@@ -190,22 +190,26 @@ export default function ProdutoCard({ produto, onViewDetails }: Props): ReactEle
         {/* Colors */}
         <div className="mb-3">
           <div className="text-gray-300 text-sm mb-2">Cores:</div>
-          <div className="flex gap-2">
+          <div className="flex gap-4 flex-wrap">
             {produto.cores.slice(0, 3).map((cor) => (
-              <button
-                key={cor.nome}
-                onClick={() => setCorSelecionada(cor)}
-                className={`w-8 h-8 rounded-full border-2 transition-all ${
-                  corSelecionada?.nome === cor.nome
-                    ? 'border-white scale-110'
-                    : 'border-gray-400 hover:border-white'
-                }`}
-                style={{ backgroundColor: cor.hex }}
-                title={cor.nome}
-              />
+              <div key={cor.nome} className="flex flex-col items-center gap-1 w-9">
+                <button
+                  onClick={() => setCorSelecionada(cor)}
+                  className={`w-9 h-9 rounded-full border-2 transition-all ${
+                    corSelecionada?.nome === cor.nome
+                      ? 'border-white scale-110'
+                      : 'border-gray-400 hover:border-white'
+                  }`}
+                  style={{ backgroundColor: cor.hex }}
+                  title={cor.nome}
+                />
+                <span className={`text-[10px] text-center leading-tight ${corSelecionada?.nome === cor.nome ? 'text-white font-medium' : 'text-gray-300'}`}>
+                  {cor.nome}
+                </span>
+              </div>
             ))}
             {produto.cores.length > 3 && (
-              <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-white text-xs">
+              <div className="w-9 h-9 rounded-full bg-gray-600 flex items-center justify-center text-white text-xs">
                 +{produto.cores.length - 3}
               </div>
             )}

@@ -75,21 +75,21 @@ export interface PixTransferRequest {
  */
 export const DEFAULT_SPLIT_RULES: Record<string, SplitRule[]> = {
   playk: [
-    {
-      percentage: 10,
-      recipient: 'FlowPay',
-      pixKey: process.env.FLOWPAY_PIX_KEY || '',
-      description: 'Comissão FlowPay',
-    },
-    {
-      percentage: 90,
-      recipient: 'PlayK',
-      pixKey: '34886756000100',
-      cnpj: '34.886.756/0001-00',
-      description: 'Repasse Fornecedor PlayK',
-    },
+  {
+  percentage: 10,
+  recipient: 'FlowPay',
+  pixKey: (import.meta as { env?: Record<string, unknown> }).env?.VITE_FLOWPAY_PIX_KEY as string || '',
+  description: 'Comissão FlowPay',
+  },
+  {
+  percentage: 90,
+  recipient: 'PlayK',
+  pixKey: '34886756000100',
+  cnpj: '34.886.756/0001-00',
+  description: 'Repasse Fornecedor PlayK',
+  },
   ],
-};
+  };
 
 // ============================================================================
 // Payment Split Service Class
@@ -100,8 +100,11 @@ export class PaymentSplitService {
   private apiKey: string;
 
   constructor(config?: { apiUrl?: string; apiKey?: string }) {
-    this.apiUrl = config?.apiUrl || process.env.OPENPIX_API_URL || 'https://api.woovi.com';
-    this.apiKey = config?.apiKey || process.env.OPENPIX_API_KEY || '';
+    const envApiUrl = (import.meta as { env?: Record<string, unknown> }).env?.VITE_OPENPIX_API_URL as string | undefined;
+    const envApiKey = (import.meta as { env?: Record<string, unknown> }).env?.VITE_OPENPIX_API_KEY as string | undefined;
+
+    this.apiUrl = config?.apiUrl ?? envApiUrl ?? 'https://api.woovi.com';
+    this.apiKey = config?.apiKey ?? envApiKey ?? '';
 
     if (!this.apiKey) {
       console.warn('⚠️ PaymentSplitService: API Key não configurada');
@@ -331,10 +334,10 @@ export class PaymentSplitService {
    */
   async logSplitTransaction(splitResult: SplitResult, orderData?: Record<string, unknown>): Promise<void> {
     try {
-      const { createStorage } = await import('../utils/storage.ts');
+      const { createStorage } = await import('../utils/storage');
       const storage = await createStorage();
 
-      const splits = (await storage.read('splits.json')) || [];
+      const splits = (await storage.read('splits.json')) ?? [];
       const splitRecord = {
         id: `split_${Date.now()}`,
         timestamp: new Date().toISOString(),

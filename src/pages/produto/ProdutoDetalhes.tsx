@@ -424,32 +424,36 @@ export default function ProdutoDetalhes() {
               {/* Seleção de Cores */}
               <div>
                 <div className="text-gray-300 text-lg mb-3">Cores:</div>
-                <div className="flex gap-3">
+                <div className="flex gap-4 flex-wrap">
                   {produto.cores.map((cor) => {
                     const estoqueCor = getEstoquePorCor(produto, cor.nome);
                     const disponivel = estoqueCor > 0;
                     
                     return (
-                      <button
-                        key={cor.nome}
-                        onClick={() => disponivel && setCorSelecionada(cor)}
-                        disabled={!disponivel}
-                        className={`w-12 h-12 rounded-full border-2 transition-all relative ${
-                          corSelecionada?.nome === cor.nome 
-                            ? 'border-white scale-110' 
-                            : disponivel 
-                              ? 'border-gray-400 hover:border-white' 
-                              : 'border-gray-600 opacity-50 cursor-not-allowed'
-                        }`}
-                        style={{ backgroundColor: cor.hex }}
-                        title={`${cor.nome}${disponivel ? ` (${estoqueCor} unidades)` : ' (Fora de estoque)'}`}
-                      >
-                        {!disponivel && (
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <span className="text-xs text-gray-600 font-bold">✗</span>
-                          </div>
-                        )}
-                      </button>
+                      <div key={cor.nome} className="flex flex-col items-center gap-1 w-12">
+                        <button
+                          onClick={() => disponivel && setCorSelecionada(cor)}
+                          disabled={!disponivel}
+                          className={`w-12 h-12 rounded-full border-2 transition-all relative ${
+                            corSelecionada?.nome === cor.nome 
+                              ? 'border-white scale-110' 
+                              : disponivel 
+                                ? 'border-gray-400 hover:border-white' 
+                                : 'border-gray-600 opacity-50 cursor-not-allowed'
+                          }`}
+                          style={{ backgroundColor: cor.hex }}
+                          title={`${cor.nome}${disponivel ? ` (${estoqueCor} unidades)` : ' (Fora de estoque)'}`}
+                        >
+                          {!disponivel && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <span className="text-xs text-gray-600 font-bold">✗</span>
+                            </div>
+                          )}
+                        </button>
+                        <span className={`text-xs text-center leading-tight ${corSelecionada?.nome === cor.nome ? 'text-white font-medium' : 'text-gray-300'}`}>
+                          {cor.nome}
+                        </span>
+                      </div>
                     );
                   })}
                 </div>

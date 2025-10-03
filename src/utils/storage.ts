@@ -1,232 +1,134 @@
 /**
- * Storage Adapter - Único gateway de leitura/escrita
+ * Storage Adapter - Gateway de leitura/escrita adaptado
  * Suporta Netlify Blobs (produção) e File System (desenvolvimento)
- * Zero lock-in, controle total, arquitetura descentralizada
  */
 
+import * as fs from 'fs';
 import * as path from 'path';
-import * as fs from 'node:fs';
 
 const projectRootDirectory = process.cwd();
 
-// ============================================================================
-// Types & Interfaces
-// ============================================================================
-
 export interface StorageItem {
-	id: string;
-	[key: string]: unknown;
+  id: string;
+  [key: string]: unknown;
 }
 
 export interface StorageAdapter {
-	read: (file: string) => Promise<unknown[]>;
-	write: (file: string, data: unknown[]) => Promise<void>;
-	append: (file: string, item: StorageItem) => Promise<void>;
-	exists: (file: string) => Promise<boolean>;
+  read(file: string): Promise<unknown[]>;
+  write(file: string, data: unknown[]): Promise<void>;
+  append(file: string, item: StorageItem): Promise<void>;
+  exists(file: string): Promise<boolean>;
 }
 
-// ============================================================================
-// Storage Implementations
-// ============================================================================
-
 class FileSystemStorage implements StorageAdapter {
-	private _dataPath: string;
+  private _dataPath = path.resolve(projectRootDirectory, 'data');
 
-	constructor() {
-		this._dataPath = path.resolve(projectRootDirectory, 'data');
-	}
+  async read(file: string): Promise<unknown[]> {
+    const filePath = path.join(this._dataPath, file);
+    if (!fs.existsSync(filePath)) return [];
+    try {
+      const data = fs.readFileSync(filePath, 'utf-8');
+      return JSON.parse(data);
+    } catch (err) {
+      console.error(`Erro ao ler ${filePath}`, err);
+      return [];
+    }
+  }
 
-	get dataPath(): string {
-		return this._dataPath;
-	}
+  async write(file: string, data: unknown[]): Promise<void> {
+    const filePath = path.join(this._dataPath, file);
+    fs.mkdirSync(path.dirname(filePath), { recursive: true });
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+  }
 
-	set dataPath(value: string) {
-		this._dataPath = value;
-	}
+  async append(file: string, item: StorageItem): Promise<void> {
+    const current = await this.read(file);
+    current.push(item);
+    await this.write(file, current);
+  }
 
-	async read(file: string): Promise<unknown[]> {
-		try {
-			const filePath = path.join(this._dataPath, file);
-			if (!fs.existsSync(filePath)) {
-				return [];
-			}
-			const data = fs.readFileSync(filePath, 'utf-8');
-			return JSON.parse(data);
-		} catch (error) {
-			console.error(`Erro ao ler arquivo ${file}:`, error);
-			return [];
-		}
-	}
-
-	async write(file: string, data: unknown[]): Promise<void> {
-		try {
-			const filePath = path.join(this._dataPath, file);
-			const dirPath = path.dirname(filePath);
-			if (!fs.existsSync(dirPath)) {
-				fs.mkdirSync(dirPath, { recursive: true });
-			}
-			fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
-		} catch (error) {
-			console.error(`Erro ao escrever arquivo ${file}:`, error);
-			throw error;
-		}
-	}
-
-	async append(file: string, item: StorageItem): Promise<void> {
-		try {
-			const existingData = await this.read(file);
-			existingData.push(item);
-			await this.write(file, existingData);
-		} catch (error) {
-			console.error(`Erro ao adicionar item ao arquivo ${file}:`, error);
-			throw error;
-		}
-	}
-
-	async exists(file: string): Promise<boolean> {
-		const filePath = path.join(this._dataPath, file);
-		return fs.existsSync(filePath);
-	}
+  async exists(file: string): Promise<boolean> {
+    return fs.existsSync(path.join(this._dataPath, file));
+  }
 }
 
 class NetlifyBlobsStorage implements StorageAdapter {
-	private readonly baseUrl: string;
+  private readonly baseUrl: string =
+    typeof window !== 'undefined' && typeof (window as unknown as { NETLIFY_BLOBS_URL?: string }).NETLIFY_BLOBS_URL === 'string'
+      ? (window as unknown as { NETLIFY_BLOBS_URL: string }).NETLIFY_BLOBS_URL
+      : '/.netlify/blobs';
 
-	constructor() {
-		this.baseUrl = process.env.NETLIFY_BLOBS_URL || '/.netlify/blobs';
-	}
+  async read(file: string): Promise<unknown[]> {
+    try {
+      const res = await fetch(`${this.baseUrl}/${file}`);
+      if (!res.ok) return res.status === 404 ? [] : Promise.reject(res.statusText);
+      const json = await res.json();
+      return Array.isArray(json) ? json : [];
+    } catch (err) {
+      console.error(`Erro ao ler ${file}`, err);
+      return [];
+    }
+  }
 
-	async read(file: string): Promise<unknown[]> {
-		try {
-			const response = await fetch(`${this.baseUrl}/${file}`);
-			if (!response.ok) {
-				if (response.status === 404) {
-					return [];
-				}
-				throw new Error(`Erro ao ler blob ${file}: ${response.status}`);
-			}
-			const data = await response.json();
-			return Array.isArray(data) ? data : [];
-		} catch (error) {
-			console.error(`Erro ao ler blob ${file}:`, error);
-			return [];
-		}
-	}
+  async write(file: string, data: unknown[]): Promise<void> {
+    const res = await fetch(`${this.baseUrl}/${file}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error(`Erro ao escrever ${file}: ${res.statusText}`);
+  }
 
-	async write(file: string, data: unknown[]): Promise<void> {
-		try {
-			const response = await fetch(`${this.baseUrl}/${file}`, {
-				method: 'PUT',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(data),
-			});
-			if (!response.ok) {
-				throw new Error(`Erro ao escrever blob ${file}: ${response.status}`);
-			}
-		} catch (error) {
-			console.error(`Erro ao escrever blob ${file}:`, error);
-			throw error;
-		}
-	}
+  async append(file: string, item: StorageItem): Promise<void> {
+    const current = await this.read(file);
+    current.push(item);
+    await this.write(file, current);
+  }
 
-	async append(file: string, item: StorageItem): Promise<void> {
-		try {
-			const existingData = await this.read(file);
-			existingData.push(item);
-			await this.write(file, existingData);
-		} catch (error) {
-			console.error(`Erro ao adicionar item ao blob ${file}:`, error);
-			throw error;
-		}
-	}
-
-	async exists(file: string): Promise<boolean> {
-		try {
-			const response = await fetch(`${this.baseUrl}/${file}`, { method: 'HEAD' });
-			return response.ok;
-		} catch {
-			return false;
-		}
-	}
+  async exists(file: string): Promise<boolean> {
+    try {
+      const res = await fetch(`${this.baseUrl}/${file}`, { method: 'HEAD' });
+      return res.ok;
+    } catch {
+      return false;
+    }
+  }
 }
 
-// ============================================================================
-// Factory
-// ============================================================================
-
-/**
- * Factory function - Retorna o adapter correto baseado no ambiente
- */
 export const createStorage = (): StorageAdapter => {
-	const isProduction = process.env.NODE_ENV === 'production';
-	const useBlobs = process.env.USE_NETLIFY_BLOBS === 'true';
-
-	if (isProduction && useBlobs) {
-		console.log('🗄️ Usando Netlify Blobs Storage');
-		return new NetlifyBlobsStorage();
-	} else {
-		console.log('📁 Usando File System Storage');
-		return new FileSystemStorage();
-	}
+  const isProd = import.meta.env.VITE_NODE_ENV === 'production';
+  const useBlobs = import.meta.env.USE_NETLIFY_BLOBS === 'true';
+  return isProd && useBlobs ? new NetlifyBlobsStorage() : new FileSystemStorage();
 };
 
-// ============================================================================
-// Validation Utilities
-// ============================================================================
-
 export const validateOrder = (order: unknown): boolean => {
-	if (typeof order !== 'object' || order === null) return false;
-
-	const orderObj = order as Record<string, unknown>;
-	return !!(
-		orderObj.produto_id &&
-		orderObj.cliente_email &&
-		orderObj.cor &&
-		orderObj.tamanho &&
-		orderObj.valor &&
-		typeof orderObj.valor === 'number' &&
-		(orderObj.valor as number) > 0
-	);
+  const o = order as Record<string, unknown>;
+  return (
+    !!o?.produto_id &&
+    !!o?.cliente_email &&
+    !!o?.cor &&
+    !!o?.tamanho &&
+    typeof o?.valor === 'number' &&
+    o.valor > 0
+  );
 };
 
 export const validateReview = (review: unknown): boolean => {
-	if (typeof review !== 'object' || review === null) return false;
-
-	const reviewObj = review as Record<string, unknown>;
-	return !!(
-		reviewObj.produto_id &&
-		reviewObj.nota &&
-		reviewObj.cliente_email &&
-		typeof reviewObj.nota === 'number' &&
-		(reviewObj.nota as number) >= 1 &&
-		(reviewObj.nota as number) <= 5
-	);
+  const r = review as Record<string, unknown>;
+  return (
+    !!r?.produto_id &&
+    typeof r?.nota === 'number' &&
+    r.nota >= 1 &&
+    r.nota <= 5 &&
+    !!r?.cliente_email
+  );
 };
 
-// ============================================================================
-// ID & Data Sanitization Utilities
-// ============================================================================
+export const generateId = (prefix: string): string =>
+  `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
 
-/**
- * Gerador de IDs únicos com prefix + timestamp + token aleatório
- */
-export const generateId = (prefix: string): string => {
-	const randomToken = Math.random().toString(36).slice(2, 9);
-	return `${prefix}_${Date.now()}_${randomToken}`;
-};
+export const sanitizeEmail = (email?: string | null): string =>
+  String(email ?? '').toLowerCase().trim();
 
-/**
- * Sanitiza email para lowercase e remove espaços
- * Aceita valores null/undefined e retorna string vazia
- */
-export const sanitizeEmail = (email?: string | null): string => {
-	return String(email ?? '').toLowerCase().trim();
-};
-
-/**
- * Sanitiza string genérica com limite de 1000 caracteres
- * Aceita valores null/undefined e retorna string vazia
- */
-export const sanitizeString = (str?: string | null): string => {
-	return String(str ?? '').trim().substring(0, 1000);
-};
+export const sanitizeString = (str?: string | null): string =>
+  String(str ?? '').trim().slice(0, 1000);

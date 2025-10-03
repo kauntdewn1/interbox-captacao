@@ -148,6 +148,7 @@ export const handler = withCors(async (event) => {
 ```
 
 **Benefícios:**
+
 - ✅ Responsabilidades separadas
 - ✅ Fácil de testar cada service
 - ✅ Código reutilizável
